@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+.DS_Store
+*.log
+.vercel
+.next
+.turbo
+
+# Claude Code worktrees (per-checkout, never share)
+.claude/
