@@ -1,0 +1,32 @@
+{
+  "name": "pscale-biome",
+  "version": "0.0.1",
+  "description": "Experimental — biome unification of pscale node concerns into one self-unfolding package. NOT production.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@upstash/redis": "^1.34.0",
+    "hash-wasm": "^4.12.0",
+    "tweetnacl": "^1.0.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "_notes": [
+    "Dep set is the union of bsp-mcp-server's substrate deps (sdk, hash-wasm, tweetnacl, zod) plus pscale-beach's storage dep (@upstash/redis) plus Claude API.",
+    "xstream's React/Vite/shadcn dependencies are NOT included yet. Add them when the visible interface gets wired — that is one of the unfolding decisions, not a default.",
+    "Build target deferred. tsc --noEmit just typechecks; no actual compile output is committed to."
+  ]
+}
