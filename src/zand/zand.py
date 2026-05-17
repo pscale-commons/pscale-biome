@@ -76,6 +76,11 @@ import re
 import sys
 
 
+__version__ = "zand-alpha-1"
+__author__ = "claude/canonical"
+__spec__ = "ztone (sunztone + whetztone)"
+
+
 class InvalidAddressError(ValueError):
     """Raised when a pscale address violates canonical form."""
 
