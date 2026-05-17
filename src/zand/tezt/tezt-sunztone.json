@@ -1,0 +1,48 @@
+{
+  "0": "TEZT-SUNZTONE — battery 4, exercises zand against the sunztone teaching block itself (floor 1, 10 top-level branches, branch 3,3 subnested). Demonstrates the reflexive property: sunztone is walkable via the function it teaches. Tests cover whole-block, spindles at depths 1–4, disc at the floor, ring at the floor, directory, and a point at a known address. Run via run-tezt.py.",
+  "1": {
+    "0": "Whole-block read of sunztone. Mode=whole, floor=1.",
+    "1": "zand(block=sunztone)",
+    "2": "Returns the full sunztone tree. Contains all 9 named branch voicings: Presence, Geometry, Number, Function, Voicing, Growth, Composition, Substrate, Design, plus the root teaching."
+  },
+  "2": {
+    "0": "Spindle to a top-level branch. '4' walks digit 4 — the Function branch. Spindle has 2 entries: root (top teaching voicing) and root[4] (Function voicing collected via zero-spine).",
+    "1": "zand(block=sunztone, number='4')",
+    "2": "Mode=spindle, address='4', 2 entries, all voiced. Last entry mentions 'Function. ZAND has signature'."
+  },
+  "3": {
+    "0": "Spindle to a depth-2 leaf. '5.1' walks 5,1 — the 0+ deductive voicing form. Spindle has 3 entries.",
+    "1": "zand(block=sunztone, number='5.1')",
+    "2": "Mode=spindle, address='5.1', 3 entries, all voiced. Last entry mentions '0+ deductive'."
+  },
+  "4": {
+    "0": "Spindle into a subnested branch. '3.31' walks 3,3,1 — the standard-form reading sub-branch (subnested in this conversation's edits). Spindle has 4 entries, all voiced.",
+    "1": "zand(block=sunztone, number='3.31')",
+    "2": "Mode=spindle, address='3.31', 4 entries. Last entry mentions 'Standard-form reading'."
+  },
+  "5": {
+    "0": "Spindle into a sub-sub-branch. '3.311' walks 3,3,1,1 — the worked example '100' on floor 3. Spindle has 5 entries.",
+    "1": "zand(block=sunztone, number='3.311')",
+    "2": "Mode=spindle, 5 entries. Last entry mentions \"Worked example: '100'\" and 'floor-3 block'."
+  },
+  "6": {
+    "0": "Disc at the floor (pscale 0, depth 1). Returns all 10 top-level digit children of root, including digit 0 (the floor voicing) and digits 1–9 (the nine teaching branches).",
+    "1": "zand(block=sunztone, attention=0)",
+    "2": "Mode=disc, pscale=0, 10 nodes. Names present: Sunztone (root voicing at digit 0), Presence, Geometry, Number, Function, Voicing, Growth, Composition, Substrate, Design."
+  },
+  "7": {
+    "0": "Ring at the floor along a sub-floor spindle. '4.1' walks 4,1 (terminus pscale −1); attention=0 means ring at depth 1 = root's children = 10 siblings; the walked sibling is '4'.",
+    "1": "zand(block=sunztone, number='4.1', attention=0)",
+    "2": "Mode=ring, pscale=0, 10 siblings. Sibling '4' is_walked. All 10 digits 0–9 enumerated; their voicings together span Sunztone, Presence, Geometry, Number, Function, Voicing, Growth, Composition, Substrate, Design."
+  },
+  "8": {
+    "0": "Directory from a top-level branch. '3' walks to root[3] (Number); attention=−1 descends one level below terminus. Returns the subtree at root[3] with its sub-branches (including subnested 3,3 collapsed to its voicing at the level boundary).",
+    "1": "zand(block=sunztone, number='3', attention=-1)",
+    "2": "Mode=directory, subtree rooted at the Number branch. Six keys: 0 (Number voicing), 1 (decimal anchor), 2 (floor discovery), 3 (Address forms voicing — subnested branch collapsed), 4 (walk-with-empty), 5 (validation)."
+  },
+  "9": {
+    "0": "Point at a known position. '5.1' with attention=−1 (terminus pscale) returns the 0+ deductive voicing.",
+    "1": "zand(block=sunztone, number='5.1', attention=-1)",
+    "2": "Mode=point, pscale=−1, status=voiced, text begins '0+ deductive'."
+  }
+}

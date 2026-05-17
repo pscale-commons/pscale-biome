@@ -1,0 +1,30 @@
+{
+  "0": {
+    "0": {
+      "0": "floor voicing (zeroth at p0)",
+      "2": "second at p0 (leaf)",
+      "5": {
+        "0": "fifth at p0 (branch voicing)",
+        "1": "first at p-1 under 5,",
+        "7": "seventh at p-1 under 5,"
+      },
+      "6": {
+        "1": "first at p-1 under headless 6,"
+      },
+      "8": "eighth at p0 (leaf)"
+    },
+    "3": {
+      "0": "third at p1 (branch voicing)",
+      "2": {
+        "0": "second at p0 under 3, (branch voicing)",
+        "4": "fourth at p-1 under 32,",
+        "6": {
+          "0": "sixth at p-1 under 32, (branch voicing)",
+          "1": "first at p-2 under 326,"
+        }
+      },
+      "9": "ninth at p0 under 3, (leaf)"
+    },
+    "7": "seventh at p1 (leaf)"
+  }
+}

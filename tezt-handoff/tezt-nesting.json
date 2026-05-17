@@ -1,0 +1,48 @@
+{
+  "0": "TEZT-NESTING — battery 7, structural preservation under subnesting and supernesting. Subnesting lifts a leaf string into an object {0: original-string, ...new-children}; the original semantic is preserved as the new branch's zero-text, so any prior address reading that position still returns the same content. Supernesting wraps the entire block under a new outer zero-spine level; floor depth grows by one and dotted addresses survive via floor-aware padding. Uses subnest-before/after.json and super-before/after.json fixtures. Run via run-tezt.py.",
+  "1": {
+    "0": "Subnest-before: leaf at address '1' reads 'branch one leaf' on the original block.",
+    "1": "zand(block=subnest-before, number='1')",
+    "2": "Mode=spindle, last entry text='branch one leaf'. Floor=1, walk length 1."
+  },
+  "2": {
+    "0": "Subnest-after: '1' is now a branch (object with [0]='branch one leaf' and a new digit [3]). Address '1' reads via zero-spine and returns 'branch one leaf' — UNCHANGED, the lift preserves the original semantic.",
+    "1": "zand(block=subnest-after, number='1')",
+    "2": "Mode=spindle, last entry text='branch one leaf' (collected via zero-spine of new branch). SAME as test 1 — preservation under subnesting."
+  },
+  "3": {
+    "0": "Subnest-after: new content at '1.3' is reachable. Address '1.3' walks 1,3 → 'new content at 1,3'.",
+    "1": "zand(block=subnest-after, number='1.3')",
+    "2": "Mode=spindle, last entry text='new content at 1,3'. New content lives at the address the subnest opened up."
+  },
+  "4": {
+    "0": "Subnest-after: sibling '5' is unaffected. The lift is local to position '1'.",
+    "1": "zand(block=subnest-after, number='5')",
+    "2": "Mode=spindle, last entry text='branch five leaf'. Identical to its reading on subnest-before."
+  },
+  "5": {
+    "0": "Super-before: address '1.' on floor-1 block walks 1 → 'POSITION ONE', terminus pscale 0.",
+    "1": "zand(block=super-before, number='1.')",
+    "2": "Mode=spindle, 2 entries, terminus pscale 0, last entry text='POSITION ONE'."
+  },
+  "6": {
+    "0": "Super-after: same dotted address '1.' on the supernested floor-2 block walks 0,1 — pad-left adds the zero-spine descent. Terminus pscale 0 (SAME); content (SAME) 'POSITION ONE'.",
+    "1": "zand(block=super-after, number='1.')",
+    "2": "Mode=spindle, 3 entries (one more entry because of the supernest spine), terminus pscale 0, last entry text='POSITION ONE'. SAME terminus pscale and content as test 5 — supernest invariance."
+  },
+  "7": {
+    "0": "Super-before: disc at the floor (pscale 0, depth 1) yields 3 positions.",
+    "1": "zand(block=super-before, attention=0)",
+    "2": "Mode=disc, pscale=0, 3 nodes: 0 (root voicing), 1 (POSITION ONE), 5 (POSITION FIVE)."
+  },
+  "8": {
+    "0": "Super-after: disc at the floor (pscale 0, now depth 2) yields the SAME 3 positions semantically — same content set, just at deeper JSON depth.",
+    "1": "zand(block=super-after, attention=0)",
+    "2": "Mode=disc, pscale=0, 3 nodes: same content as test 7 (root voicing, POSITION ONE, POSITION FIVE)."
+  },
+  "9": {
+    "0": "Subnest-after disc at the floor: still 3 positions at depth 1. The subnested branch [1] is enumerated as a branch (voiced via zero-spine 'branch one leaf'). The new content at depth 2 is NOT counted in this disc — it sits one level deeper.",
+    "1": "zand(block=subnest-after, attention=0)",
+    "2": "Mode=disc, pscale=0, 3 nodes: root voicing, 'branch one leaf' (via zero-spine of subnested [1]), 'branch five leaf'."
+  }
+}

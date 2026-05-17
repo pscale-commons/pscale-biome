@@ -1,0 +1,48 @@
+{
+  "0": "TEZT-STAR — battery 5, reference resolution via star=True. Fixture test-refs.json contains leaf strings that match the reference syntax (name, name:address, name:address:attention) plus controls (plain text, unresolvable name). The block_loader resolves 'other' to test-other.json. Each test reads a point and observes either the verbatim leaf (star=False) or the resolved value (star=True). Run via run-tezt.py.",
+  "1": {
+    "0": "Control: star=False. Reference leaf at '1' returns verbatim 'other' — no resolution.",
+    "1": "zand(block=test-refs, number='1', attention=0)",
+    "2": "Mode=point, text='other' (the literal leaf string). No resolution attempted."
+  },
+  "2": {
+    "0": "Star=True at bare name. Leaf 'other' resolves via block_loader to the whole 'other' block — zand(other_block, number=None) returns mode=whole.",
+    "1": "zand(block=test-refs, number='1', attention=0, star=True)",
+    "2": "Mode=point, text=nested zand result with mode=whole. Contains 'OTHER ROOT', 'first leaf of other', 'second branch voicing'."
+  },
+  "3": {
+    "0": "Star=True at name:address. Leaf 'other:1' resolves to zand(other_block, '1') — spindle default (no attention in the reference).",
+    "1": "zand(block=test-refs, number='2', attention=0, star=True)",
+    "2": "Mode=point, text=nested zand spindle from other:1. Contains 'first leaf of other'."
+  },
+  "4": {
+    "0": "Star=True at name:address:attention=point. Leaf 'other:1:0' resolves to zand(other_block, '1', attention=0) — point at other's first leaf.",
+    "1": "zand(block=test-refs, number='4', attention=0, star=True)",
+    "2": "Mode=point, text=nested zand point. Contains 'first leaf of other'."
+  },
+  "5": {
+    "0": "Star=True resolves to a branch via zero-text. Leaf 'other:2:0' returns point at other's second branch (voiced via zero-spine).",
+    "1": "zand(block=test-refs, number='5', attention=0, star=True)",
+    "2": "Mode=point, text=nested zand point with text 'second branch voicing of other'."
+  },
+  "6": {
+    "0": "Star=True resolves to a directory. Leaf 'other:2:-1' returns zand(other_block, '2', attention=-1) — directory descending one level from other's branch 2.",
+    "1": "zand(block=test-refs, number='6', attention=0, star=True)",
+    "2": "Mode=point, text=nested zand directory. Subtree contains 'second branch voicing of other' (at 0) and 'deep leaf at other:2,3' (at 3)."
+  },
+  "7": {
+    "0": "Star=True on non-reference leaf. 'just plain text, no reference' doesn't match reference syntax — returned verbatim.",
+    "1": "zand(block=test-refs, number='7', attention=0, star=True)",
+    "2": "Mode=point, text='just plain text, no reference' (unchanged)."
+  },
+  "8": {
+    "0": "Star=True on unresolvable reference. 'nonexistent:1' parses as a reference but block_loader returns None — reference returned verbatim.",
+    "1": "zand(block=test-refs, number='8', attention=0, star=True)",
+    "2": "Mode=point, text='nonexistent:1' (unchanged because target block unloadable)."
+  },
+  "9": {
+    "0": "Control: star=False on plain text. Confirms star defaults to False and doesn't interfere with non-reference leaves.",
+    "1": "zand(block=test-refs, number='7', attention=0)",
+    "2": "Mode=point, text='just plain text, no reference'. Same as test 7 — star=True or =False has no effect on non-references."
+  }
+}

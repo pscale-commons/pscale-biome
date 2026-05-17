@@ -1,0 +1,48 @@
+{
+  "0": "TEZT-EDGE — battery 3, error cases and boundary conditions against test-spatial-floor3 (floor 3). Tests parser rejection (InvalidAddressError) and well-defined edge behaviour (off-spindle attentions, absent walks, empty address, integer input). Errors come back as mode='error' with a message; edges return their normal shape with degenerate content (empty disc, empty ring, absent entries). Run via run-tezt.py.",
+  "1": {
+    "0": "Multi-decimal rejection. '1.2.3' has two decimal points; parser raises InvalidAddressError immediately.",
+    "1": "zand(block=test-spatial-floor3, number='1.2.3')",
+    "2": "Mode=error. Message mentions 'decimal' and the offending address."
+  },
+  "2": {
+    "0": "Non-digit (alpha) rejection. 'abc' has no digits, parser raises.",
+    "1": "zand(block=test-spatial-floor3, number='abc')",
+    "2": "Mode=error. Message mentions 'non-digit'."
+  },
+  "3": {
+    "0": "Non-digit (symbol) rejection. '1#2' has a non-digit symbol; parser raises.",
+    "1": "zand(block=test-spatial-floor3, number='1#2')",
+    "2": "Mode=error. Message mentions 'non-digit'."
+  },
+  "4": {
+    "0": "Left-of-decimal exceeds floor rejection. '3050.5' has left='3050' (4 digits) > floor 3; parser raises.",
+    "1": "zand(block=test-spatial-floor3, number='3050.5')",
+    "2": "Mode=error. Message mentions 'floor'."
+  },
+  "5": {
+    "0": "Walk hits absent immediately. Bare '7' on floor 3 pads to walk 0,0,7; root[0][0][7] does not exist; spindle ends in absent at depth 3.",
+    "1": "zand(block=test-spatial-floor3, number='7')",
+    "2": "Mode=spindle, 4 entries. Status sequence: voiced, voiced, voiced, absent."
+  },
+  "6": {
+    "0": "Attention far above floor. attention=100 with no number → disc at target depth (floor − 100) = −97 (negative); zand returns an empty disc.",
+    "1": "zand(block=test-spatial-floor3, attention=100)",
+    "2": "Mode=disc, pscale=100, 0 nodes (target depth below root)."
+  },
+  "7": {
+    "0": "Off-spindle ring upward. spindle '123' + attention=5 asks for a ring at pscale 5 (depth −2, above root). parent_depth is negative; zand returns an empty ring.",
+    "1": "zand(block=test-spatial-floor3, number='123', attention=5)",
+    "2": "Mode=ring, pscale=5, 0 siblings."
+  },
+  "8": {
+    "0": "Integer input. parse_address accepts an int and converts to digit string. zand(block, number=100) equivalent to number='100'.",
+    "1": "zand(block=test-spatial-floor3, number=100)",
+    "2": "Mode=spindle, 4 entries. Same result as number='100' (test 6 of canonical)."
+  },
+  "9": {
+    "0": "Empty address with explicit empty string. number='' (and no attention) returns a spindle with just the root entry — no walk.",
+    "1": "zand(block=test-spatial-floor3, number='')",
+    "2": "Mode=spindle, 1 entry (root only), text = FLOOR TERMINUS (via zero-spine)."
+  }
+}

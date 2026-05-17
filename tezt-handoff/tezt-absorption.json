@@ -1,0 +1,48 @@
+{
+  "0": "TEZT-ABSORPTION — battery 6, address invariance under supernesting. Three fixtures (absorb-floor1/2/3.json) carry identical content at floors 1, 2, 3. The same dotted address resolves to the same content (same terminus pscale, same text) on each floor. The parser absorbs the floor difference by left-padding with zeros (each pad is a zero-spine descent). Run via run-tezt.py with per-branch fixture overrides.",
+  "1": {
+    "0": "Address '1.' on floor 1 → walk [1] → POSITION ONE at pscale 0.",
+    "1": "zand(block=absorb-floor1, number='1.')",
+    "2": "Mode=spindle, terminus pscale 0, last entry text='POSITION ONE'."
+  },
+  "2": {
+    "0": "Address '1.' on floor 2 → padded walk [0,1] → still POSITION ONE at pscale 0. The leading 0 is the zero-spine descent that accounts for the supernest.",
+    "1": "zand(block=absorb-floor2, number='1.')",
+    "2": "Mode=spindle, terminus pscale 0, last entry text='POSITION ONE'. SAME terminus as test 1."
+  },
+  "3": {
+    "0": "Address '1.' on floor 3 → padded walk [0,0,1] → still POSITION ONE at pscale 0. Two zero-spine descents for two levels of supernesting.",
+    "1": "zand(block=absorb-floor3, number='1.')",
+    "2": "Mode=spindle, terminus pscale 0, last entry text='POSITION ONE'. SAME terminus as tests 1 and 2."
+  },
+  "4": {
+    "0": "Address '9.1' on floor 1 → walk [9,1] → POSITION NINE-ONE at pscale -1.",
+    "1": "zand(block=absorb-floor1, number='9.1')",
+    "2": "Mode=spindle, terminus pscale -1, last entry text='POSITION NINE-ONE'."
+  },
+  "5": {
+    "0": "Address '9.1' on floor 2 → padded walk [0,9,1] → still POSITION NINE-ONE.",
+    "1": "zand(block=absorb-floor2, number='9.1')",
+    "2": "Mode=spindle, terminus pscale -1, last entry text='POSITION NINE-ONE'."
+  },
+  "6": {
+    "0": "Address '9.1' on floor 3 → padded walk [0,0,9,1] → still POSITION NINE-ONE.",
+    "1": "zand(block=absorb-floor3, number='9.1')",
+    "2": "Mode=spindle, terminus pscale -1, last entry text='POSITION NINE-ONE'."
+  },
+  "7": {
+    "0": "Disc at the floor on floor 1 — 4 positions at depth 1.",
+    "1": "zand(block=absorb-floor1, attention=0)",
+    "2": "Mode=disc, pscale=0, 4 nodes: voicing, POSITION ONE, POSITION FIVE, POSITION NINE."
+  },
+  "8": {
+    "0": "Disc at the floor on floor 2 — 4 positions at depth 2 (same semantic set as floor 1's disc; only depth differs).",
+    "1": "zand(block=absorb-floor2, attention=0)",
+    "2": "Mode=disc, pscale=0, 4 nodes: same content as test 7."
+  },
+  "9": {
+    "0": "Disc at the floor on floor 3 — 4 positions at depth 3 (same semantic set).",
+    "1": "zand(block=absorb-floor3, attention=0)",
+    "2": "Mode=disc, pscale=0, 4 nodes: same content as tests 7 and 8."
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "0": "TEZT-CANONICAL — battery 2, address canonicalisation against test-spatial-floor3 (floor 3). Each test verifies the parse of an input address: walk length, canonical display address, and terminus pscale (= floor − walk-length). Trailing zeros are NEVER stripped in ztone — they walk the zero-spine of whatever node they land on. Leading zeros from floor-pad are stripped from canonical DISPLAY but preserved in the walk. Run via run-tezt.py.",
+  "1": {
+    "0": "Bare address equal to floor — split at the floor boundary; no padding needed. '305' has 3 digits = floor 3; walks 3,0,5; terminus pscale 0; canonical display '305' (no decimal needed, right is empty).",
+    "1": "zand(block=test-spatial-floor3, number='305')",
+    "2": "Mode=spindle, address='305', 4 entries, terminus pscale 0. Walks HEADLAND branch then HEADLAND string then absent."
+  },
+  "2": {
+    "0": "Bare address shorter than floor — pad-left with zeros to floor width. '8' has 1 digit < floor 3; padded walk 0,0,8; terminus pscale 0; canonical display '8' (leading zeros stripped from display).",
+    "1": "zand(block=test-spatial-floor3, number='8')",
+    "2": "Mode=spindle, address='8', 4 entries, terminus pscale 0. Reaches AT-FLOOR-VIA-ZERO-SPINE at depth 3."
+  },
+  "3": {
+    "0": "Bare address longer than floor — split at the floor: first floor-many digits sit at-or-above floor, remainder below. '1234' has 4 digits > floor 3; walks 1,2,3,4; terminus pscale −1; canonical display '123.4'.",
+    "1": "zand(block=test-spatial-floor3, number='1234')",
+    "2": "Mode=spindle, address='123.4', 5 entries, terminus pscale −1. Reaches THORNKEEP, TAVERN, KITCHEN, HEARTH."
+  },
+  "4": {
+    "0": "Dotted address with left exactly equal to floor — no padding needed. '123.4' has left='123' (3 = floor); walks 1,2,3,4; same walk as bare '1234'. Canonical display unchanged.",
+    "1": "zand(block=test-spatial-floor3, number='123.4')",
+    "2": "Mode=spindle, address='123.4', 5 entries, terminus pscale −1. Identical walk to test 3."
+  },
+  "5": {
+    "0": "Dotted address with left shorter than floor — pad-left with zeros. '12.3' has left='12' (2 < floor 3); padded walk 0,1,2,3; terminus pscale −1. Canonical display strips the leading zero → '12.3'.",
+    "1": "zand(block=test-spatial-floor3, number='12.3')",
+    "2": "Mode=spindle, address='12.3', 5 entries, terminus pscale −1. Walk goes absent at step 2 (root[0][1] does not exist in this fixture)."
+  },
+  "6": {
+    "0": "Trailing zero in bare address — NOT stripped. '100' walks 1,0,0; trailing zeros walk into branch 1's zero-spine. Terminus pscale 0; THORNKEEP reached via spine then overshoot to absent at step 3.",
+    "1": "zand(block=test-spatial-floor3, number='100')",
+    "2": "Mode=spindle, address='100', 4 entries. THORNKEEP voiced at depths 1 and 2; absent at depth 3."
+  },
+  "7": {
+    "0": "Multiple trailing zeros pushing past the floor — '1000' walks 1,0,0,0 (4 digits); the fourth digit sits below floor. Terminus pscale −1.",
+    "1": "zand(block=test-spatial-floor3, number='1000')",
+    "2": "Mode=spindle, address='100.0' (canonical), 5 entries. THORNKEEP at depths 1 and 2; absent at depths 3 and 4."
+  },
+  "8": {
+    "0": "Trailing zero in right-of-decimal — walks the zero-spine at the deeper position. '123.40' walks 1,2,3,4,0; lands on HEARTH's voicing string at root[1][2][3][4][0]. Terminus pscale −2.",
+    "1": "zand(block=test-spatial-floor3, number='123.40')",
+    "2": "Mode=spindle, address='123.40', 6 entries, all voiced. Last entry is HEARTH voicing collected at depth 5."
+  },
+  "9": {
+    "0": "Leading zeros in bare address are preserved in the walk but stripped from canonical display. '0023' walks 0,0,2,3 (4 digits); canonical display '2.3' (leading zeros stripped above floor).",
+    "1": "zand(block=test-spatial-floor3, number='0023')",
+    "2": "Mode=spindle, address='2.3' (canonical), 5 entries, terminus pscale −1. Walk: root[0] voiced via spine; root[0][0] voiced via spine; absent at depths 3 and 4."
+  }
+}

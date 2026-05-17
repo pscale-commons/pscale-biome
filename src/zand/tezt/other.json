@@ -1,0 +1,8 @@
+{
+  "0": "OTHER ROOT - the target of references in test-refs",
+  "1": "first leaf of other - addressable via other:1",
+  "2": {
+    "0": "second branch voicing of other",
+    "3": "deep leaf at other:2,3"
+  }
+}

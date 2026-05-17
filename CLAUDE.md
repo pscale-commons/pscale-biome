@@ -15,6 +15,15 @@ This is an **experimental working tree**. The code here was vendored from three 
 
 If you hear or read "biome" in conversation, it means this project unless explicitly qualified.
 
+## Pscale notation in conversation and code
+
+When discussing or writing pscale addresses (the ztone-era pure-digit form):
+
+- **Address** — written with exactly one decimal point, pinned to the floor. Example: `30.5` on a floor-2 block. The decimal is a floor anchor, not a separator. Multi-dot forms like `3.0.5` are forbidden — they were pre-bsp legacy and they read as a structural hazard.
+- **Walk** — the digit sequence the walker traverses, written with commas. Example: address `30.5` walks `3,0,5`. Address `1.234` walks `1,2,3,4`.
+
+This applies to prose, code comments, JSON examples, and any output a Claude instance produces in this project. The address form has one decimal; the walk form has commas. Never mix.
+
 ## What this experiment is asking
 
 > Can the five concerns of a pscale node — storage, BSP function, MCP transport, hermit-crab shell, xstream interface — be unified into one package that, when placed on a host, **unfolds** to fit that host's conditions?

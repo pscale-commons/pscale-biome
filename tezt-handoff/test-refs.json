@@ -1,0 +1,11 @@
+{
+  "0": "REFS ROOT - block containing references to other",
+  "1": "other",
+  "2": "other:1",
+  "3": "other:2",
+  "4": "other:1:0",
+  "5": "other:2:0",
+  "6": "other:2:-1",
+  "7": "just plain text, no reference",
+  "8": "nonexistent:1"
+}

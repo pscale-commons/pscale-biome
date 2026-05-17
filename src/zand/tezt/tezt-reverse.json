@@ -1,0 +1,33 @@
+{
+  "0": "TEZT-REVERSE — battery 8, the inverse direction. Given a content marker (in the voicing), find the zand call that returns it. Six tests across multiple fixtures. The voicing in branch.0 is the prompt a human or LLM author would receive; branch.1 is the canonical call; branch.2 documents what should come back. The runner executes branch.1 and verifies the named content appears in the result. Run via run-tezt.py.",
+  "1": {
+    "0": "Find KITCHEN in test-spatial-floor3.",
+    "1": "zand(block=test-spatial-floor3, number='123')",
+    "2": "Mode=spindle, last entry KITCHEN at terminus pscale 0."
+  },
+  "2": {
+    "0": "Find HEARTH in test-spatial-floor3.",
+    "1": "zand(block=test-spatial-floor3, number='123.4')",
+    "2": "Mode=spindle, last entry HEARTH at terminus pscale -1."
+  },
+  "3": {
+    "0": "Find IRON CHAIN in test-spatial-floor3 (deepest position).",
+    "1": "zand(block=test-spatial-floor3, number='123.473')",
+    "2": "Mode=spindle, 7 entries; reaches IRON CHAIN at terminus pscale -3 through POT-HOOK."
+  },
+  "4": {
+    "0": "Find POSITION ONE on absorb-floor2 (supernested block).",
+    "1": "zand(block=absorb-floor2, number='1.')",
+    "2": "Mode=spindle, terminus pscale 0, content POSITION ONE."
+  },
+  "5": {
+    "0": "Find the standard-form reading section in sunztone.",
+    "1": "zand(block=sunztone, number='3.31')",
+    "2": "Mode=spindle, last entry mentions 'Standard-form reading'."
+  },
+  "6": {
+    "0": "Sweep all top-level branches of sunztone — disc at the floor.",
+    "1": "zand(block=sunztone, attention=0)",
+    "2": "Mode=disc, 10 nodes covering Sunztone, Presence, Geometry, Number, Function, Voicing, Growth, Composition, Substrate, Design."
+  }
+}
