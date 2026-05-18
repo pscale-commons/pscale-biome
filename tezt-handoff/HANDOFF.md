@@ -1,6 +1,6 @@
 # ztone test handoff — federated zand workflow
 
-This is a self-contained test package for **zand**, the pure-digit pscale primitive. Your task is to write your own implementation of `zand` from the two teaching blocks here, then verify it against the canonical battery of **78 tests across 9 batteries**.
+This is a self-contained test package for **zand**, the pure-digit pscale primitive. Your task is to write your own implementation of `zand` from the two teaching blocks here, then verify it against the canonical battery of **81 tests across 10 batteries**.
 
 **You may not look at any other zand implementation.** The two teaching blocks (`sunztone.json` and `whetztone.json`) are your only specification.
 
@@ -10,9 +10,9 @@ This is a self-contained test package for **zand**, the pure-digit pscale primit
 2. Read `whetztone.json` — the operational manual (six branches).
 3. Write `zand.py` in this directory.
 4. Run `python3 run-tezt.py`.
-5. Iterate on failures until `=== Summary: 78/78 tests passed ===`.
+5. Iterate on failures until `=== Summary: 81/81 tests passed ===`.
 
-## The eight batteries
+## The ten batteries
 
 | Battery | Tests | What it exercises |
 |---|---:|---|
@@ -25,6 +25,7 @@ This is a self-contained test package for **zand**, the pure-digit pscale primit
 | `tezt-nesting.json` | 9 | Subnest preservation (string lifts to `{0: original, …}`) and supernest growth (block wraps under new outer level) |
 | `tezt-reverse.json` | 6 | Inverse direction: given a content marker (the prompt), write the call that returns it |
 | `tezt-writes.json` | 9 | Write side: point/ring/directory/whole writes, lift-on-deep-write (keystone), auto-create headless intermediates, sibling preservation, round-trip, write-then-read verification |
+| `tezt-star-deep.json` | 3 | Multi-level star — chained references (A→B→C) resolve in a single outer call. Verifies star propagation through nested zand calls. |
 
 ## What `zand.py` must export
 
@@ -58,6 +59,7 @@ Spindle entries and disc nodes carry a `status` field: `voiced`, `headless`, `ab
 | `subnest-before/after.json` | Same block before and after a subnest operation |
 | `super-before/after.json` | Same block before and after a supernest operation |
 | `writes-base.json` | Floor-1 fixture used by the writes battery (loaded fresh per test) |
+| `ref-chain-a/b/c.json` | Chained references — A → B → C terminal (used by star-deep battery) |
 
 ## Workflow
 
@@ -66,27 +68,27 @@ Spindle entries and disc nodes carry a `status` field: `voiced`, `headless`, `ab
 3. **Write a draft `zand.py`.** Start with `floor_depth`, `parse_address`, `canonicalise`, then the walk loop, then the shape readers, then `zand` itself.
 4. **Run `python3 run-tezt.py`.** Read FAIL lines.
 5. **For each failure**, open the relevant tezt-X.json branch — branch.0 is the test description, branch.2 is the expected outcome. Compare to what your zand returned.
-6. **Iterate.** When you see `78/78 tests passed`, you have a conforming zand at the contract level.
+6. **Iterate.** When you see `81/81 tests passed`, you have a conforming zand at the contract level.
 
 ## What passing means
 
-`78/78` means your `zand` matches the canonical zand on every test in all eight batteries — covering core shapes, address canonicalisation, error handling, reference resolution, supernest invariance, and structural growth (subnest/supernest preservation).
+`81/81` means your `zand` matches the canonical zand on every test in all eight batteries — covering core shapes, address canonicalisation, error handling, reference resolution, supernest invariance, and structural growth (subnest/supernest preservation).
 
-It does NOT cover locks, gray encryption, modifiers (face/tier), multi-level star, or cross-block substrate dispatch. Those will come in further batteries.
+It does NOT cover locks, gray encryption, modifiers (face/tier), or cross-block substrate dispatch. Those will come in further batteries.
 
 ## Report back
 
 After you complete (or get stuck), please report:
 
-1. **Did you pass 78/78?** If not, which branches failed and what your `zand` returned.
+1. **Did you pass 81/81?** If not, which branches failed and what your `zand` returned.
 2. **Was sunztone clear?** Specifically: which sections did you have to re-read, and which were genuinely ambiguous? Where did you have to guess?
 3. **Was whetztone clear?** Same question.
 4. **Which batteries were hardest to pass and why?**
 5. **What would you add to sunztone or whetztone to make the next session smoother?** Sentences or worked examples that would have saved you time.
-6. **How long did it take?** Wall-clock estimate from "open the package" to "78/78".
+6. **How long did it take?** Wall-clock estimate from "open the package" to "81/81".
 
 This is the federated experiment. If you can write conforming zand from just the two teaching blocks, the ztone specification is operational. If sunztone/whetztone have gaps, your failures and report tell us where to improve.
 
 ## Federated implication
 
-Two independent sessions each passing 78/78 starting from sunztone+whetztone alone means their implementations are equivalent at the contract level — even though their code may differ entirely. That's what "federated bsp/zand" means in practice: same spec, many implementations, interchangeable as long as they pass.
+Two independent sessions each passing 81/81 starting from sunztone+whetztone alone means their implementations are equivalent at the contract level — even though their code may differ entirely. That's what "federated bsp/zand" means in practice: same spec, many implementations, interchangeable as long as they pass.

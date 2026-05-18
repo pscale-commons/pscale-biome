@@ -25,7 +25,7 @@ try:
     from zand import zand, InvalidAddressError
 except ImportError as e:
     print(f"Error: cannot import zand from {HERE}: {e}")
-    print(f"Write zand.py in this directory first (the fresh sessions task).")
+    print(f"Write zand.py in this directory first (the fresh session task).")
     sys.exit(1)
 
 
@@ -40,6 +40,7 @@ BATTERIES = [
     ("tezt-nesting.json", "subnest-before.json", "nesting"),
     ("tezt-reverse.json", "test-spatial-floor3.json", "reverse"),
     ("tezt-writes.json", "writes-base.json", "writes"),
+    ("tezt-star-deep.json", "ref-chain-a.json", "star-deep"),
 ]
 
 
@@ -129,6 +130,9 @@ EXPECTED_MODE = {
         "1": "point-write", "2": "point-write", "3": "point-write",
         "4": "point-write", "5": "directory-write", "6": "ring-write",
         "7": "point-write", "8": "point-write", "9": "whole-write",
+    },
+    "star-deep": {
+        "1": "point", "2": "point", "3": "point",
     },
 }
 
@@ -302,6 +306,11 @@ MARKERS = {
         "7": ["leaf at 5"],
         "8": ["roundtrip"],
         "9": ["new leaf one"],
+    },
+    "star-deep": {
+        "1": ["FINAL CONTENT C"],
+        "2": ["FINAL CONTENT C"],
+        "3": ["FINAL CONTENT C"],
     },
 }
 

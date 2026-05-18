@@ -335,6 +335,11 @@ def resolve_with_star(value, block_loader):
     floor. With no address, the whole target block is returned. With
     address but no attention, the recursive call defaults to a spindle
     (zand's own default).
+
+    Star PROPAGATES: the recursive call carries star=True and the same
+    block_loader, so leaves of the resolved result that are themselves
+    references will resolve too. Multi-level chains (A→B→C) all resolve
+    in a single outer call. Per whetztone:5.2.1.
     """
     ref = parse_reference(value) if isinstance(value, str) else None
     if ref is None:
@@ -343,7 +348,8 @@ def resolve_with_star(value, block_loader):
     target_block = block_loader(name) if block_loader else None
     if target_block is None:
         return value
-    return zand(target_block, number=address, attention=attention)
+    return zand(target_block, number=address, attention=attention,
+                star=True, block_loader=block_loader)
 
 
 # ---- ZAND -----------------------------------------------------------------

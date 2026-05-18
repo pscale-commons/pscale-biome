@@ -35,6 +35,7 @@ READ_BATTERIES = [
     ("tezt-absorption.json", "absorb-floor1.json", "absorption"),
     ("tezt-nesting.json", "subnest-before.json", "nesting"),
     ("tezt-reverse.json", "test-spatial-floor3.json", "reverse"),
+    ("tezt-star-deep.json", "ref-chain-a.json", "star-deep"),
 ]
 
 FIXTURE_OVERRIDE = {

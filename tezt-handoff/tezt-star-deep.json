@@ -1,0 +1,18 @@
+{
+  "0": "TEZT-STAR-DEEP — battery 10, multi-level star resolution. Three tests exercise chained references (A→B→C) to verify star propagates into the recursive zand call (per whetztone:5.2.1). Fixtures: ref-chain-a.json contains references to ref-chain-b which contains references to ref-chain-c (terminal). Each test reads from ref-chain-a with star=True and expects FINAL CONTENT C to surface from inside nested zand results.",
+  "1": {
+    "0": "Three-level chain via point references. ref-chain-a:1 = 'ref-chain-b:1:0'; ref-chain-b:1:0 resolves to a branch's voicing (which itself starts with 'ref-chain-c:1:0' at the [0] position via zero-spine collection); but the [0] string IS the voicing — so the chain resolves through B's branch zero-text to C's point. Marker: FINAL CONTENT C.",
+    "1": "zand(block=ref-chain-a, number='1', attention=0, star=True)",
+    "2": "Mode=point. text is a nested zand point result whose text is itself a nested zand point with text='FINAL CONTENT C — end of chain'. Three levels of nested resolution."
+  },
+  "2": {
+    "0": "Three-level chain via spindle (no attention in references). ref-chain-a:2 = 'ref-chain-b:1' (no attention; resolves to spindle). The spindle's entries each get star-processed; the [1] entry's text is a branch which resolves via zero-text to 'ref-chain-c:1:0' → resolves to C's point.",
+    "1": "zand(block=ref-chain-a, number='2', attention=0, star=True)",
+    "2": "Mode=point. The text is a nested spindle (from B); within its entries, FINAL CONTENT C surfaces via further resolution. Marker: FINAL CONTENT C."
+  },
+  "3": {
+    "0": "Star propagation through a directory. ref-chain-a:3 = 'ref-chain-b:1:-1' (directory in B, descending one level). The directory subtree contains leaf references at root[1][5] = 'ref-chain-c:1:0' which resolve to C. Tests that star propagates into directory leaves.",
+    "1": "zand(block=ref-chain-a, number='3', attention=0, star=True)",
+    "2": "Mode=point. text is a nested directory result whose subtree contains a resolved C point. Marker: FINAL CONTENT C (must appear deep in the nested structure)."
+  }
+}

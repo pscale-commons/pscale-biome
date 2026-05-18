@@ -218,7 +218,9 @@ export function resolveWithStar(value: any, blockLoader: BlockLoader | null): an
   const [name, address, attention] = ref;
   const targetBlock = blockLoader ? blockLoader(name) : null;
   if (targetBlock === null) return value;
-  return zand(targetBlock, address as any, attention as any);
+  // Star propagates per whetztone:5.2.1 — recursive call carries star=true
+  // and the same block_loader so multi-level chains resolve in one outer call.
+  return zand(targetBlock, address as any, attention as any, null, true, blockLoader);
 }
 
 
