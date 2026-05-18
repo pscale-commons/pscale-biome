@@ -1,0 +1,9 @@
+{
+  "0": "writes base — floor voicing",
+  "1": "leaf at 1 (will be lifted in some tests)",
+  "3": {
+    "0": "branch 3 voicing",
+    "2": "leaf at 3,2"
+  },
+  "5": "leaf at 5"
+}

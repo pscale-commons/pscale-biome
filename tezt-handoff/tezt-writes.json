@@ -1,0 +1,66 @@
+{
+  "0": "TEZT-WRITES — battery 9, write-side semantics. Nine tests: point-write, lift-on-deep-write (the keystone), auto-create headless intermediates, new-sibling at existing branch, directory-write, ring-write, sibling preservation, round-trip, whole-block-write. Each test loads a FRESH copy of writes-base.json (writes mutate), executes the write call, asserts the write returns ok=true with the expected mode, then runs a follow-up read (branch.3) to verify the post-write content (markers in branch.4). Run via run-tezt.py.",
+  "1": {
+    "0": "Point write at an existing leaf. Replace 'leaf at 1' with 'updated'. Walk [1] on floor 1, terminus pscale 0. Mode=point-write.",
+    "1": "zand(block=writes-base, number='1', attention=0, content='updated')",
+    "2": "Result mode=point-write, ok=true, address='1'. After write, root[1] = 'updated'.",
+    "3": "zand(block=writes-base, number='1', attention=0)",
+    "4": "Read returns mode=point, text='updated'."
+  },
+  "2": {
+    "0": "Lift on deep write — the keystone. Write 'deep' at '1.5'. Current root[1] is a string; walker lifts it to {0: original-string} then places 'deep' at [5]. Both readings remain accessible.",
+    "1": "zand(block=writes-base, number='1.5', attention=-1, content='deep')",
+    "2": "Result mode=point-write. After write, root[1] = {0: 'leaf at 1 (will be lifted in some tests)', 5: 'deep'}. Original string preserved as voicing.",
+    "3": "zand(block=writes-base, number='1.5', attention=-1)",
+    "4": "Read returns text='deep'."
+  },
+  "3": {
+    "0": "Auto-create deep intermediates. Write 'verydeep' at '7.123'. None of root[7], [7][1], [7][1][2] exist. Walker creates them as headless objects, places content at terminus.",
+    "1": "zand(block=writes-base, number='7.123', attention=-3, content='verydeep')",
+    "2": "Result mode=point-write. After: root[7] = {1: {2: {3: 'verydeep'}}}. Intermediates have NO 0-key (headless).",
+    "3": "zand(block=writes-base, number='7.123', attention=-3)",
+    "4": "Read returns text='verydeep' at terminus pscale -3."
+  },
+  "4": {
+    "0": "Write new sibling at an existing branch. Write 'new5' at '3.5' where root[3] is already an object. No lift needed; just add the new key.",
+    "1": "zand(block=writes-base, number='3.5', attention=-1, content='new5')",
+    "2": "Result mode=point-write. After: root[3] = {0: 'branch 3 voicing', 2: 'leaf at 3,2', 5: 'new5'}.",
+    "3": "zand(block=writes-base, number='3.5', attention=-1)",
+    "4": "Read returns text='new5'."
+  },
+  "5": {
+    "0": "Directory write — replace whole subtree at a position. Walk [3], attention=-2 → directory write. Content is the new subtree dict.",
+    "1": "zand(block=writes-base, number='3', attention=-2, content={'0': 'replaced voicing', '4': 'new leaf at 3,4'})",
+    "2": "Result mode=directory-write. After: root[3] = {0: 'replaced voicing', 4: 'new leaf at 3,4'}. Old children (0, 2) replaced.",
+    "3": "zand(block=writes-base, number='3.4', attention=-1)",
+    "4": "Read returns text='new leaf at 3,4'."
+  },
+  "6": {
+    "0": "Ring write — replace digit-keyed siblings at attention's level. Walk [3.5], attention=-1 (one shallower than terminus -2 — but wait, walk [3,5] has terminus -1; attention=0 would be shallower → ring at depth 1, parent=root). The runner reuses the same call structure as a point but with a dict content; ring-write replaces all digit-children at the parent.",
+    "1": "zand(block=writes-base, number='3.5', attention=0, content={'0': 'ring root voicing', '1': 'ring sib 1', '7': 'ring sib 7'})",
+    "2": "Result mode=ring-write. After: root's digit children are now exactly 0, 1, 7 (others removed).",
+    "3": "zand(block=writes-base, number='1', attention=0)",
+    "4": "Read at '1' returns text='ring sib 1' (the new ring content)."
+  },
+  "7": {
+    "0": "Sibling preservation. A write at '1' must not affect '3' or '5'. After writing 'updated' at '1', read '3' and '5' to verify they're unchanged.",
+    "1": "zand(block=writes-base, number='1', attention=0, content='updated')",
+    "2": "Write succeeds. Sibling '5' should still read 'leaf at 5'; sibling '3' branch should still have its voicing.",
+    "3": "zand(block=writes-base, number='5', attention=0)",
+    "4": "Read at '5' returns text='leaf at 5' (unchanged)."
+  },
+  "8": {
+    "0": "Round-trip verification. Write a deep structure, then read it back via spindle to confirm the chain matches.",
+    "1": "zand(block=writes-base, number='1.5', attention=-1, content='roundtrip')",
+    "2": "Write places 'roundtrip' at root[1][5] with lift on root[1].",
+    "3": "zand(block=writes-base, number='1.5')",
+    "4": "Spindle returns 3 entries — root, root[1] (voiced via lifted zero-spine), root[1][5] = 'roundtrip'."
+  },
+  "9": {
+    "0": "Whole-block write. Number=None, attention=None, content=a-dict — replaces the entire block. The block dict's identity is preserved (mutation in place); existing keys are cleared and new keys are set.",
+    "1": "zand(block=writes-base, content={'0': 'totally new floor voicing', '1': 'new leaf one'})",
+    "2": "Result mode=whole-write, ok=true. Block is now {0: 'totally new floor voicing', 1: 'new leaf one'}.",
+    "3": "zand(block=writes-base, number='1', attention=0)",
+    "4": "Read at '1' returns text='new leaf one'."
+  }
+}

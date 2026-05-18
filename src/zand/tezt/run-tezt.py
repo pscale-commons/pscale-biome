@@ -11,6 +11,8 @@ Usage:
 Add new batteries by extending BATTERIES, EXPECTED_MODE, EXPECTED_COUNT,
 and MARKERS below.
 """
+import ast
+import copy
 import json
 import os
 import re
@@ -36,6 +38,7 @@ BATTERIES = [
     ("tezt-absorption.json", "absorb-floor1.json", "absorption"),
     ("tezt-nesting.json", "subnest-before.json", "nesting"),
     ("tezt-reverse.json", "test-spatial-floor3.json", "reverse"),
+    ("tezt-writes.json", "writes-base.json", "writes"),
 ]
 
 
@@ -119,6 +122,12 @@ EXPECTED_MODE = {
     "reverse": {
         "1": "spindle", "2": "spindle", "3": "spindle",
         "4": "spindle", "5": "spindle", "6": "disc",
+    },
+    "writes": {
+        # Mode of the write call (not the verify-read)
+        "1": "point-write", "2": "point-write", "3": "point-write",
+        "4": "point-write", "5": "directory-write", "6": "ring-write",
+        "7": "point-write", "8": "point-write", "9": "whole-write",
     },
 }
 
@@ -281,6 +290,18 @@ MARKERS = {
         "6": ["Sunztone", "Presence", "Geometry", "Number", "Function",
               "Voicing", "Growth", "Composition", "Substrate", "Design"],
     },
+    # Writes markers apply to the VERIFY-READ result (branch.3 call output)
+    "writes": {
+        "1": ["updated"],
+        "2": ["deep"],
+        "3": ["verydeep"],
+        "4": ["new5"],
+        "5": ["new leaf at 3,4"],
+        "6": ["ring sib 1"],
+        "7": ["leaf at 5"],
+        "8": ["roundtrip"],
+        "9": ["new leaf one"],
+    },
 }
 
 
@@ -313,6 +334,21 @@ def parse_call(call_str):
     if re.search(r"star=(True|true)", call_str):
         star = True
     return number, attention, star
+
+
+def parse_content(call_str):
+    """Extract content= from a write call. Supports quoted strings, flat
+    dicts, lists (via ast.literal_eval). Returns None if no content."""
+    m = re.search(r"content=(\{[^}]*\}|\[[^]]*\])", call_str)
+    if m:
+        try:
+            return ast.literal_eval(m.group(1))
+        except (ValueError, SyntaxError):
+            return None
+    m = re.search(r"content=['\"]([^'\"]*)['\"]", call_str)
+    if m:
+        return m.group(1)
+    return None
 
 
 def extract_content_strings(result):
@@ -387,6 +423,55 @@ def main():
                 fixture = json.load(f)
             call = test.get("1", "")
             number, attention, star = parse_call(call)
+
+            # Writes battery: parse content, run write, then run verify-read
+            if label == "writes":
+                content = parse_content(call)
+                try:
+                    write_result = zand(
+                        fixture, number=number, attention=attention,
+                        content=content, star=star,
+                        block_loader=block_loader if star else None,
+                    )
+                except InvalidAddressError as e:
+                    write_result = {"mode": "error", "message": str(e)}
+
+                problems = []
+                expected_write_mode = EXPECTED_MODE["writes"].get(branch)
+                actual_write_mode = write_result.get("mode")
+                if expected_write_mode and actual_write_mode != expected_write_mode:
+                    problems.append(
+                        f"write mode '{actual_write_mode}', expected '{expected_write_mode}'"
+                    )
+                if not write_result.get("ok"):
+                    problems.append(f"write returned ok={write_result.get('ok')}")
+
+                # Verify-read at branch.3
+                verify_call = test.get("3", "")
+                if verify_call:
+                    vnum, vatt, vstar = parse_call(verify_call)
+                    try:
+                        verify_result = zand(
+                            fixture, number=vnum, attention=vatt,
+                            star=vstar,
+                            block_loader=block_loader if vstar else None,
+                        )
+                    except InvalidAddressError as e:
+                        verify_result = {"mode": "error", "message": str(e)}
+                    content_strs = extract_content_strings(verify_result)
+                    joined = "\n".join(content_strs)
+                    missing = [m for m in MARKERS["writes"].get(branch, [])
+                               if m not in joined]
+                    if missing:
+                        problems.append(f"verify missing: {missing}")
+
+                if not problems:
+                    passes += 1
+                    print(f"  branch {branch}: PASS (write={actual_write_mode})")
+                else:
+                    print(f"  branch {branch}: FAIL ({'; '.join(problems)})")
+                continue
+
             try:
                 result = zand(
                     fixture, number=number, attention=attention,

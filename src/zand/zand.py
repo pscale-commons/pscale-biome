@@ -591,19 +591,23 @@ def _zand_write(block, digits, attention, terminus_pscale, content, floor):
             "address": format_address(digits, floor),
         }
 
-    # Ring write (attention shallower than terminus)
+    # Ring write — conjugate of ring read. Replace digit-children at the
+    # parent at depth (attention_depth - 1) along the spindle. Matches
+    # _ring_read_at: the ring sits at attention's depth; its parent is one
+    # shallower.
     if attention > terminus_pscale:
         if not isinstance(content, dict):
             return {"mode": "error", "error": "ring-write requires dict"}
-        if len(digits) < 2:
-            for k in list(block.keys()):
-                if k.isdigit():
-                    del block[k]
-            block.update({k: v for k, v in content.items() if k.isdigit()})
-            return {"mode": "ring-write", "ok": True}
-        # Re-walk to the grandparent of the terminus
+        attention_depth = floor - attention
+        parent_depth = attention_depth - 1
+        if parent_depth < 0:
+            return {"mode": "error",
+                    "error": "ring-write parent_depth below root"}
+        # Walk to parent_depth (lifting intermediate strings)
         gp = block
-        for d in digits[:-2]:
+        for d in digits[:parent_depth]:
+            if not isinstance(gp, dict):
+                return {"mode": "error", "error": "non-dict on walk"}
             if d not in gp:
                 gp[d] = {}
             elif isinstance(gp[d], str):
@@ -611,18 +615,11 @@ def _zand_write(block, digits, attention, terminus_pscale, content, floor):
             elif not isinstance(gp[d], dict):
                 gp[d] = {}
             gp = gp[d]
-        target = digits[-2]
-        if target not in gp:
-            gp[target] = {}
-        elif isinstance(gp[target], str):
-            gp[target] = {"0": gp[target]}
-        elif not isinstance(gp[target], dict):
-            gp[target] = {}
-        ring_parent = gp[target]
-        for k in list(ring_parent.keys()):
+        # gp is now the ring's parent; replace its digit children
+        for k in list(gp.keys()):
             if k.isdigit():
-                del ring_parent[k]
-        ring_parent.update({k: v for k, v in content.items() if k.isdigit()})
+                del gp[k]
+        gp.update({k: v for k, v in content.items() if k.isdigit()})
         return {"mode": "ring-write", "ok": True}
 
     # Directory write (attention deeper than terminus): replace terminus's value
