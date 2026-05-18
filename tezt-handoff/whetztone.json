@@ -80,7 +80,7 @@
     }
   },
   "4": {
-    "0": "Write. When content is provided, zand writes instead of reading. The shape of the write is the same shape that a read at the same (number, attention) would return. Lenient by default: missing intermediates are created as headless objects; intermediate strings are preserved as the new object's 0-voicing.",
+    "0": "Write. When content is provided, zand writes instead of reading. The shape of the write is the same shape that a read at the same (number, attention) would return. Lenient by default: missing intermediates are created as headless objects; intermediate strings are preserved as the new object's 0-voicing. Four write modes exist: point-write, ring-write, directory-write, whole-write — each is the conjugate of its read counterpart. Every successful write returns {mode: '<shape>-write', ok: true, address: '<canonical>'}; failures return {mode: 'error', ok: false, error: '<message>'} or raise InvalidAddressError if the address is malformed. The address field on writes is the canonical display form of the position the write landed at.",
     "1": {
       "0": "Point write. Replace a single string at the spindle's terminus. Content is a string. The walker navigates to the parent of the terminus (creating intermediate objects as needed) and sets the terminus key to the content.",
       "1": "Worked example. zand(block, '1.5', attention=-1, content='new leaf') sets block[1][5] = 'new leaf'.",
@@ -88,13 +88,18 @@
     },
     "2": {
       "0": "Ring write — conjugate of ring read. Replace digit-keyed children at the parent at depth (attention_depth − 1) along the spindle. Content is a digit-keyed dict; the existing digit children at that depth are removed and the content's digit children take their place. The ring's parent is the same JSON node the read-side ring would have enumerated from.",
-      "1": "Worked example. zand(block, '1.5', attention=0, content={'0': 'voice', '1': 'new', '5': 'replaced'}) on a floor-1 block: attention=0 means the ring sits at depth 1 (the floor); parent_depth = 0; parent = block (root). The write replaces root's digit children with the given entries. Read-side `zand(block, '1.5', attention=0)` would enumerate the same node's children — same parent, same semantics."
+      "1": "Worked example. zand(block, '1.5', attention=0, content={'0': 'voice', '1': 'new', '5': 'replaced'}) on a floor-1 block: attention=0 means the ring sits at depth 1 (the floor); parent_depth = 0; parent = block (root). The write replaces root's digit children with the given entries. Read-side `zand(block, '1.5', attention=0)` would enumerate the same node's children — same parent, same semantics.",
+      "2": "Walk semantics on ring-write. The walk's digits past parent_depth are IGNORED by the write itself. The walk only navigates the prefix [0:parent_depth]; the remaining digits exist in the spindle but do not affect where the write lands. Example: '1.5' with attention=0 has walk [1,5] but the write goes to root's children (parent_depth=0), so the '1' and '5' digits are unused for navigation. The walk's role is purely spindle-side context; the write follows attention's depth rule strictly."
     },
     "3": {
       "0": "Directory write. Replace the entire subtree at the spindle's terminus. Content is a dict — the new subtree. The existing subtree is discarded; the new subtree takes its place. This is how a whole sub-block is inserted in a single call.",
       "1": "Worked example. zand(block, '1', attention=-3, content={'0': 'X', '2': {'0': 'Y', '3': 'Z'}}) replaces block[1] with the nested object given."
     },
     "4": {
+      "0": "Whole-block write. When number is None (or empty), attention is None, and content is a dict, zand performs a whole-block write — clears the block's existing keys and installs content's keys, MUTATING THE BLOCK DICT IN PLACE to preserve dict identity for callers holding references. The floor may change as a result of the write if the new content's zero-spine has different depth. Use whole-write to replace a block atomically from a single call.",
+      "1": "Worked example. zand(block, content={'0': 'new root voicing', '1': 'new leaf one'}) on any prior block — block's existing keys are cleared and replaced with the new {0, 1} pair. After the write, floor=1 (the new content's zero-spine is one level deep)."
+    },
+    "5": {
       "0": "Verification. After any write, defensive practice is to read back at the same address to confirm. A malformed address may have landed the content elsewhere; the read-back catches that immediately.",
       "1": "Atomicity is at the single-block boundary. A single zand call is atomic within one block; multi-block transactions are not guaranteed. For compositions that cross blocks, the caller manages consistency."
     }
