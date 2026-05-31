@@ -12,3 +12,6 @@ build/
 
 # Claude Code worktrees (per-checkout, never share)
 .claude/
+
+# mobius-3 agent run output (runs happen in isolated working copies, never in source)
+src/agent/filmstrip/
