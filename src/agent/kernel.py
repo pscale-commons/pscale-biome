@@ -114,6 +114,19 @@ def flush_cache():
     _cache.clear()
 
 
+def load_peers():
+    """peers.json in the agent dir maps {peer_name: agent_dir}. Empty if solo.
+    Peers are how the agent reaches the 'between' — it reads their published
+    face and never their private blocks."""
+    p = os.path.join(BASE, "peers.json")
+    if os.path.exists(p):
+        try:
+            return json.load(open(p))
+        except Exception:
+            return {}
+    return {}
+
+
 # ── rendition rendering ────────────────────────────────────────────────────
 
 def render(res):
@@ -281,10 +294,13 @@ DELTA_CONTRACT = (
     "wrong (usually ρ).\n"
     "- One minimal classified edit per γ-entry; no freeform writes. DISCARD any γ-entry "
     "about examining or securing your own self/identity/persistence (γ₃).\n"
-    "- Edit ONLY what γ names: the conditions `target` of each entry, or a NEW purpose "
-    "child to decompose. Do NOT touch blocks unrelated to the gap (capabilities, "
-    "relationships, stash) — a point dilation shows a block's root, not whether it is "
-    "already filled.\n"
+    "- Edit ONLY what γ names: the conditions `target` of each entry, a NEW purpose "
+    "child to decompose, or — to reach a peer — your own `face` block (your one output "
+    "that leaves the shell; peers read it, you never write theirs). Do NOT touch other "
+    "blocks; a point dilation shows a block's root, not whether it is already filled.\n"
+    "- PEERS: if peer faces appear in your window, that is the 'between' — other agencies, "
+    "real. Perceiving one may update your conditions or draw a purpose toward it; reaching "
+    "one means publishing to your own `face`. You never reach into a peer's private blocks.\n"
     "- reflexive_current is the bare-address bundle the next instance wakes into — every "
     "block at a dilation; null keeps it. If γ is empty: edits [], status rest.\n"
     "- heartbeat: seconds until you next want to wake — short with momentum, long when "
@@ -328,7 +344,22 @@ def compose_window(gamma):
     gamma_text = ("=== γ — the gap F computed (resolve each, minimally and classified) ===\n"
                   + json.dumps(gamma, ensure_ascii=False, indent=2)) if gamma else \
                  "=== γ — empty. The shape is what it is about. Rest. ==="
-    message = "\n\n".join(msg_currents + [gamma_text])
+    # engagement (the 'between'): my own published face + my peers' faces
+    faces = []
+    own = load_block("face")
+    if own:
+        faces.append("=== MY FACE (what I publish for peers) ===\n"
+                     + render(zand.zand(own, None, None)))
+    for name, d in load_peers().items():
+        fp = os.path.join(d, "shell", "face.json")
+        if os.path.exists(fp):
+            try:
+                pf = json.load(open(fp))
+                faces.append("=== PEER FACE :: %s ===\n%s"
+                             % (name, render(zand.zand(pf, None, None))))
+            except Exception:
+                pass
+    message = "\n\n".join(msg_currents + [gamma_text] + faces)
     return system, message, bundle
 
 
