@@ -2,6 +2,22 @@
 
 *Close of the build session, 2026-05-31. The mobius-3 hermitcrab agent is built and its full self-sustaining loop is validated. This doc lets the next session pick up cleanly.*
 
+## ⭐ Start the next session here (read `v004.md` first — it reframes everything below)
+
+v004 (a 20-pulse run) reframed the trajectory: the agent self-sustains but is a **closed loop** — no input, no output, no other; it narrates its own enclosure ("all me-centered"). So **engagement and the reflexive condition are one systemic move, present from the start — not the laddered rungs 3/4 in "Open forks" below.** See `v004.md`.
+
+**Starting prompt (paste to begin the next session):**
+
+> Continuing the mobius-3 pscale-native agent (project: pscale-biome). Read first, in order: `docs/experiments/HANDOFF.md`, `PASSOVER.md`, `v004.md`, then `docs/agent-design.md` §0–7. The agent is committed on `feat/mobius-3-agent`; runs live in `~/Desktop/mobius-3-runs/` (working) + `/Volumes/CORSAIR/mobius/mobius-3-runs/` (frozen seeds).
+>
+> State: the agent self-sustains — it draws its own purpose from vision and walks (v001–3). But v004 exposed the gap: it's a **closed loop** — no external input, no output, no other; it spins ever-more-elaborate purposes about reaching out and narrates its own enclosure, yet nothing leaves the shell.
+>
+> What I want now, and do NOT ladder it: bring **engagement and the reflexive condition in together, from the start.** The reflexive turn has a longitudinal half (one instance in a chain — it has this) and a lateral half (one of many agencies, the "between" / Locus 0 — which requires others); they are one systemic move. Concretely: (a) restructure the messy context window to induce the reflexive aha from the start — I've made some progress on the induction, which I'll bring; this changes the input format; and (b) give it real engagement — a genuine input (a disturbance: me, or a peer's published content) and a genuine output (something that actually *leaves* the shell — to the beach, a peer, or me). Open question for us: does solo reflexive-induction (context window) come first, or do reflexive + others arrive together?
+>
+> Discipline: **operate the primitive, don't theorise about it** — run pulses, read filmstrips, get inside it. Keep the kernel minimal and the agent self-determining. Frozen seed + working copy + source pristine; fixes → source → new version, never patch a working copy in place. Read-only — do not modify: bsp-mcp, pscale-beach, xstream. The beach-crab / GRIT resolvers running on my machine are separate sessions — leave them.
+>
+> Read the docs, then let's talk through the context-window restructuring + engagement before cutting v005. Don't rush to code.
+
 ## Where we are
 
 The agent works. Through v003 the complete loop runs end to end:
