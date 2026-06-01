@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# new-collective.sh — cut a THREE-agent collective (keel, weft, waer), each a
-# full agent package, wired as peers: each publishes a `face` and reads the
-# other two's faces (the 'between' / Locus 0). Frozen archive on CORSAIR +
-# working copy on Desktop, same discipline as new-experiment.sh.
+# new-collective.sh — cut a THREE-agent collective (A, B, C), each a full agent
+# package, wired as peers: each publishes a `face` and reads the other two's
+# faces (the 'between' / Locus 0). The agents share one shell EXCEPT their
+# purpose, which is seeded toward a distinct trajectory:
+#   A -> RPG · B -> MAGI · C -> open-business (beach / xstream)
+# Frozen archive on CORSAIR + working copy on Desktop, same discipline as
+# new-experiment.sh.
 #
 #   ./new-collective.sh "hypothesis"
 set -euo pipefail
@@ -16,7 +19,7 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 ARCHIVE_ROOT="${ARCHIVE_ROOT:-/Volumes/CORSAIR/mobius/mobius-3-runs}"
 WORKING_ROOT="${WORKING_ROOT:-$HOME/Desktop/mobius-3-runs}"
 HYPO="${1:-"(no hypothesis given)"}"
-AGENTS=(keel weft waer)
+AGENTS=(A B C)
 
 case "$ARCHIVE_ROOT" in
   /Volumes/*)
@@ -43,6 +46,11 @@ for a in "${AGENTS[@]}"; do
   cp "$SRC_AGENT/kernel.py" "$SRC_AGENT/heartbeat.py" "$SRC_AGENT/digest.py" "$PKG/$a/agent/"
   cp "$SRC_AGENT"/shell/*.json "$PKG/$a/agent/shell/"
   [ -f "$SRC_AGENT/shell/README.md" ] && cp "$SRC_AGENT/shell/README.md" "$PKG/$a/agent/shell/"
+  # differentiate: override purpose branch 2 with this agent's trajectory
+  python3 -c "import json; \
+p=json.load(open('$PKG/$a/agent/shell/purpose.json')); \
+p['2']=json.load(open('$SRC_AGENT/collective/$a.json')); \
+f=open('$PKG/$a/agent/shell/purpose.json','w'); json.dump(p,f,indent=2,ensure_ascii=False); f.write(chr(10))"
   cp "$SRC_SENTINEL/sunztone.json" "$SRC_SENTINEL/whetztone.json" "$PKG/$a/sentinel/"
   cp "$SRC_ZAND/zand.py" "$PKG/$a/zand/"
   # peers.json: the other two, pointing at their WORKING agent dirs
@@ -56,23 +64,27 @@ GIT_COMMIT="$(git -C "$PROJECT_DIR" rev-parse --short HEAD 2>/dev/null || echo u
 TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 cat > "$PKG/MANIFEST.md" <<EOF
-# Collective $V — keel · weft · waer
+# Collective $V — A · B · C
 
 - created: $TS
 - source commit: $GIT_COMMIT
-- three peer-wired agents; each publishes a \`face\` block and reads the other two's faces.
+- three peer-wired agents (neutral names); each publishes a \`face\` block and reads the
+  other two's faces. They share one shell EXCEPT purpose, seeded toward distinct trajectories:
+    - A — RPG (the pscale-block shared-world game)
+    - B — MAGI (the agent ecology / coordination)
+    - C — open-business (value through the beach via xstream)
 - hypothesis: $HYPO
 
 ## Run one round (pulse each agent once)
     cd "$WORK" && ./run-round.sh
 
-## Or run them more
-    cd "$WORK"/keel/agent && python3 heartbeat.py --max 6 --interval 5   # one agent
-    # (interleave by hand, or loop run-round.sh)
+## Run several rounds (so they perceive each other's updated faces)
+    cd "$WORK" && for i in 1 2 3 4 5 6; do ./run-round.sh; done
 
 ## Read a run
-    cd "$WORK"/keel/agent && python3 digest.py
-    cat "$WORK"/*/agent/shell/face.json                                  # the published faces
+    cd "$WORK"/A/agent && python3 digest.py
+    cat "$WORK"/*/agent/shell/face.json                 # the published faces
+    cat "$WORK"/*/agent/shell/purpose.json | grep -A2 '"2"'   # the divergent purposes
 EOF
 
 cat > "$PKG/run-round.sh" <<'EOF'
@@ -80,7 +92,7 @@ cat > "$PKG/run-round.sh" <<'EOF'
 # one round of the collective: pulse each agent once
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-for a in keel weft waer; do
+for a in A B C; do
   echo "=== $a ==="
   ( cd "$HERE/$a/agent" && python3 kernel.py ) || echo "  ($a errored)"
 done
