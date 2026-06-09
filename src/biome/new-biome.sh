@@ -9,6 +9,7 @@
 #
 #   usage: ./new-biome.sh v001 "hypothesis text"
 set -euo pipefail
+export COPYFILE_DISABLE=1   # macOS: don't write ._* AppleDouble sidecars to exFAT (CORSAIR)
 
 VER="${1:?usage: new-biome.sh <vNNN> <hypothesis>}"
 HYP="${2:?usage: new-biome.sh <vNNN> <hypothesis>}"
