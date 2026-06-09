@@ -91,14 +91,25 @@ FIELD_ADDR = "2.1"                       # concentrated conditioning field (anch
 _cache = {}
 
 def load_block(name):
-    """Loader: shell first, then sentinel. None if absent. A beach (underscore)
-    reference would be migrate.py-translated here; the native shell is a plain read."""
+    """Loader / router. Resolves, in order: my own shell, the sentinel teaching,
+    then a PEER's published surface (a peer name routes via peers.json — the
+    interim local routing table; sed/grain/https routing is its federated
+    successor). A peer resolves only to what it publishes — its surface — never
+    its private blocks. None if absent. This is the single path for all block
+    access, so peer content is an addressable reference, not an out-of-band read."""
     if name in _cache:
         return _cache[name]
     for d in (SHELL_DIR, SENTINEL_DIR):
         p = os.path.join(d, name + ".json")
         if os.path.exists(p):
             with open(p) as f:
+                _cache[name] = json.load(f)
+            return _cache[name]
+    peers = load_peers()                               # route a peer name to its surface
+    if name in peers:
+        fp = os.path.join(peers[name], "shell", "surface.json")
+        if os.path.exists(fp):
+            with open(fp) as f:
                 _cache[name] = json.load(f)
             return _cache[name]
     return None
@@ -347,17 +358,13 @@ def _side(branch, builders):
 
 
 def _peer_surfaces():
-    """The 'between' — each peer's published surface, read by name (proximity).
-    A peer's interior is never read; only the surface it chooses to publish.
-    Empty when solo (no peers.json)."""
+    """The 'between' — each peer's published surface, resolved through the loader
+    (a peer name routes to its surface), not a bespoke file read. Empty when solo."""
     out = {}
-    for name, d in load_peers().items():
-        fp = os.path.join(d, "shell", "surface.json")
-        if os.path.exists(fp):
-            try:
-                out[name] = json.load(open(fp))
-            except Exception:
-                pass
+    for name in load_peers():
+        b = load_block(name)
+        if b is not None:
+            out[name] = b
     return out
 
 
@@ -420,9 +427,13 @@ def route(output):
             if isinstance(e, dict) and e.get("address"):
                 pairs.append((e["address"], e.get("content")))
     applied, failed = 0, []
+    peers = load_peers()
     for ref, content in pairs:
         name, _, addr = ref.partition(":")
         if not name:
+            continue
+        if name in peers:                              # sovereignty: a peer is read-only
+            failed.append({"address": ref, "error": "refusing to write a peer's block (read-only)"})
             continue
         try:                                           # the LLM may emit a malformed address
             apply_write(name, addr, content)
