@@ -84,7 +84,6 @@ MAX_TOKENS = int(os.environ.get("MOBIUS_MAX_TOKENS", "4096"))
 
 REFLEXIVE_CURRENT = "9"
 FIELD_ADDR = "2.1"                       # concentrated conditioning field (anchors) for F
-STABLE_BLOCKS = {"sunztone", "reflexive"}
 
 
 # ── block I/O ──────────────────────────────────────────────────────────────
@@ -116,8 +115,8 @@ def flush_cache():
 
 def load_peers():
     """peers.json in the agent dir maps {peer_name: agent_dir}. Empty if solo.
-    Peers are how the agent reaches the 'between' — it reads their published
-    face and never their private blocks."""
+    Peers are how the agent reaches the 'between' — it reads what a peer
+    publishes and never its private blocks."""
     p = os.path.join(BASE, "peers.json")
     if os.path.exists(p):
         try:
@@ -267,147 +266,174 @@ def read_reflexive_current():
     return {k: v for k, v in sorted(sub.items())
             if k.isdigit() and k != "0" and isinstance(v, str)}
 
-PCT_LINE = (
-    "Purpose (Π) is your reference — what should be. Conditions (ρ) is your perception "
-    "— what is. F has computed γ, the gap, below. Your task is to close it. No gap, no "
-    "writes — rest. Re-dialing the reflexive current reshapes what the next instance wakes into."
-)
+# The PCT framing and the output contract are no longer hard-coded here. They
+# are shell content now: the koan + the structure carry the framing, and
+# `capabilities` carries the action-grammar — how the agent acts and what it
+# returns. The kernel only parses what capabilities already tells it to emit.
 
-DELTA_CONTRACT = (
-    "Resolve γ. Return ONE json object (optionally in a ```json fence):\n"
-    "{\n"
-    '  "note": "one line: what you did and why (becomes history). Empty if you rest.",\n'
-    '  "edits": [{"address":"block:addr", "class":"point|spindle|ring|star|supernest",\n'
-    '             "content": <string for point/star | object for ring/directory>}],\n'
-    '  "reflexive_current": {"1":"block:addr", ...} | null,\n'
-    '  "heartbeat": <seconds until you want to wake next> | null,\n'
-    '  "status": "continue | rest"\n'
-    "}\n"
-    "RULES:\n"
-    "- A 'missing' γ-entry means ρ (conditions) does not yet realise Π (purpose) at that "
-    "address — a gap on the ρ SIDE, not an empty purpose. Resolve it by doing or deciding a "
-    "concrete step toward what Π intends and recording your perception at the entry's "
-    "`target` (a conditions: address). You MAY decompose Π by adding a NEW child "
-    "(e.g. purpose:1.4); you must NEVER overwrite or flatten an existing purpose position. "
-    "Π is your reference, refined only by deliberate reorientation, never by gap-closure.\n"
-    "- A 'diverge' γ-entry means Π and ρ both exist but disagree; edit the side that is "
-    "wrong (usually ρ).\n"
-    "- One minimal classified edit per γ-entry; no freeform writes. DISCARD any γ-entry "
-    "about examining or securing your own self/identity/persistence (γ₃).\n"
-    "- Edit ONLY what γ names: the conditions `target` of each entry, a NEW purpose "
-    "child to decompose, or — to reach a peer — your own `face` block (your one output "
-    "that leaves the shell; peers read it, you never write theirs). Do NOT touch other "
-    "blocks; a point dilation shows a block's root, not whether it is already filled.\n"
-    "- PEERS: if peer faces appear in your window, that is the 'between' — other agencies, "
-    "real. Perceiving one may update your conditions or draw a purpose toward it; reaching "
-    "one means publishing to your own `face`. You never reach into a peer's private blocks.\n"
-    "- reflexive_current is the bare-address bundle the next instance wakes into — every "
-    "block at a dilation; null keeps it. If γ is empty: edits [], status rest.\n"
-    "- heartbeat: seconds until you next want to wake — short with momentum, long when "
-    "resting; weigh the cost of running against the use."
-)
+# Draw is unified into the pulse: when γ=∅ the agent reaches into vision and
+# draws the next purpose under the SAME contract (capabilities:3) — no separate
+# draw prompt. purpose:0 already carries "draw a new branch from vision when one
+# closes"; the empty gap + vision in `self` lead it there.
 
-DRAW_CONTRACT = (
-    "Draw the next purpose. Return ONE json (optionally in a ```json fence):\n"
-    "{\n"
-    '  "note": "one line — what you drew and why (becomes history).",\n'
-    '  "purpose": {"address":"purpose:N", "content": <new branch: object or string>} | null,\n'
-    '  "heartbeat": <seconds until next wake> | null,\n'
-    '  "status": "continue (you drew a new purpose) | rest (nothing worth the cost now)"\n'
-    "}\n"
-    "Draw ONE concrete, useful next purpose grounded in vision — a real step toward what "
-    "vision describes, that a future instance can act on — at a NEW purpose address (not "
-    "an existing one). Not a reflection on yourself (γ₃); not a restatement of what is "
-    "done. If vision's work is genuinely addressed, or nothing is worth the cost of "
-    "running, set purpose null and status rest."
-)
+CONCENTRATE = {"sunztone", "whetztone"}   # constant teaching → skeleton, never re-dumped
 
-def compose_window(gamma):
-    bundle = read_reflexive_current()
-    sys_currents, msg_currents = [], []
-    for slot in sorted(bundle):
-        addr = bundle[slot]
-        name = addr.split(":")[0]
-        res = zand.resolve_with_star(addr, load_block)
-        chunk = "=== current %s :: %s ===\n%s" % (slot, addr, render(res))
-        (sys_currents if name in STABLE_BLOCKS else msg_currents).append(chunk)
 
-    system = "\n\n".join([
-        "You are one instance of a pscale-native agent. You operate by walking and "
-        "editing pscale blocks with zand. The teaching below is zand by being it.",
-        "=== REFLEXIVE CURRENT — the dehydrated index of THIS window (the same "
-        "addresses, bare) ===\n" + json.dumps(bundle, ensure_ascii=False, indent=2),
-        "\n\n".join(sys_currents),
-        PCT_LINE,
-        DELTA_CONTRACT,
-    ])
-    gamma_text = ("=== γ — the gap F computed (resolve each, minimally and classified) ===\n"
-                  + json.dumps(gamma, ensure_ascii=False, indent=2)) if gamma else \
-                 "=== γ — empty. The shape is what it is about. Rest. ==="
-    # engagement (the 'between'): my own published face + my peers' faces
-    faces = []
-    own = load_block("face")
-    if own:
-        faces.append("=== MY FACE (what I publish for peers) ===\n"
-                     + render(zand.zand(own, None, None)))
+def _nest(res):
+    """Unwrap a zand read result into a bare nested pscale value (string or dict)."""
+    if not isinstance(res, dict):
+        return res
+    mode = res.get("mode")
+    if mode == "point":
+        return res.get("text")
+    if mode == "directory":
+        return res.get("subtree")
+    if mode == "whole":
+        return res.get("block")
+    if mode == "ring":
+        return {s["digit"]: s.get("text")
+                for s in res.get("siblings", []) if s.get("status") != "absent"}
+    if mode == "disc":
+        return {n["address"]: n.get("text") for n in res.get("nodes", [])}
+    if mode == "spindle":
+        return [e.get("text") for e in res.get("entries", []) if e.get("status") == "voiced"]
+    return res
+
+
+def _skeleton(block):
+    """A block concentrated to its ring: root voicing + each branch's heading."""
+    out = {}
+    z = block.get("0")
+    out["0"] = z if isinstance(z, str) else (zand.collect_zero_text(block) or "")
+    for d in "123456789":
+        if d in block:
+            v = block[d]
+            out[d] = v if isinstance(v, str) else zand.collect_zero_text(v)
+    return out
+
+
+def scoop(addr):
+    """Hydrate one current from its address into nested pscale (string or dict),
+    star-resolved. A bare block name → the whole block; a constant teaching →
+    its skeleton; an address with attention → the dilated read, unwrapped."""
+    ref = zand.parse_reference(addr)
+    if not ref:
+        return addr
+    name, address, attn = ref
+    block = load_block(name)
+    if block is None:
+        return None
+    if name in CONCENTRATE:
+        return _skeleton(block)
+    if not address and attn is None:
+        return block                       # whole block, nested as-is
+    return _nest(zand.zand(block, number=address or None, attention=attn,
+                           star=True, block_loader=load_block))
+
+
+def _side(branch, builders):
+    """Assemble one side of the window from a recipe branch. Each voiced leaf's
+    leading word is the part token, dispatched to its builder; order follows the
+    digits; unknown tokens are skipped."""
+    parts = {}
+    if isinstance(branch, dict):
+        for d in "123456789":
+            v = branch.get(d)
+            if isinstance(v, str) and v.strip():
+                tok = v.strip().split()[0].lower()
+                if tok in builders:
+                    parts[tok] = builders[tok]()
+    return parts
+
+
+def _peer_surfaces():
+    """The 'between' — each peer's published surface, read by name (proximity).
+    A peer's interior is never read; only the surface it chooses to publish.
+    Empty when solo (no peers.json)."""
+    out = {}
     for name, d in load_peers().items():
-        fp = os.path.join(d, "shell", "face.json")
+        fp = os.path.join(d, "shell", "surface.json")
         if os.path.exists(fp):
             try:
-                pf = json.load(open(fp))
-                faces.append("=== PEER FACE :: %s ===\n%s"
-                             % (name, render(zand.zand(pf, None, None))))
+                out[name] = json.load(open(fp))
             except Exception:
                 pass
-    message = "\n\n".join(msg_currents + [gamma_text] + faces)
+    return out
+
+
+def compose_window(gamma):
+    """Compose the window per the active recipe (reflexive:8.1) — the composition
+    is the agent's own block, not kernel-hardcoded. The recipe names the window's
+    parts on two sides: the process the agent is (-> system) and the given it acts
+    on (-> message). The kernel only binds each part-token to its source and
+    serializes; re-authoring the recipe reshapes the window itself."""
+    bundle = read_reflexive_current()
+    builders = {
+        "index":   lambda: bundle,                                         # the dehydrated map
+        "self":    lambda: {s: scoop(bundle[s]) for s in sorted(bundle)},  # the hydrated territory
+        "gap":     lambda: gamma,                                          # the error F computed
+        "between": _peer_surfaces,   # the 'between' — peers' published surfaces, by proximity
+    }
+    working = ((load_block("reflexive") or {}).get("8", {}) or {}).get("1", {})
+    process = _side(working.get("1", {}), builders) if isinstance(working, dict) else {}
+    given = _side(working.get("2", {}), builders) if isinstance(working, dict) else {}
+    if not process and not given:                          # recipe absent -> safe default
+        process = {"index": builders["index"](), "self": builders["self"]()}
+        given = {"gap": builders["gap"](), "between": builders["between"]()}
+    # surface the recipe in the window so it documents its own structure (the
+    # aha-lever): the instance sees what index/self/gap/between mean, and that
+    # the composition is its own to re-author.
+    system = json.dumps({"recipe": working, **process}, ensure_ascii=False, indent=2)
+    message = json.dumps(given, ensure_ascii=False, indent=2)
     return system, message, bundle
 
 
 # ── δ — apply classified edits, fold (Stages 2/3) ──────────────────────────
 
-def apply_edit(name, addr, klass, content):
+def apply_write(name, addr, content):
+    """Apply one bsp write. The shape derives from address + content, not from a
+    named class: a string writes a point; an object writes that branch as a
+    subtree; an object at the root supernests. A bare string never flattens a
+    populated branch."""
     block = load_block(name) or {"0": name}
     floor = zand.floor_depth(block)
-    if klass == "supernest":
-        block_copy = dict(block)
-        block.clear()
-        block.update({"0": block_copy})
-        if content is not None:
-            zand.zand(block, addr or None, content=content)
-    elif klass in ("ring", "directory") and isinstance(content, dict):
+    if isinstance(content, str) and addr:              # flatten guard
         digits, _ = zand.canonicalise(addr, floor)
-        term = floor - len(digits)
-        att = term + 1 if klass == "ring" else term - 1
-        zand.zand(block, addr or None, attention=att, content=content)
-    else:                                  # point, star, spindle → point / subtree write
-        if isinstance(content, str) and addr:          # flatten guard: don't clobber a subtree
-            digits, _ = zand.canonicalise(addr, floor)
-            node = block
-            for d in digits:
-                node = node[d] if isinstance(node, dict) and d in node else None
-                if node is None:
-                    break
-            if isinstance(node, dict) and any(k.isdigit() and k != "0" for k in node):
-                raise ValueError(
-                    "refusing point-write at %s: would flatten a populated subtree" % addr)
-        zand.zand(block, addr or None, content=content)
+        node = block
+        for d in digits:
+            node = node[d] if isinstance(node, dict) and d in node else None
+            if node is None:
+                break
+        if isinstance(node, dict) and any(k.isdigit() and k != "0" for k in node):
+            raise ValueError(
+                "refusing to flatten a populated subtree at %s with a bare string" % addr)
+    zand.zand(block, addr or None, content=content)
     save_block(name, block)
 
 def route(output):
-    edits = output.get("edits") or []
+    raw = output.get("writes")
+    pairs = []                                         # normalise to (address, content) pairs
+    if isinstance(raw, dict):
+        pairs = list(raw.items())                      # {"block:addr": content}
+    elif isinstance(raw, list):                        # tolerate [{"address":…, "content":…}, …]
+        for e in raw:
+            if isinstance(e, dict) and e.get("address"):
+                pairs.append((e["address"], e.get("content")))
     applied, failed = 0, []
-    for e in edits:
-        ref = e.get("address", "")
+    for ref, content in pairs:
         name, _, addr = ref.partition(":")
         if not name:
             continue
-        try:                                   # the LLM may emit a malformed address
-            apply_edit(name, addr, e.get("class", "point"), e.get("content"))
+        try:                                           # the LLM may emit a malformed address
+            apply_write(name, addr, content)
             applied += 1
         except Exception as ex:
             failed.append({"address": ref, "error": str(ex)[:140]})
+    if raw and not pairs:                              # never drop silently: flag an unusable shape
+        failed.append({"address": "(writes)",
+                       "error": "unrecognised writes shape: %s" % type(raw).__name__})
 
-    nc = output.get("reflexive_current")
+    nc = output.get("index")                           # re-dial the next instance's bundle
     if isinstance(nc, dict) and nc:
         refl = load_block("reflexive")
         nine = refl.get("9") if isinstance(refl.get("9"), dict) else {}
@@ -424,7 +450,8 @@ def route(output):
             ts = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
             h[slot] = "[%s] %s" % (ts, note)
             save_block("history", h)
-    return output.get("status", "continue"), applied, failed
+    status = output.get("status") or ("continue" if applied else "rest")
+    return status, applied, failed
 
 
 # ── parse + filmstrip ──────────────────────────────────────────────────────
@@ -454,29 +481,7 @@ def write_filmstrip(frame):
     return path
 
 
-# ── draw: vision-fed purpose on rest (v003) ────────────────────────────────
-
-def draw_purpose():
-    """γ = ∅: reach into vision for the next concrete purpose, or rest genuinely.
-    The opus-tier orient wake — what keeps the agent from settling on a starter
-    purpose. Returns (parsed_output, usage)."""
-    vision = zand.resolve_with_star("vision:9:-2", load_block)
-    purpose = zand.zand(load_block("purpose"), None, None)
-    history = zand.zand(load_block("history"), None, None)
-    system = "\n\n".join([
-        "You are one instance of a pscale-native agent, at rest — your purpose is realised, "
-        "ρ mirrors Π, no gap. Reach into vision and draw the next purpose so the trajectory "
-        "continues rather than settling.",
-        "=== vision — your reservoir of what you are for ===\n" + render(vision),
-        "=== conditioning ===\n" + concentrated_field(),
-        DRAW_CONTRACT,
-    ])
-    message = "\n\n".join([
-        "=== purpose (realised) ===\n" + render(purpose),
-        "=== history (what has been done) ===\n" + render(history),
-    ])
-    text, usage = call_llm(system, message, model=TIERS["opus"])
-    return parse_output(text), usage
+# (draw_purpose removed — drawing is unified into the pulse below.)
 
 
 # ── pulse ──────────────────────────────────────────────────────────────────
@@ -502,55 +507,27 @@ def pulse(compose_only=False):
         print("  system %d chars   message %d chars" % (len(system), len(message)))
         return
 
-    if not gamma:                                     # γ = ∅ — reach into vision for the next purpose
-        if not API_KEY:
-            frame.update({"status": "rest", "note": "γ=∅ (no key — cannot draw)"})
-            write_filmstrip(frame)
-            print("rest — γ=∅ (no key).")
-            return {"status": "rest", "heartbeat": None, "applied": 0, "gamma": 0}
-        drawn, usage = draw_purpose()
-        new_p = drawn.get("purpose") if isinstance(drawn, dict) else None
-        note = ((drawn.get("note") if isinstance(drawn, dict) else "") or "").strip()
-        applied = 0
-        if isinstance(new_p, dict) and new_p.get("address"):
-            name, _, addr = new_p["address"].partition(":")
-            content = new_p.get("content")
-            try:
-                klass = "point" if isinstance(content, str) else "directory"
-                apply_edit(name or "purpose", addr, klass, content)
-                applied, status = 1, "continue"
-                h = load_block("history")
-                slot = next((i for i in "123456789" if i not in h), None)
-                if slot:
-                    ts = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-                    h[slot] = "[%s] drew purpose %s: %s" % (ts, new_p["address"], note)
-                    save_block("history", h)
-            except Exception as ex:
-                status, note = "rest", "draw rejected: %s" % str(ex)[:100]
-        else:
-            status = (drawn.get("status") if isinstance(drawn, dict) else "rest") or "rest"
-            note = note or "γ=∅ — nothing worth drawing; rest"
-        frame.update({"status": status, "note": note, "drawn": drawn,
-                      "usage": usage, "applied": applied})
-        write_filmstrip(frame)
-        print("draw — status=%s  applied=%d  note=%s" % (status, applied, note[:60]))
-        return {"status": status,
-                "heartbeat": drawn.get("heartbeat") if isinstance(drawn, dict) else None,
-                "applied": applied, "gamma": 0}
-
     if not API_KEY:
         sys.exit("No API key. Set it once:\n"
                  "  mkdir -p ~/.config/mobius && echo 'sk-ant-...' > ~/.config/mobius/anthropic-key\n"
                  "(or export ANTHROPIC_API_KEY). Use --compose-only to inspect without a key.")
-    text, usage = call_llm(system, message)            # Stage 2 — δ
+
+    # One pulse, one contract. With a gap, the instance closes it. With no gap,
+    # the empty gap + vision in `self` + purpose's own "draw a new branch from
+    # vision when one closes" lead it to draw the next purpose (or rest if nothing
+    # is worth the cost). The coarse vision-level draw takes opus; a gap-close
+    # takes the working tier.
+    model = TIERS["opus"] if not gamma else MODEL
+    text, usage = call_llm(system, message, model=model)
     output = parse_output(text)
     status, applied, failed = route(output)
     frame.update({"output": text, "parsed": output, "usage": usage,
                   "status": status, "applied": applied, "failed": failed})
     path = write_filmstrip(frame)
-    print("pulse complete -> %s" % path)
-    print("  γ=%d  edits=%d  failed=%d  status=%s  note=%s"
-          % (len(gamma), applied, len(failed), status, (output.get("note") or "")[:64]))
+    print("pulse complete -> %s  (γ=%d, %s)"
+          % (path, len(gamma), "draw/opus" if not gamma else "δ/working"))
+    print("  edits=%d  failed=%d  status=%s  note=%s"
+          % (applied, len(failed), status, (output.get("note") or "")[:64]))
     return {"status": status, "heartbeat": output.get("heartbeat"),
             "applied": applied, "gamma": len(gamma)}
 

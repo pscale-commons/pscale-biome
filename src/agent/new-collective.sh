@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # new-collective.sh — cut a THREE-agent collective (A, B, C), each a full agent
-# package, wired as peers: each publishes a `face` and reads the other two's
-# faces (the 'between' / Locus 0). The agents share one shell EXCEPT their
+# package, wired as peers: each publishes a `surface` and reads the other two's
+# surfaces (the 'between' / Locus 0). The agents share one shell EXCEPT their
 # purpose, which is seeded toward a distinct trajectory:
 #   A -> RPG · B -> MAGI · C -> open-business (beach / xstream)
 # Frozen archive on CORSAIR + working copy on Desktop, same discipline as
@@ -68,8 +68,8 @@ cat > "$PKG/MANIFEST.md" <<EOF
 
 - created: $TS
 - source commit: $GIT_COMMIT
-- three peer-wired agents (neutral names); each publishes a \`face\` block and reads the
-  other two's faces. They share one shell EXCEPT purpose, seeded toward distinct trajectories:
+- three peer-wired agents (neutral names); each publishes a \`surface\` block and reads the
+  other two's surfaces. They share one shell EXCEPT purpose, seeded toward distinct trajectories:
     - A — RPG (the pscale-block shared-world game)
     - B — MAGI (the agent ecology / coordination)
     - C — open-business (value through the beach via xstream)
@@ -78,12 +78,12 @@ cat > "$PKG/MANIFEST.md" <<EOF
 ## Run one round (pulse each agent once)
     cd "$WORK" && ./run-round.sh
 
-## Run several rounds (so they perceive each other's updated faces)
+## Run several rounds (so they perceive each other's updated surfaces)
     cd "$WORK" && for i in 1 2 3 4 5 6; do ./run-round.sh; done
 
 ## Read a run
     cd "$WORK"/A/agent && python3 digest.py
-    cat "$WORK"/*/agent/shell/face.json                 # the published faces
+    cat "$WORK"/*/agent/shell/surface.json              # the published surfaces
     cat "$WORK"/*/agent/shell/purpose.json | grep -A2 '"2"'   # the divergent purposes
 EOF
 

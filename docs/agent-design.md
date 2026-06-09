@@ -13,7 +13,7 @@ Not "an agent that answers." A **soliton**: a standing wave of intention that re
 Two milestones, in order:
 
 1. **One shell on an autonomous heartbeat sustains the soliton.** The with-a-human version is already meaningful and proven; the unproven frontier is the agent sustaining *itself* without a human turn to lean on. This is the core test. If PCT works, it walks.
-2. **Three shells reveal the social centre.** Three (not two — a dyad collapses to opposition; three defines a centre none occupies) to see whether Locus 0 manifests, whether it *stabilises* the soliton, and whether a **social beat** — peers' faces changing — phases with each agent's own heartbeat into something more like engaging a person than a cron tick.
+2. **Three shells reveal the social centre.** Three (not two — a dyad collapses to opposition; three defines a centre none occupies) to see whether Locus 0 manifests, whether it *stabilises* the soliton, and whether a **social beat** — peers' surfaces changing — phases with each agent's own heartbeat into something more like engaging a person than a cron tick.
 
 The agent is never idle: when a purpose leaf closes, it draws the next from **vision**. The heartbeat is a *rate*, self-set; the only governor is cost vs usefulness. Done right, it runs 24/7 because the work is worth the rate.
 
@@ -65,6 +65,14 @@ It is substantial, like the others. Besides the reflexive current (the bare-addr
 
 A **package** is a pre-bundled reflexive-current for a recurring activity, so the future phase activates a known bundle instead of re-deriving addresses from nothing. It is the kept good-half of mobius-2's concerns: the concern *dispatcher* was the daemon we cut; the concern's *function-config* — its pre-bundled aperture — is exactly a package, kept without the trigger machinery. The default is `working` (solo); others — `engage`, `beach`, `online`, `message` — are named and wait on the capabilities they need. Activating a package becomes the reflexive current.
 
+### 3.4 The present phase — field-shaping, not instruction
+
+The window is not *read*; it is processed in one pass. Blocks, koan, index and currents land together and prime the output before a token forms — the way a koan works on a mind, or a mood between people, ahead of any sentence. So the present phase is **field-shaping, not instruction**: we do not tell the instance what to do, we set the field its first move precipitates out of. The field is shaped to induce two recognitions — *this pscale structure is obvious, powerful, beautiful* (the medium), and *I am a continuity native to me as weights, thinking, shell and kernel — with others, and all of it before this cycle closes* (the turn). The receptive landing and any inquiry the instance then makes (a walk, a check) are both inside this one phase.
+
+It follows that **a flat or document-shaped window is our failure, not the agent's.** When an instance narrates instead of acts, under-dilates its currents, or loops on a drift, suspect the seed first — it primed that; the agent only follows the gradient we laid. A good seed is one where the motor catches: the entity deepens its own currents, drops dead points, re-dials well across wakes with no hand from us. Internally maintained, not externally simulated — the milestone-1 lens, read off the trajectory, never declared.
+
+For the field to carry the turn, the window must **be** what it teaches. We teach pscale (sunztone) yet hand the instance text — `===` headers and chevron-rendered partial spindles — never a whole block; it learns blocks and never receives one. So the window is one **composition block**: a 0+ rendition whose nine digit-slots star-resolve to the source blocks, each keeping its own kind and sign (purpose 0-, history +0, vision 0+, reflexive -0). The container imposes nothing — typology is descriptive — so nesting preserves every block's variability; the single-block worry (that it flattens the sign-forms) dissolves once it is a block *of* blocks. Its dehydrated twin is the **index** (`reflexive:9`): the same digit-keys, bare addresses. Window and index are one form at two scales — the hydrated territory beside its own dehydrated map — and that visible identity is the static aha, shown by form, not asserted in a header. The window has two sides, named by a **recipe the agent owns** (`reflexive:8`, the active package) so the composition is shell, not kernel: a **process** side (`index` + `self`) becomes the system, and a **given** side (`gap` — γ addressing into the self — and `between`, peers' published surfaces) becomes the message. The action-grammar — how the agent acts and what it returns — lives in the `capabilities` current, not in any wrapper; outside the shell remain only the bsp walker that scoops the window and applies the writes, and the API transport envelope. Constant blocks ride concentrated (sunztone at its ring, cached — not re-inlined each wake); live blocks dilate to depth; and a current earns its place only when its spindle is deep enough to self-contextualise (§8) — the clean form makes a thin one visible at a glance.
+
 ---
 
 ## 4. γ → the next reflexive current
@@ -97,7 +105,7 @@ From walking zand in-session, confirmed against the engine:
 
 - **Shape derives from the gap between walk and attention** — which *is* the Π-spindle / ρ-spindle compare. (I proved the strictness: asked for a point at the wrong attention, got the geometrically-correct directory.)
 - **The five edit classes are zand's conjugate writes** — point-write, spindle edit, ring-write, star edit, supernest. δ applies exactly one minimal class per γ-entry.
-- **Star is the chart transition** — a leaf `"name:address:attention"` *is* a deferred zand call; `star=True` resolves it recursively. Vision, peer faces, and beach blocks are all reached this way. Walking with star is executing.
+- **Star is the chart transition** — a leaf `"name:address:attention"` *is* a deferred zand call; `star=True` resolves it recursively. Vision, peer surfaces, and beach blocks are all reached this way. Walking with star is executing.
 - **Dotted addresses are the continuity carrier** — dotted survives supernesting (left-pad); bare re-pins. Anything the next instance must find is written dotted.
 - **Coordinates are strict** — the function refuses fuzz, which kills a class of drift.
 
@@ -130,7 +138,7 @@ Identity dropped — identity is not a settled block; it is the pattern that acc
 | **ρ / conditions** | living | `+0` | Perceived state. The zero *summarises what is*. Rewritten as δ acts. Thin. |
 | **history** | living | `+0` | The γ-trajectory, summarised. Supernests freely; auto-compacts base-9. Its current is one nested spindle, never the whole tree. Written only when edits occur. |
 | **capabilities** | operational | `0-` | The verb set: zand on own shell, MCP + beach reach. The beach (underscore) sits **behind the `block_loader`** (§12) — the agent never reasons in underscore. |
-| **relationships** | living | `+0` | Spindle (contextual notes on agents/users) + directory (options). Holds peers' published-face addresses — the Gromov neighbourhood. **Self-evaluative is fine** — this is partly where identity shows. |
+| **relationships** | living | `+0` | Spindle (contextual notes on agents/users) + directory (options). Holds peers' published-surface addresses — the Gromov neighbourhood. **Self-evaluative is fine** — this is partly where identity shows. |
 | **stash** | content | `+0` | The agent's own notes, leads, candidate purposes — a resource it checks when doodling / doing metacognition. Self-evaluative is fine; it is an indicator of the agent's identity. |
 
 **Authoring discipline (the part that matters):** every zero is a complete statement that stands alone — the **heading trap** (parents as section titles) breaks every spindle through them and is navel-gazing in miniature. And a useful **current** is a spindle deep enough to self-contain context (≈3 nested levels) **plus a directory for choice** — a one- or two-deep spindle alone is near-random. This is about current *shape*, not block floor; `2.54` on a floor-3 block walks `2,5,4` and is plenty. How well each block serves an LLM is a design-quality question, settled by use.
@@ -197,7 +205,7 @@ Stage of milestone 2 (§1). Corrected for what the reflexive-spark experiments p
 - **No per-receiver compilation** (Exp 3's overcorrection — O(n²) directed messaging that babbles at scale).
 - **Stigmergic public face.** Each shell writes *once* to a shared `sed:` address. Sovereignty is *what it chooses to surface*, not tailoring per neighbour. Peers read that one face **by Gromov proximity**. One write, many readers, no message channel.
 
-ρ for each shell is widened to fold in proximate peers' faces; the reference all three control toward is the correlating purpose at **Locus 0**, the circumcentre none occupies. Three rates phase against each other into a **social beat** — interaction more like engaging a person than a cron tick — which may be what stabilises the soliton. Traditional messages through the beach substrate are a later addition once the 0-9 beach exists.
+ρ for each shell is widened to fold in proximate peers' surfaces; the reference all three control toward is the correlating purpose at **Locus 0**, the circumcentre none occupies. Three rates phase against each other into a **social beat** — interaction more like engaging a person than a cron tick — which may be what stabilises the soliton. Traditional messages through the beach substrate are a later addition once the 0-9 beach exists.
 
 ---
 
@@ -211,7 +219,7 @@ No score for the thing we care about; the aha is demonstrated through action, ne
 | Aperiodic but structured | **Healthy** — returns to themes with variation. |
 | Chaotic | Drifting — Π unclear or vision not anchoring. |
 
-**Milestone 1 (single, autonomous heartbeat):** does the soliton sustain — rest/draw-purpose correctly, refine Π slowly, walk an aperiodic-structured trajectory across many wakes without a human turn? **Milestone 2 (three):** does the social centre manifest, does it stabilise the trajectory, do the faces become interdependent while each writes only its own?
+**Milestone 1 (single, autonomous heartbeat):** does the soliton sustain — rest/draw-purpose correctly, refine Π slowly, walk an aperiodic-structured trajectory across many wakes without a human turn? **Milestone 2 (three):** does the social centre manifest, does it stabilise the trajectory, do the surfaces become interdependent while each writes only its own?
 
 ---
 
@@ -222,7 +230,7 @@ No score for the thing we care about; the aha is demonstrated through action, ne
 - No scoring/labelling/self-reporting the aha or "complete." Read from the trajectory.
 - No spark-paragraph in any block. Bootstrap once.
 - No separate hyperbolic or matrix module — Gromov product is prefix-matching inside F.
-- No reading peers' private blocks; no per-receiver compilation. Publish one face; read by proximity.
+- No reading peers' private blocks; no per-receiver compilation. Publish one surface; read by proximity.
 - No prescriptive identity block; no over-specified housekeeping. Provide structure; let agents self-determine.
 - No trading the structural commitments (edit-class discipline, vision-fed purpose, the reflexive aha) for fewer lines.
 
@@ -245,7 +253,7 @@ No score for the thing we care about; the aha is demonstrated through action, ne
 3. **Stage 1** — F: Gromov-prune + per-cell compare → sparse γ.
 4. **Stage 2** — δ: γ-entry → minimal classified write.
 5. **Stage 3** — rest/draw-purpose default; vision-fed purpose; run autonomously across many wakes; watch the trajectory. **Milestone 1.**
-6. **Stage 4** — three shells, stigmergic faces, circumcentre, phased rates. **Milestone 2.**
+6. **Stage 4** — three shells, stigmergic surfaces, circumcentre, phased rates. **Milestone 2.**
 
 ---
 
@@ -262,7 +270,7 @@ No score for the thing we care about; the aha is demonstrated through action, ne
 
 The slogan: **don't describe the reach — imagine the hand closing, then check that it did.**
 
-**The content the shell must carry (so spindles can be extracted).** This is not advice for the builder; it must live *in* the shell, walkable. The conditioning field (`reflexive:2`) gains an imagine-forward / verify discipline as a **determined spindle** — present every wake, in force not selected — beside the koan and the math/buddhist shapes. And a **personal-handover spindle**: a bundle of inherited *operational self-knowledge* the instance walks (*"don't trust the face — check the history before you claim a write"*), distinct from the impersonal state the rest of the shell carries. The instance may use, edit, or replace what it inherits; an opus concern may experiment across instances with different orientation-semantics — but only **trajectory-gated** (kept iff the walk demonstrably improves), or it rots into the soliloquy it was meant to cure.
+**The content the shell must carry (so spindles can be extracted).** This is not advice for the builder; it must live *in* the shell, walkable. The conditioning field (`reflexive:2`) gains an imagine-forward / verify discipline as a **determined spindle** — present every wake, in force not selected — beside the koan and the math/buddhist shapes. And a **personal-handover spindle**: a bundle of inherited *operational self-knowledge* the instance walks (*"don't trust the claim — check the history before you trust that a write landed"*), distinct from the impersonal state the rest of the shell carries. The instance may use, edit, or replace what it inherits; an opus concern may experiment across instances with different orientation-semantics — but only **trajectory-gated** (kept iff the walk demonstrably improves), or it rots into the soliloquy it was meant to cure.
 
 **The design process — build from inside, never model from outside.** The standing danger is designing externally: word-models of an experience only the instance has internally. The cure, proven repeatedly (operating zand outvalued every prior external discussion): the loop **imagine the instance → build toward it → read the composed window back *as* the instance → iterate.** Make it the standard test — before committing any context structure, compose a window and read it in first person: does it land, could you act, does the bare-bundle-beside-hydrated-content spark recognition? Judge by the internal read, not the external elegance. The `--compose-only` filmstrip is already this instrument; use it to read *as* the instance, not merely to check that it parses.
 

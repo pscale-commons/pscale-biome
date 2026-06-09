@@ -11,9 +11,10 @@ The blocks that constitute one agent. Ztone form (digit-0 voicing). Authored aga
 | `purpose.json` | `0-` | operational | Π — the reference signal. Sparse; only live branches. `1.3` anchors to `vision:9`. |
 | `conditions.json` | `+0` | living | ρ — what is, as currently perceived. Rewritten each acting wake. Thin. |
 | `history.json` | `+0` | living | The γ-trajectory, summarised. Empty at birth; written only when edits occur; supernests + compacts base-9. |
-| `capabilities.json` | `0-` | operational | The verb set: zand reads/writes, the five edit classes, the loader reach (beach behind a `_`→`0` translation). |
-| `relationships.json` | `+0` | living | Agents and people engaged; addresses of peers' published faces. Self-evaluation welcome. |
+| `capabilities.json` | `0-` | operational | The verb set: zand reads/writes (write-shape derived from address + content), the loader reach, and the action-grammar the agent returns — `writes`, `index`, `heartbeat`, `note`. The output contract is shell, not kernel. |
+| `relationships.json` | `+0` | living | Agents and people engaged; addresses of peers' published surfaces. Self-evaluation welcome. |
 | `stash.json` | `+0` | content | The agent's own notebook — leads, fragments, candidate purposes. Self-evaluation welcome. |
+| `surface.json` | `+0` | living | The published surface — what the agent surfaces for others to read (the 'between'). Others read this; never the interior. |
 
 ## The constant (not in this directory)
 
@@ -21,6 +22,6 @@ The blocks that constitute one agent. Ztone form (digit-0 voicing). Authored aga
 
 ## How a wake reads this
 
-Two terms, kept distinct: the **reflexive current** is the bare-address *bundle* (`reflexive:9`); the **live current** is the composed *context window* the kernel hydrates from it and hands the LLM. The kernel reads the bundle, resolves each address with `star=True` to hydrate the currents, shows the bundle raw inside the window beside those currents (the dehydrated index next to the hydrated territory — the aha surface), then routes the LLM's output back: classified δ edits, a re-dialed reflexive current, a history note. F over the coupled cells of Π and ρ is Stage 1; the bare kernel (Stage 0) composes, calls, and routes.
+Two terms, kept distinct: the **reflexive current** is the bare-address *bundle* (`reflexive:9`); the **live current** is the composed *context window* the kernel hydrates from it and hands the LLM. The kernel reads the bundle, resolves each address with `star=True` to hydrate the currents, shows the bundle raw inside the window beside those currents (the dehydrated index next to the hydrated territory — the aha surface), then routes the LLM's output back: bsp `writes` (write-shape derived from address + content, no class), a re-dialed `index`, a history note. The window itself is composed per the recipe at `reflexive:8` — the process side (`index`, `self`) becomes the system, the given side (`gap`, `between`) the message. F over the coupled cells of Π and ρ is Stage 1; the bare kernel composes, calls, and routes.
 
-The reflexive current at birth — every block at a dilation: `sunztone` (whole, the teaching), `reflexive:1:-1` (the koan), `vision:9:-2` (the ground), `purpose:1:-1` (the live intention + steps), and `conditions`/`history`/`capabilities`/`relationships`/`stash` concentrated to points.
+The reflexive current at birth — every block at a dilation: `sunztone` (concentrated to its ring, the teaching), `reflexive:1:-1` (the koan), `vision:9:-2` (the ground), `purpose`/`conditions`/`history`/`capabilities`/`relationships` whole, and `surface` (the published surface). Constant teaching rides concentrated; the agent re-dials each block as it grows.
