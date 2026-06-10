@@ -24,6 +24,25 @@ When discussing or writing pscale addresses (the ztone-era pure-digit form):
 
 This applies to prose, code comments, JSON examples, and any output a Claude instance produces in this project. The address form has one decimal; the walk form has commas. Never mix.
 
+## Two worlds — the boundary (read when anything feels mixed)
+
+Two block-worlds exist and must never interbreed. They are mechanically distinguishable — a block cannot be in both:
+
+| | **the beach** (old world) | **the biome** (new world) |
+|---|---|---|
+| Geometry | `_` semantic key, hidden directories, star-as-door, digits 1-9 | `0` as semantic digit, no hidden positions, refs as plain leaves, digits 0-9 |
+| Function | `bsp()` — bsp-mcp on Railway | `spark` — `src/spark/` |
+| Lives at | production repos, beach.happyseaurchin.com, xstream.onen.ai | this repo (genome source) · `~/Desktop/biome-runs/` (live instances) · `/Volumes/CORSAIR/biome/` (frozen snapshots) · the commons host when it exists |
+| Status | mature, production, being built on | experimental, contained |
+
+**The mechanical test** for any stray JSON: `_` anywhere in its keys → beach-world; pure single-digit keys with `0` as semantic → biome-world. (`sense._probe_beach` applies the same test to substrates: `world: legacy | ztone`.)
+
+**Crossing rules:**
+1. No beach-world block is ever copied into a biome store. **Re-author in 0-9; never port.** (The slate already carries the biome's native Thornkeep at 3.6 — that is the RPG seed, not any old-world Thornkeep file.)
+2. No biome block is ever written to a federated beach.
+3. The biome may *read* beach-world substrates only as labeled foreign kin (`kind: beach, world: legacy`) — sensing, never storage.
+4. In this repo, biome-world is exactly: `src/spark/`, `src/biome/`, `src/sentinel/ztone/`. Everything else under `src/` is beach-world vendor or superseded drafts (`src/zand` was the 0-9 first pass) — reference only, never built on.
+
 ## What this experiment is asking
 
 > Can the five concerns of a pscale node — storage, BSP function, MCP transport, hermit-crab shell, xstream interface — be unified into one package that, when placed on a host, **unfolds** to fit that host's conditions?
