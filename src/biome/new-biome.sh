@@ -23,10 +23,9 @@ CREATED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 cut_to() {
   local dest="$1"
-  mkdir -p "$dest/sentinel/ztone"
+  mkdir -p "$dest"
   rsync -a --exclude '__pycache__' --exclude '*.pyc' "$SRC/spark" "$dest/"
   rsync -a --exclude '__pycache__' --exclude '*.pyc' "$SRC/biome" "$dest/"
-  cp "$SRC/sentinel/ztone/"*.json "$dest/sentinel/ztone/"
   printf 'web: python3 biome/serve.py\n' > "$dest/Procfile"   # platform hosts read this; bare hosts ignore it
   printf '# stdlib only — Python marker for platform builds\n' > "$dest/requirements.txt"
   printf '3.12\n' > "$dest/.python-version"

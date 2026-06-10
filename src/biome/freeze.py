@@ -1,6 +1,6 @@
 """freeze — formalise the genome: the frozen base of biome conformality.
 
-Writes sentinel/ztone/genome.json: a block stating what every conformal
+Writes constitution/genome.json: a block stating what every conformal
 instance shares — the 0-9 geometry, the one spark signature, the wire
 surface, and the tezt battery as the conformance criterion — plus sha256
 fingerprints of the carried reference artifacts (slate, flint, spark.py,
@@ -18,7 +18,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SPARK = os.path.join(HERE, "..", "spark")
-GENOME = os.path.join(HERE, "..", "sentinel", "ztone", "genome.json")
+GENOME = os.path.join(HERE, "constitution", "genome.json")
 
 ARTIFACTS = [("slate", "slate.json"), ("flint", "flint.json"),
              ("spark-py", "spark.py"), ("spark-ts", "spark.ts")]
@@ -46,11 +46,11 @@ def freeze(version, date):
              "provided writes the same shape. The shape — point, ring, directory, disc, "
              "spindle, whole — derives from (number, attention) against the floor, never chosen.",
         "4": "Wire. A commons serves every surface through the one spark, at world-typed "
-             "doors. Beach: GET /.well-known/ztone-beach?block=NAME returns the whole block; "
+             "doors. Beach: GET /.well-known/biome-beach?block=NAME returns the whole block; "
              "POST the same path with {block, number, attention, content} writes — and the "
              "door's membrane refuses beach-world shapes (a `_` key anywhere). MCP at /mcp "
              "carries the single tool spark for connecting LLM apps. The legacy federation's "
-             "/.well-known/pscale-beach is another world's door: a ztone host signposts it, "
+             "/.well-known/pscale-beach is another world's door: a biome host signposts it, "
              "never serves it. The URL is the instance's identity.",
         "5": "Conformance. An implementation is conformal when it passes the carried tezt "
              "battery (at %s: 42 Python, 33 TypeScript). The battery, not the fingerprint, "

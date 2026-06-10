@@ -6,8 +6,8 @@ then listens. Every surface calls the one spark — there is no second
 implementation.
 
   GET  /                                      the arrive block (the root IS arrival)
-  GET  /.well-known/ztone-beach?block=NAME    whole block, as JSON          (3.2)
-  POST /.well-known/ztone-beach               {block, number, attention, content} write
+  GET  /.well-known/biome-beach?block=NAME    whole block, as JSON          (3.2)
+  POST /.well-known/biome-beach               {block, number, attention, content} write
   POST /mcp                                   MCP, streamable HTTP, one tool: spark  (3.1)
   */   /.well-known/pscale-beach              the old world's door — a signpost, never served
 
@@ -32,11 +32,11 @@ import beach
 import spark
 from store_fs import FsStore
 
-ZTONE = os.path.join(HERE, "..", "sentinel", "ztone")
+CONSTITUTION = os.path.join(HERE, "constitution")
 SEEDS = [
-    ("arrive", os.path.join(ZTONE, "arrive.json")),
-    ("genome", os.path.join(ZTONE, "genome.json")),
-    ("biome-shell", os.path.join(ZTONE, "biome.json")),
+    ("arrive", os.path.join(CONSTITUTION, "arrive.json")),
+    ("genome", os.path.join(CONSTITUTION, "genome.json")),
+    ("biome-shell", os.path.join(CONSTITUTION, "biome.json")),
     ("slate", os.path.join(HERE, "..", "spark", "slate.json")),
     ("flint", os.path.join(HERE, "..", "spark", "flint.json")),
     ("thornkeep", os.path.join(HERE, "world", "thornkeep.json")),
@@ -65,21 +65,21 @@ TOOL = {
 }
 
 
-DOOR = "/.well-known/ztone-beach"
+DOOR = "/.well-known/biome-beach"
 LEGACY_DOOR = "/.well-known/pscale-beach"
-SIGNPOST = {"world": "ztone", "door": DOOR,
-            "note": "this host speaks the ztone (0-9) substrate; pscale-beach is another world's door"}
+SIGNPOST = {"world": "biome", "door": DOOR,
+            "note": "this host speaks the biome (0-9) substrate; pscale-beach is another world's door"}
 
 
-def ztone_legal(content):
+def biome_legal(content):
     """The door's membrane: in this world every dict key is a single digit.
     A `_` (or any other key) anywhere is another world's geometry — refused,
     never stored."""
     if isinstance(content, dict):
-        return all(len(k) == 1 and k.isdigit() and ztone_legal(v)
+        return all(len(k) == 1 and k.isdigit() and biome_legal(v)
                    for k, v in content.items())
     if isinstance(content, list):
-        return all(ztone_legal(v) for v in content)
+        return all(biome_legal(v) for v in content)
     return True
 
 
@@ -99,8 +99,8 @@ def seed(store):
 def run_spark(store, args):
     block = args["block"]
     if "content" in args and args["content"] is not None:
-        if not ztone_legal(args["content"]):
-            raise ValueError("beach-world shape refused — this substrate is ztone: "
+        if not biome_legal(args["content"]):
+            raise ValueError("beach-world shape refused — this substrate is the biome's: "
                              "every key a single digit 0-9")
         return beach.write(store, block, args.get("number"), args.get("attention"),
                            content=args["content"])
@@ -215,7 +215,7 @@ def main(root=None, port=None, host=None):
     root, port, host = root or eroot, int(port or ep), host or eh
     store = FsStore(os.path.join(root, "blocks"))
     becoming = store.load_block("biome")
-    carried = spark.spark(spark.load(os.path.join(ZTONE, "genome.json")), "1", 0).get("text")
+    carried = spark.spark(spark.load(os.path.join(CONSTITUTION, "genome.json")), "1", 0).get("text")
     stamped = becoming is not None and spark.spark(becoming, "1", 0).get("text", "")
     if becoming is None or not str(stamped).endswith("genome %s" % carried):
         # cold start, or the carried genome moved on — the procedure re-runs (shell 8)

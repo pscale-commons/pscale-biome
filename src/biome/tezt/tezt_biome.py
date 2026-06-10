@@ -56,9 +56,14 @@ try:
                    "9": {"0": "intention: commons [8.83] — durable"}}, f)
 
     dormant = os.path.join(land, "cut")
-    os.makedirs(os.path.join(dormant, "sentinel", "ztone"))
-    with open(os.path.join(dormant, "sentinel", "ztone", "biome.json"), "w") as f:
+    os.makedirs(os.path.join(dormant, "biome", "constitution"))
+    with open(os.path.join(dormant, "biome", "constitution", "biome.json"), "w") as f:
         json.dump({"0": "Biome — the conditional cell"}, f)
+
+    elder = os.path.join(land, "v001-era")
+    os.makedirs(os.path.join(elder, "sentinel", "ztone"))
+    with open(os.path.join(elder, "sentinel", "ztone", "biome.json"), "w") as f:
+        json.dump({"0": "Biome — an elder cut, pre-consolidation"}, f)
 
     crab = os.path.join(land, "mobius")
     os.makedirs(os.path.join(crab, "shell"))
@@ -71,8 +76,9 @@ try:
     kin = [n for n in sense.sense_neighbours(me, network=False)
            if os.path.realpath(n.get("path", "")).startswith(os.path.realpath(land))]
     by_kind = sorted((n["kind"], n.get("state")) for n in kin)
-    ok("three kinds found", by_kind,
-       [("agent", "shelled"), ("biome", "activated"), ("biome", "dormant")])
+    ok("all kinds found, both cut layouts", by_kind,
+       [("agent", "shelled"), ("biome", "activated"),
+        ("biome", "dormant"), ("biome", "dormant")])
     ok("self excluded", any(os.path.realpath(me) == os.path.realpath(n.get("path", ""))
                             for n in kin), False)
     lived_entry = [n for n in kin if n.get("state") == "activated"][0]

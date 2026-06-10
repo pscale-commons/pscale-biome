@@ -20,7 +20,7 @@ sys.path.insert(0, HERE)
 import spark
 import sense as sensor
 
-SHELL = os.path.join(HERE, "..", "sentinel", "ztone", "biome.json")
+SHELL = os.path.join(HERE, "constitution", "biome.json")
 
 CURRENTS = [
     (1, "storage"), (2, "cognition"), (3, "endpoints"), (4, "persistence"),

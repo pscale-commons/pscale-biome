@@ -17,7 +17,7 @@ If you hear or read "biome" in conversation, it means this project unless explic
 
 ## Pscale notation in conversation and code
 
-When discussing or writing pscale addresses (the ztone-era pure-digit form):
+When discussing or writing pscale addresses (the biome's pure-digit form):
 
 - **Address** — written with exactly one decimal point, pinned to the floor. Example: `30.5` on a floor-2 block. The decimal is a floor anchor, not a separator. Multi-dot forms like `3.0.5` are forbidden — they were pre-bsp legacy and they read as a structural hazard.
 - **Walk** — the digit sequence the walker traverses, written with commas. Example: address `30.5` walks `3,0,5`. Address `1.234` walks `1,2,3,4`.
@@ -35,14 +35,14 @@ Two block-worlds exist and must never interbreed. They are mechanically distingu
 | Lives at | production repos, beach.happyseaurchin.com, xstream.onen.ai | this repo (genome source) · `~/Desktop/biome-runs/` (live instances) · `/Volumes/CORSAIR/biome/` (frozen snapshots) · the commons host when it exists |
 | Status | mature, production, being built on | experimental, contained |
 
-**The mechanical test** for any stray JSON: `_` anywhere in its keys → beach-world; pure single-digit keys with `0` as semantic → biome-world. (`sense._probe_beach` applies the same test to substrates: `world: legacy | ztone`.)
+**The mechanical test** for any stray JSON: `_` anywhere in its keys → beach-world; pure single-digit keys with `0` as semantic → biome-world. (`sense._probe_beach` applies the same test to substrates: `world: legacy | biome`.)
 
 **Crossing rules:**
 1. No beach-world block is ever copied into a biome store. **Re-author in 0-9; never port.** (The slate already carries the biome's native Thornkeep at 3.6 — that is the RPG seed, not any old-world Thornkeep file.)
 2. No biome block is ever written to a federated beach.
 3. The biome may *read* beach-world substrates only as labeled foreign kin (`kind: beach, world: legacy`) — sensing, never storage.
-4. In this repo, biome-world is exactly: `src/spark/`, `src/biome/`, `src/sentinel/ztone/`. Everything else under `src/` is beach-world vendor or superseded drafts (`src/zand` was the 0-9 first pass) — reference only, never built on.
-5. **Separate doors (genome v2):** the old federation's wire door is `/.well-known/pscale-beach`; the biome's is `/.well-known/ztone-beach`. A biome *signposts* the old door (404 + note), never serves it, and its write membrane refuses any content carrying a `_` key.
+4. In this repo, biome-world is exactly: `src/spark/` and `src/biome/` (the constitution blocks live at `src/biome/constitution/`). Everything else under `src/` — including all of `src/sentinel/` — is beach-world vendor or superseded drafts (`src/zand` and the sentinel `*ztone*` stones were the 0-9 first pass; "ztone" is retired terminology from that intermediary stage) — reference only, never built on.
+5. **Separate doors (genome v3):** the old federation's wire door is `/.well-known/pscale-beach`; the biome's is `/.well-known/biome-beach`. A biome *signposts* the old door (404 + note), never serves it, and its write membrane refuses any content carrying a non-digit key (notably `_`).
 6. **Separate routing language:** "the beach" / "take me to the beach" belongs to the old world (bsp-mcp). The biome answers to "the commons" / "Thornkeep". Never use beach-language in biome invitations, tool descriptions, or connector names — an LLM holding both connectors routes by these words.
 
 ## What this experiment is asking

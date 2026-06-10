@@ -83,16 +83,16 @@ try:
     print("the beach surface (.well-known)")
     code, body = http("/")
     ok("the root is arrival", body["0"].startswith("Arrive"), True)
-    code, body = http("/.well-known/ztone-beach?block=thornkeep")
+    code, body = http("/.well-known/biome-beach?block=thornkeep")
     ok("whole block read", body["4"]["2"]["1"],
        "the taproom — long benches, a peat fire, the smell of wet wool")
-    code, body = http("/.well-known/ztone-beach")
+    code, body = http("/.well-known/biome-beach")
     ok("the surface lists its blocks", "thornkeep" in body["blocks"], True)
-    code, body = http("/.well-known/ztone-beach",
+    code, body = http("/.well-known/biome-beach",
                       {"block": "marks", "number": "1", "attention": 0,
                        "content": "first trace — tezt"})
     ok("a write lands", body["ok"], True)
-    code, body = http("/.well-known/ztone-beach",
+    code, body = http("/.well-known/biome-beach",
                       {"block": "marks", "number": "1", "attention": 0})
     ok("and reads back", body["text"], "first trace — tezt")
 
@@ -130,9 +130,9 @@ try:
         ok("the old world's door is a signpost", "no error", "404")
     except urllib.error.HTTPError as e:
         note = json.loads(e.read().decode("utf-8"))
-        ok("the old world's door is a signpost", (e.code, note["world"]), (404, "ztone"))
+        ok("the old world's door is a signpost", (e.code, note["world"]), (404, "biome"))
     try:
-        http("/.well-known/ztone-beach",
+        http("/.well-known/biome-beach",
              {"block": "marks", "number": "3", "attention": 0,
               "content": {"_": "an old-world shape"}})
         ok("the membrane refuses _ shapes", "accepted", "refused")

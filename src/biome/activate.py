@@ -28,7 +28,7 @@ def activate(root=None):
     report = U.unfold(U.sensor.sense(root))               # sense the surface being committed
     store = FsStore(os.path.join(root, "blocks"))         # commit the storage surface
 
-    genome_path = os.path.join(HERE, "..", "sentinel", "ztone", "genome.json")
+    genome_path = os.path.join(HERE, "constitution", "genome.json")
     version = spark.spark(spark.load(genome_path), "1", 0).get("text") \
         if os.path.isfile(genome_path) else "unfrozen"
     composed = {

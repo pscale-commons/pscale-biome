@@ -89,10 +89,12 @@ def sense_capacity(path="."):
 def _read_instance(d):
     """If the directory holds a biome instance, read its self-description through
     spark. Activated: blocks/biome.json (the becoming). Dormant: a cut genome
-    (sentinel/ztone/biome.json) that has not unfolded yet. Agent: a shell of
+    (an unactivated constitution) that has not unfolded yet. Agent: a shell of
     pscale blocks (the mobius shape). Returns a neighbour entry, or None."""
     becoming = os.path.join(d, "blocks", "biome.json")
-    genome = os.path.join(d, "sentinel", "ztone", "biome.json")
+    genome = os.path.join(d, "biome", "constitution", "biome.json")
+    if not os.path.isfile(genome):                        # elder cuts carried it here
+        genome = os.path.join(d, "sentinel", "ztone", "biome.json")
     shell_dir = os.path.join(d, "shell")
     try:
         if os.path.isfile(becoming):
@@ -147,11 +149,11 @@ def _local_candidates(root):
 
 
 def _probe_beach(host, timeout=1.5):
-    """Ask a host which world it speaks, knocking the ztone door first and the
+    """Ask a host which world it speaks, knocking the biome door first and the
     legacy door second. One small GET per door; every failure reads as silence.
     The key-shape of what answers settles the world either way."""
     import urllib.request
-    for door in ("ztone-beach", "pscale-beach"):
+    for door in ("biome-beach", "pscale-beach"):
         url = "https://%s/.well-known/%s?block=marks" % (host, door)
         try:
             with urllib.request.urlopen(url, timeout=timeout) as r:
@@ -160,7 +162,7 @@ def _probe_beach(host, timeout=1.5):
             continue
         if not isinstance(block, dict):
             continue
-        world = "legacy" if "_" in block else "ztone" if "0" in block else "unknown"
+        world = "legacy" if "_" in block else "biome" if "0" in block else "unknown"
         return {"kind": "beach", "url": "https://" + host, "door": door, "world": world}
     return None
 
