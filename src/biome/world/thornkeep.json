@@ -1,0 +1,26 @@
+{
+  "0": {
+    "0": "The Vellmoor — high moorland under a wide sky, peat-dark and wind-combed; Thornkeep is its only settlement. This is the spatial aspect: time and identity are other blocks at these same addresses."
+  },
+  "4": {
+    "0": "Thornkeep — a settlement at the moor's edge",
+    "1": {
+      "0": "the gate road — the only way in, rutted by carts and flanked by leaning fence-posts"
+    },
+    "2": {
+      "0": "the Drum — a low-beamed tavern off the shingle",
+      "1": "the taproom — long benches, a peat fire, the smell of wet wool",
+      "2": "the hearth corner — the warm seat, kept for regulars",
+      "3": "the back room — a bolt-hole with its own door"
+    },
+    "3": {
+      "0": "the shingle market — stalls of peat, wool, and moor-herbs, loud on fifth-days"
+    },
+    "5": {
+      "0": "the watchtower — older than the town and leaning, its stair locked from the inside"
+    }
+  },
+  "7": {
+    "0": "the standing stones — out on the open moor, a half-day's walk from the gate road; the wind speaks differently there"
+  }
+}

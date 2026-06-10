@@ -28,9 +28,12 @@ def activate(root=None):
     report = U.unfold()                                   # leg-1 read: sense + unfold
     store = FsStore(os.path.join(root, "blocks"))         # commit the storage surface
 
+    genome_path = os.path.join(HERE, "..", "sentinel", "ztone", "genome.json")
+    version = spark.spark(spark.load(genome_path), "1", 0).get("text") \
+        if os.path.isfile(genome_path) else "unfrozen"
     composed = {
         "0": "biome — what this cell became when it unfolded on its host",
-        "1": report["conditions"]["runtime"],
+        "1": "%s · genome %s" % (report["conditions"]["runtime"], version),
     }
     for i, (branch, name) in enumerate(U.CURRENTS, start=2):
         picks = report["unfolding"][name]

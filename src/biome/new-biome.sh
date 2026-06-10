@@ -26,7 +26,7 @@ cut_to() {
   mkdir -p "$dest/sentinel/ztone"
   rsync -a --exclude '__pycache__' --exclude '*.pyc' "$SRC/spark" "$dest/"
   rsync -a --exclude '__pycache__' --exclude '*.pyc' "$SRC/biome" "$dest/"
-  cp "$SRC/sentinel/ztone/biome.json" "$dest/sentinel/ztone/biome.json"
+  cp "$SRC/sentinel/ztone/"*.json "$dest/sentinel/ztone/"
   cat > "$dest/MANIFEST.md" <<EOF
 # biome $VER
 
