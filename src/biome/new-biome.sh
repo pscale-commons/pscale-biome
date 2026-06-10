@@ -28,6 +28,7 @@ cut_to() {
   rsync -a --exclude '__pycache__' --exclude '*.pyc' "$SRC/biome" "$dest/"
   cp "$SRC/sentinel/ztone/"*.json "$dest/sentinel/ztone/"
   printf 'web: python3 biome/serve.py\n' > "$dest/Procfile"   # platform hosts read this; bare hosts ignore it
+  printf '# stdlib only — Python marker for platform builds\n' > "$dest/requirements.txt"
   cat > "$dest/MANIFEST.md" <<EOF
 # biome $VER
 
