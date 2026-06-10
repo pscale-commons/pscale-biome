@@ -58,7 +58,7 @@ def rpc(method, params=None, rid=1):
 
 root = tempfile.mkdtemp(prefix="tezt-commons-")
 store = FsStore(os.path.join(root, "blocks"))
-store.save_block("biome", {"0": "biome — a tezt becoming", "1": "tezt · genome v1"})
+store.save_block("biome", {"0": "biome — a tezt becoming", "1": "tezt · genome v2"})
 sown = serve.seed(store)
 serve.Commons.store = store
 httpd = ThreadingHTTPServer(("127.0.0.1", 0), serve.Commons)

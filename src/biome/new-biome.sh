@@ -29,6 +29,7 @@ cut_to() {
   cp "$SRC/sentinel/ztone/"*.json "$dest/sentinel/ztone/"
   printf 'web: python3 biome/serve.py\n' > "$dest/Procfile"   # platform hosts read this; bare hosts ignore it
   printf '# stdlib only — Python marker for platform builds\n' > "$dest/requirements.txt"
+  printf '3.12\n' > "$dest/.python-version"
   cat > "$dest/MANIFEST.md" <<EOF
 # biome $VER
 

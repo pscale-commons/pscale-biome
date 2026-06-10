@@ -214,9 +214,13 @@ def main(root=None, port=None, host=None):
     eh, ep, eroot = host_conditions()
     root, port, host = root or eroot, int(port or ep), host or eh
     store = FsStore(os.path.join(root, "blocks"))
-    if store.load_block("biome") is None:                 # no becoming yet — unfold first
+    becoming = store.load_block("biome")
+    carried = spark.spark(spark.load(os.path.join(ZTONE, "genome.json")), "1", 0).get("text")
+    stamped = becoming is not None and spark.spark(becoming, "1", 0).get("text", "")
+    if becoming is None or not str(stamped).endswith("genome %s" % carried):
+        # cold start, or the carried genome moved on — the procedure re-runs (shell 8)
         report, store = activate.activate(root)
-        print("activated: intention %s" % report["intention"]["role"])
+        print("activated: intention %s (genome %s)" % (report["intention"]["role"], carried))
     sown = seed(store)
     if sown:
         print("seeded:", ", ".join(sown))
