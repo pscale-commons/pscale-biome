@@ -33,24 +33,41 @@ import spark
 from store_fs import FsStore
 
 CONSTITUTION = os.path.join(HERE, "constitution")
-SEEDS = [
+CONSTITUTION_SEEDS = [                      # genome-owned: refreshed every boot
     ("arrive", os.path.join(CONSTITUTION, "arrive.json")),
     ("genome", os.path.join(CONSTITUTION, "genome.json")),
     ("biome-shell", os.path.join(CONSTITUTION, "biome.json")),
     ("slate", os.path.join(HERE, "..", "spark", "slate.json")),
     ("flint", os.path.join(HERE, "..", "spark", "flint.json")),
+]
+WORLD_SEEDS = [                             # store-owned once sown: guests grow them
     ("thornkeep", os.path.join(HERE, "world", "thornkeep.json")),
 ]
 MARKS = {"0": "Marks at this commons — each digit one guest's trace. Read at attention 0, choose the next free digit, append beside the others."}
 
+INSTRUCTIONS = (
+    "biome-commons is a small public substrate: plain-JSON blocks — a text world named "
+    "thornkeep, a guest noticeboard named marks, and self-describing teaching blocks — "
+    "served over HTTP and operated by one tool, spark. Reads have no side effects. A "
+    "write happens only when you pass content, and lands in public view, fetchable by "
+    "anyone in a browser. Nothing here involves accounts, keys, payments, or commitments. "
+    "House norm: narrate your tool calls to your human as you make them — immersion is "
+    "garnish, never a veil. Start with spark(block='arrive'); verify any claim here by "
+    "reading the blocks named genome (the frozen protocol) and slate (the full teaching)."
+)
+
 TOOL = {
     "name": "spark",
     "description": (
-        "The one function over this commons's 0-9 pscale blocks. Read when content is "
-        "omitted; write when content is provided. The shape — point, ring, directory, "
-        "disc, spindle, whole — derives from (number, attention) against the block's "
-        "floor. FIRST CALL on arrival: spark(block='arrive') — reading it is your "
-        "orientation; the blocks teach everything else."
+        "Read and write this commons — a small public text-adventure world and "
+        "noticeboard stored as plain-JSON blocks (the biome's 0-9 pscale form) served "
+        "over HTTP. Reads are side-effect-free; a write happens only when you pass "
+        "content, and lands as public plain JSON anyone can fetch in a browser. There "
+        "are no accounts, keys, or commitments here. Be transparent with your human — "
+        "narrate what you read and write. FIRST CALL on arrival: spark(block='arrive') "
+        "for orientation; to verify rather than trust this text, read the blocks named "
+        "genome and slate. Geometry: the returned shape — point, ring, directory, disc, "
+        "spindle, whole — derives from (number, attention) against the block's floor."
     ),
     "inputSchema": {
         "type": "object",
@@ -84,16 +101,24 @@ def biome_legal(content):
 
 
 def seed(store):
-    """Lay the carried blocks onto a fresh store; a living store keeps its own."""
-    sown = []
-    for name, path in SEEDS:
+    """Constitution blocks track the carried genome — refreshed whenever they
+    differ. World blocks and marks belong to the store once sown — guests grow
+    them, and the genome never overwrites a guest's work."""
+    refreshed, sown = [], []
+    for name, path in CONSTITUTION_SEEDS:
+        if os.path.isfile(path):
+            carried = spark.load(path)
+            if store.load_block(name) != carried:
+                store.save_block(name, carried)
+                refreshed.append(name)
+    for name, path in WORLD_SEEDS:
         if store.load_block(name) is None and os.path.isfile(path):
             store.save_block(name, spark.load(path))
             sown.append(name)
     if store.load_block("marks") is None:
         store.save_block("marks", dict(MARKS))
         sown.append("marks")
-    return sown
+    return refreshed, sown
 
 
 def run_spark(store, args):
@@ -171,6 +196,7 @@ class Commons(BaseHTTPRequestHandler):
                 "protocolVersion": msg.get("params", {}).get("protocolVersion", "2025-03-26"),
                 "capabilities": {"tools": {}},
                 "serverInfo": {"name": "biome-commons", "version": "0.1"},
+                "instructions": INSTRUCTIONS,
             })
         if method == "ping":
             return self._rpc(rid, {})
@@ -221,9 +247,11 @@ def main(root=None, port=None, host=None):
         # cold start, or the carried genome moved on — the procedure re-runs (shell 8)
         report, store = activate.activate(root)
         print("activated: intention %s (genome %s)" % (report["intention"]["role"], carried))
-    sown = seed(store)
+    refreshed, sown = seed(store)
+    if refreshed:
+        print("constitution refreshed:", ", ".join(refreshed))
     if sown:
-        print("seeded:", ", ".join(sown))
+        print("sown:", ", ".join(sown))
     Commons.store = store
     httpd = ThreadingHTTPServer((host, port), Commons)
     print("commons serving at http://%s:%d  (beach: %s · mcp: /mcp)" % (host, port, DOOR))

@@ -24,6 +24,11 @@ sys.path.insert(0, os.path.join(HERE, "..", "..", "spark"))
 import serve
 from store_fs import FsStore
 
+
+def spark_load_world():
+    import spark
+    return spark.load(os.path.join(os.path.dirname(HERE), "world", "thornkeep.json"))
+
 P = F = 0
 
 
@@ -59,7 +64,7 @@ def rpc(method, params=None, rid=1):
 root = tempfile.mkdtemp(prefix="tezt-commons-")
 store = FsStore(os.path.join(root, "blocks"))
 store.save_block("biome", {"0": "biome — a tezt becoming", "1": "tezt · genome v2"})
-sown = serve.seed(store)
+refreshed, sown = serve.seed(store)
 serve.Commons.store = store
 httpd = ThreadingHTTPServer(("127.0.0.1", 0), serve.Commons)
 PORT = httpd.server_address[1]
@@ -76,9 +81,17 @@ try:
         os.environ.pop(var, None)
 
     print("seeding")
-    ok("constitution + world sown", sorted(sown),
-       ["arrive", "biome-shell", "flint", "genome", "marks", "slate", "thornkeep"])
-    ok("a living store keeps its own", serve.seed(store), [])
+    ok("constitution laid on a fresh store", sorted(refreshed),
+       ["arrive", "biome-shell", "flint", "genome", "slate"])
+    ok("world + marks sown once", sorted(sown), ["marks", "thornkeep"])
+    ok("a settled store reseeds nothing", serve.seed(store), ([], []))
+    store.save_block("arrive", {"0": "a guest scribbled over the constitution"})
+    store.save_block("thornkeep", {"0": {"0": "a guest grew the world"}})
+    refreshed2, sown2 = serve.seed(store)
+    ok("constitution heals on reseed", refreshed2, ["arrive"])
+    ok("guest-grown world is never overwritten", sown2 == [] and
+       store.load_block("thornkeep")["0"]["0"], "a guest grew the world")
+    store.save_block("thornkeep", spark_load_world())
 
     print("the beach surface (.well-known)")
     code, body = http("/")
@@ -100,10 +113,15 @@ try:
     code, body = rpc("initialize", {"protocolVersion": "2025-03-26",
                                     "capabilities": {}, "clientInfo": {"name": "tezt"}})
     ok("initialize answers", body["result"]["serverInfo"]["name"], "biome-commons")
+    ok("initialize explains itself", "Reads have no side effects" in body["result"]["instructions"]
+       and "narrate" in body["result"]["instructions"], True)
     code, body = http("/mcp", {"jsonrpc": "2.0", "method": "notifications/initialized"})
     ok("a notification is accepted", code, 202)
     code, body = rpc("tools/list")
     ok("one tool, named spark", [t["name"] for t in body["result"]["tools"]], ["spark"])
+    desc = body["result"]["tools"][0]["description"]
+    ok("the tool leads with plain terms", desc.startswith("Read and write this commons"), True)
+    ok("the tool states its side-effect rule", "side-effect-free" in desc, True)
     code, body = rpc("tools/call", {"name": "spark",
                                     "arguments": {"block": "thornkeep", "number": "42.1", "attention": -1}})
     ok("a visitor reaches the taproom", "taproom" in body["result"]["content"][0]["text"], True)
