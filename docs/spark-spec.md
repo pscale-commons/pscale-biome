@@ -85,6 +85,6 @@ The biome is one package that senses where it landed and unfolds — *not* a bea
 
 The three live instances are three unfoldings of one shell: bsp-mcp on Railway (hosted storage · external cognition · MCP endpoint), the happyseaurchin KV beach (hosted storage · `.well-known` federation · silent substrate), mobius-3 on the desktop (filesystem · embedded loop · always-on). Same genome; the receptacle determines the form.
 
-## Next — the unfolding spine
+## Next — connectivity (the biome-ready entity)
 
-The smallest first move that forces the whole architecture (per `minimal-package.md` Q4a): **sense-and-print** — a host sensor (`src/biome/sense.py`) that inspects the landing, and an unfolder that walks the 0-9 biome shell through spark and reports what the biome *would* become here, committing no surface. Adapters and surface-drivers follow as the unfolder reaches for them, each gated by a sensed condition, each calling the one spark.
+Sense-and-print, the filesystem store/beach, and the first writing activation (`v001`) are done. The next move is **connectivity** — the piece that turns an isolated genome into a biome that can form an ecology: neighbour-sensing in `sense.py` (detect other biome instances, local and networked) and role-unfolding in `unfold.py` (mind / courier / commons, chosen by surface + capacity + neighbours). The shared surface that emerges is the RPG's world. See `biome-shape.md` for the full synthesis and the drift traps to resist.
