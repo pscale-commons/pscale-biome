@@ -38,6 +38,14 @@ def activate(root=None):
             "%d.%d %s" % (p["branch"], p["option"], (p["text"] or "").split(". ")[0])
             for p in picks
         )
+    it = report["intention"]
+    kin = report["conditions"].get("neighbours", [])
+    nine = {"0": "intention: %s [%s] — %s" % (it["role"], it["node"], "; ".join(it["reasons"]))}
+    for j, n in enumerate(kin[:9], start=1):              # nine positions; the voicing keeps the count
+        nine[str(j)] = U._neighbour_line(n)
+    if len(kin) > 9:
+        nine["0"] += " (%d neighbours sensed, first 9 held)" % len(kin)
+    composed["9"] = nine
     beach.write(store, "biome", content=composed)         # whole-block write — branch 8.8
     return report, store
 
