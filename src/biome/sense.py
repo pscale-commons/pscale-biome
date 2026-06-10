@@ -62,7 +62,7 @@ def sense_cognition():
     }
 
 
-def sense_endpoints(port=3001):
+def sense_endpoints(port=3210):
     return {"port": port, "port_free": _port_free(port), "browser": False}
 
 

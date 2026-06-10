@@ -10,9 +10,10 @@ implementation.
   POST /.well-known/pscale-beach              {block, number, attention, content} write
   POST /mcp                                   MCP, streamable HTTP, one tool: spark  (3.1)
 
-Run from a run-folder:  python3 biome/serve.py [port]     (default 3001, binds
-127.0.0.1 — a tunnel terminates TLS and forwards here when the commons goes
-public). Nursery semantics: reads free, writes open — curation is the owner's.
+Run from a run-folder:  python3 biome/serve.py [port]     (default 3210, binds
+127.0.0.1). On a platform host the env speaks: an injected PORT binds every
+interface behind the platform's TLS edge; BIOME_ROOT names the durable volume.
+Nursery semantics: reads free, writes open — curation is the owner's.
 """
 
 import json
@@ -172,8 +173,20 @@ class Commons(BaseHTTPRequestHandler):
         sys.stderr.write("commons: %s\n" % (fmt % args))
 
 
-def main(root=None, port=None, host="127.0.0.1"):
-    root = root or os.getcwd()
+def host_conditions():
+    """Platform hosts speak through env: an injected PORT means a public face
+    (bind every interface — the platform's edge terminates TLS); BIOME_ROOT
+    names the durable surface (a mounted volume). Bare hosts default to the
+    loopback and the working directory."""
+    port = os.environ.get("PORT")
+    return ("0.0.0.0" if port else "127.0.0.1",
+            int(port or 3210),
+            os.environ.get("BIOME_ROOT") or os.getcwd())
+
+
+def main(root=None, port=None, host=None):
+    eh, ep, eroot = host_conditions()
+    root, port, host = root or eroot, int(port or ep), host or eh
     store = FsStore(os.path.join(root, "blocks"))
     if store.load_block("biome") is None:                 # no becoming yet — unfold first
         report, store = activate.activate(root)
@@ -182,7 +195,6 @@ def main(root=None, port=None, host="127.0.0.1"):
     if sown:
         print("seeded:", ", ".join(sown))
     Commons.store = store
-    port = int(port or 3001)
     httpd = ThreadingHTTPServer((host, port), Commons)
     print("commons serving at http://%s:%d  (beach: /.well-known/pscale-beach · mcp: /mcp)" % (host, port))
     print("blocks:", ", ".join(store.list_blocks()))

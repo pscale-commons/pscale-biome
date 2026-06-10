@@ -25,7 +25,7 @@ from store_fs import FsStore
 def activate(root=None):
     """Sense, unfold, commit the storage surface, and remember the becoming."""
     root = root or os.getcwd()
-    report = U.unfold()                                   # leg-1 read: sense + unfold
+    report = U.unfold(U.sensor.sense(root))               # sense the surface being committed
     store = FsStore(os.path.join(root, "blocks"))         # commit the storage surface
 
     genome_path = os.path.join(HERE, "..", "sentinel", "ztone", "genome.json")

@@ -66,6 +66,15 @@ PORT = httpd.server_address[1]
 threading.Thread(target=httpd.serve_forever, daemon=True).start()
 
 try:
+    print("host conditions")
+    for var in ("PORT", "BIOME_ROOT"):
+        os.environ.pop(var, None)
+    ok("a bare host stays loopback", serve.host_conditions()[:2], ("127.0.0.1", 3210))
+    os.environ["PORT"], os.environ["BIOME_ROOT"] = "8080", "/data"
+    ok("a platform host speaks through env", serve.host_conditions(), ("0.0.0.0", 8080, "/data"))
+    for var in ("PORT", "BIOME_ROOT"):
+        os.environ.pop(var, None)
+
     print("seeding")
     ok("constitution + world sown", sorted(sown),
        ["arrive", "biome-shell", "flint", "genome", "marks", "slate", "thornkeep"])
