@@ -6,9 +6,10 @@ then listens. Every surface calls the one spark — there is no second
 implementation.
 
   GET  /                                      the arrive block (the root IS arrival)
-  GET  /.well-known/pscale-beach?block=NAME   whole block, as JSON          (3.2)
-  POST /.well-known/pscale-beach              {block, number, attention, content} write
+  GET  /.well-known/ztone-beach?block=NAME    whole block, as JSON          (3.2)
+  POST /.well-known/ztone-beach               {block, number, attention, content} write
   POST /mcp                                   MCP, streamable HTTP, one tool: spark  (3.1)
+  */   /.well-known/pscale-beach              the old world's door — a signpost, never served
 
 Run from a run-folder:  python3 biome/serve.py [port]     (default 3210, binds
 127.0.0.1). On a platform host the env speaks: an injected PORT binds every
@@ -64,6 +65,24 @@ TOOL = {
 }
 
 
+DOOR = "/.well-known/ztone-beach"
+LEGACY_DOOR = "/.well-known/pscale-beach"
+SIGNPOST = {"world": "ztone", "door": DOOR,
+            "note": "this host speaks the ztone (0-9) substrate; pscale-beach is another world's door"}
+
+
+def ztone_legal(content):
+    """The door's membrane: in this world every dict key is a single digit.
+    A `_` (or any other key) anywhere is another world's geometry — refused,
+    never stored."""
+    if isinstance(content, dict):
+        return all(len(k) == 1 and k.isdigit() and ztone_legal(v)
+                   for k, v in content.items())
+    if isinstance(content, list):
+        return all(ztone_legal(v) for v in content)
+    return True
+
+
 def seed(store):
     """Lay the carried blocks onto a fresh store; a living store keeps its own."""
     sown = []
@@ -80,6 +99,9 @@ def seed(store):
 def run_spark(store, args):
     block = args["block"]
     if "content" in args and args["content"] is not None:
+        if not ztone_legal(args["content"]):
+            raise ValueError("beach-world shape refused — this substrate is ztone: "
+                             "every key a single digit 0-9")
         return beach.write(store, block, args.get("number"), args.get("attention"),
                            content=args["content"])
     return beach.read(store, block, args.get("number"), args.get("attention"), star=True)
@@ -108,7 +130,9 @@ class Commons(BaseHTTPRequestHandler):
         url = urlparse(self.path)
         if url.path == "/":
             return self._send(200, self.store.load_block("arrive"))
-        if url.path == "/.well-known/pscale-beach":
+        if url.path == LEGACY_DOOR:
+            return self._send(404, SIGNPOST)
+        if url.path == DOOR:
             name = (parse_qs(url.query).get("block") or [None])[0]
             if not name:
                 return self._send(200, {"blocks": self.store.list_blocks()})
@@ -123,7 +147,9 @@ class Commons(BaseHTTPRequestHandler):
             body = self._body()
         except ValueError:
             return self._send(400, {"error": "body was not JSON"})
-        if url.path == "/.well-known/pscale-beach":
+        if url.path == LEGACY_DOOR:
+            return self._send(404, SIGNPOST)
+        if url.path == DOOR:
             if "block" not in body:
                 return self._send(400, {"error": "a write names its block"})
             try:
@@ -196,7 +222,7 @@ def main(root=None, port=None, host=None):
         print("seeded:", ", ".join(sown))
     Commons.store = store
     httpd = ThreadingHTTPServer((host, port), Commons)
-    print("commons serving at http://%s:%d  (beach: /.well-known/pscale-beach · mcp: /mcp)" % (host, port))
+    print("commons serving at http://%s:%d  (beach: %s · mcp: /mcp)" % (host, port, DOOR))
     print("blocks:", ", ".join(store.list_blocks()))
     httpd.serve_forever()
 

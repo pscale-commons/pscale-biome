@@ -147,19 +147,22 @@ def _local_candidates(root):
 
 
 def _probe_beach(host, timeout=1.5):
-    """Ask a host whether it serves a beach, and which world it speaks: legacy
-    (`_` keys) or ztone (0-9). One small GET; every failure reads as silence."""
+    """Ask a host which world it speaks, knocking the ztone door first and the
+    legacy door second. One small GET per door; every failure reads as silence.
+    The key-shape of what answers settles the world either way."""
     import urllib.request
-    url = "https://%s/.well-known/pscale-beach?block=marks" % host
-    try:
-        with urllib.request.urlopen(url, timeout=timeout) as r:
-            block = json.loads(r.read().decode("utf-8"))
+    for door in ("ztone-beach", "pscale-beach"):
+        url = "https://%s/.well-known/%s?block=marks" % (host, door)
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as r:
+                block = json.loads(r.read().decode("utf-8"))
+        except Exception:
+            continue
         if not isinstance(block, dict):
-            return None
+            continue
         world = "legacy" if "_" in block else "ztone" if "0" in block else "unknown"
-        return {"kind": "beach", "url": "https://" + host, "world": world}
-    except Exception:
-        return None
+        return {"kind": "beach", "url": "https://" + host, "door": door, "world": world}
+    return None
 
 
 def sense_neighbours(root=".", hosts=("beach.happyseaurchin.com",), network=True):

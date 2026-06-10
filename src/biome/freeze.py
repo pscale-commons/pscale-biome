@@ -45,10 +45,13 @@ def freeze(version, date):
              "spark(block, number, attention, content?). Content omitted reads; content "
              "provided writes the same shape. The shape — point, ring, directory, disc, "
              "spindle, whole — derives from (number, attention) against the floor, never chosen.",
-        "4": "Wire. A commons serves every surface through the one spark. Beach: GET "
-             "/.well-known/pscale-beach?block=NAME returns the whole block; POST the same "
-             "path with {block, number, attention, content} writes. MCP at /mcp carries the "
-             "single tool spark for connecting LLM apps. The URL is the instance's identity.",
+        "4": "Wire. A commons serves every surface through the one spark, at world-typed "
+             "doors. Beach: GET /.well-known/ztone-beach?block=NAME returns the whole block; "
+             "POST the same path with {block, number, attention, content} writes — and the "
+             "door's membrane refuses beach-world shapes (a `_` key anywhere). MCP at /mcp "
+             "carries the single tool spark for connecting LLM apps. The legacy federation's "
+             "/.well-known/pscale-beach is another world's door: a ztone host signposts it, "
+             "never serves it. The URL is the instance's identity.",
         "5": "Conformance. An implementation is conformal when it passes the carried tezt "
              "battery (at %s: 42 Python, 33 TypeScript). The battery, not the fingerprint, "
              "judges a fresh implementation; the fingerprints below identify the reference "

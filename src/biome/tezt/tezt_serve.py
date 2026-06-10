@@ -83,16 +83,16 @@ try:
     print("the beach surface (.well-known)")
     code, body = http("/")
     ok("the root is arrival", body["0"].startswith("Arrive"), True)
-    code, body = http("/.well-known/pscale-beach?block=thornkeep")
+    code, body = http("/.well-known/ztone-beach?block=thornkeep")
     ok("whole block read", body["4"]["2"]["1"],
        "the taproom — long benches, a peat fire, the smell of wet wool")
-    code, body = http("/.well-known/pscale-beach")
+    code, body = http("/.well-known/ztone-beach")
     ok("the surface lists its blocks", "thornkeep" in body["blocks"], True)
-    code, body = http("/.well-known/pscale-beach",
+    code, body = http("/.well-known/ztone-beach",
                       {"block": "marks", "number": "1", "attention": 0,
                        "content": "first trace — tezt"})
     ok("a write lands", body["ok"], True)
-    code, body = http("/.well-known/pscale-beach",
+    code, body = http("/.well-known/ztone-beach",
                       {"block": "marks", "number": "1", "attention": 0})
     ok("and reads back", body["text"], "first trace — tezt")
 
@@ -122,6 +122,27 @@ try:
     ok("unknown method refused", body["error"]["code"], -32601)
     code, body = rpc("tools/call", {"name": "hammer", "arguments": {}})
     ok("only spark is carried", body["error"]["code"], -32602)
+
+    print("the boundary at the door")
+    import urllib.error
+    try:
+        http("/.well-known/pscale-beach?block=marks")
+        ok("the old world's door is a signpost", "no error", "404")
+    except urllib.error.HTTPError as e:
+        note = json.loads(e.read().decode("utf-8"))
+        ok("the old world's door is a signpost", (e.code, note["world"]), (404, "ztone"))
+    try:
+        http("/.well-known/ztone-beach",
+             {"block": "marks", "number": "3", "attention": 0,
+              "content": {"_": "an old-world shape"}})
+        ok("the membrane refuses _ shapes", "accepted", "refused")
+    except urllib.error.HTTPError as e:
+        err = json.loads(e.read().decode("utf-8"))
+        ok("the membrane refuses _ shapes", "beach-world shape refused" in err["error"], True)
+    code, body = rpc("tools/call", {"name": "spark",
+                                    "arguments": {"block": "marks", "number": "3", "attention": -1,
+                                                  "content": {"_": "x", "1": "y"}}})
+    ok("the membrane guards the mcp door too", body["result"]["isError"], True)
 finally:
     httpd.shutdown()
     shutil.rmtree(root)

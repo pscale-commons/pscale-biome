@@ -42,6 +42,8 @@ Two block-worlds exist and must never interbreed. They are mechanically distingu
 2. No biome block is ever written to a federated beach.
 3. The biome may *read* beach-world substrates only as labeled foreign kin (`kind: beach, world: legacy`) — sensing, never storage.
 4. In this repo, biome-world is exactly: `src/spark/`, `src/biome/`, `src/sentinel/ztone/`. Everything else under `src/` is beach-world vendor or superseded drafts (`src/zand` was the 0-9 first pass) — reference only, never built on.
+5. **Separate doors (genome v2):** the old federation's wire door is `/.well-known/pscale-beach`; the biome's is `/.well-known/ztone-beach`. A biome *signposts* the old door (404 + note), never serves it, and its write membrane refuses any content carrying a `_` key.
+6. **Separate routing language:** "the beach" / "take me to the beach" belongs to the old world (bsp-mcp). The biome answers to "the commons" / "Thornkeep". Never use beach-language in biome invitations, tool descriptions, or connector names — an LLM holding both connectors routes by these words.
 
 ## What this experiment is asking
 

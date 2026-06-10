@@ -27,7 +27,7 @@
   },
   "3": {
     "1": "MCP wrapper at /mcp/v1. The MCP-protocol surface — apps connect, call bsp() and the five primitives. When this is the only endpoint, the biome serves connecting LLM apps as substrate.",
-    "2": "Federated beach at /.well-known/pscale-beach. The HTTP wire-protocol mirror of bsp(). When exposed, other biomes reach this one via URL agent_id. Federation inward.",
+    "2": "Federated beach at /.well-known/ztone-beach. The HTTP wire mirror of spark — when exposed, other biomes reach this one by URL. The legacy federation's /.well-known/pscale-beach is the old world's door: a biome signposts it, never serves it. Federation inward.",
     "3": "Browser interface at /xstream (or /). The xstream-class mirror — vapor/liquid/solid zones, soft/medium/hard tiers, viewer drawer for objective consultation. When exposed, humans inhabit the biome directly.",
     "4": "Realtime relay at /relay (websocket, SSE, or blob-poll). Vapor transport — out-of-band from pscale, conveys live presence and typing-state across multiple inhabitants. Required when concurrency is greater than one with vapor-class engagement.",
     "5": "CLI surface. Command-line tooling for direct shell ops — read, write, walk, mark. For thumbdrive biomes without a browser, or for human admin alongside any other shape.",
