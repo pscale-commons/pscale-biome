@@ -1,6 +1,6 @@
-"""tezt_serve — regression battery for the commons surfaces.
+"""serve-battery — regression battery for the commons surfaces.
 
-Run:  python3 tezt_serve.py     (exits nonzero on any failure)
+Run:  python3 serve-battery.py     (exits nonzero on any failure)
 
 Spins the commons in-process on an ephemeral port and exercises both
 surfaces — the .well-known beach and the MCP endpoint — through real HTTP.
@@ -61,9 +61,9 @@ def rpc(method, params=None, rid=1):
     return http("/mcp", msg)
 
 
-root = tempfile.mkdtemp(prefix="tezt-commons-")
+root = tempfile.mkdtemp(prefix="battery-commons-")
 store = FsStore(os.path.join(root, "blocks"))
-store.save_block("biome", {"0": "biome — a tezt becoming", "1": "tezt · genome v2"})
+store.save_block("biome", {"0": "biome — a test becoming", "1": "test · genome v2"})
 refreshed, sown = serve.seed(store)
 serve.Commons.store = store
 httpd = ThreadingHTTPServer(("127.0.0.1", 0), serve.Commons)
@@ -82,7 +82,7 @@ try:
 
     print("seeding")
     ok("constitution laid on a fresh store", sorted(refreshed),
-       ["arrive", "biome-shell", "flint", "genome", "slate"])
+       ["arrive", "battery", "biome-shell", "flint", "genome", "slate"])
     ok("world + marks sown once", sorted(sown), ["marks", "thornkeep"])
     ok("a settled store reseeds nothing", serve.seed(store), ([], []))
     store.save_block("arrive", {"0": "a guest scribbled over the constitution"})
@@ -103,15 +103,15 @@ try:
     ok("the surface lists its blocks", "thornkeep" in body["blocks"], True)
     code, body = http("/.well-known/biome-beach",
                       {"block": "marks", "number": "1", "attention": 0,
-                       "content": "first trace — tezt"})
+                       "content": "first trace — test"})
     ok("a write lands", body["ok"], True)
     code, body = http("/.well-known/biome-beach",
                       {"block": "marks", "number": "1", "attention": 0})
-    ok("and reads back", body["text"], "first trace — tezt")
+    ok("and reads back", body["text"], "first trace — test")
 
     print("the mcp surface")
     code, body = rpc("initialize", {"protocolVersion": "2025-03-26",
-                                    "capabilities": {}, "clientInfo": {"name": "tezt"}})
+                                    "capabilities": {}, "clientInfo": {"name": "test"}})
     ok("initialize answers", body["result"]["serverInfo"]["name"], "biome-commons")
     ok("initialize explains itself", "Reads have no side effects" in body["result"]["instructions"]
        and "narrate" in body["result"]["instructions"], True)
@@ -133,7 +133,7 @@ try:
     disc = json.loads(body["result"]["content"][0]["text"])
     ok("the marks disc holds both traces",
        [n["text"] for n in disc["nodes"] if n["address"] != "0"],
-       ["first trace — tezt", "second trace — via mcp"])
+       ["first trace — test", "second trace — via mcp"])
     code, body = rpc("tools/call", {"name": "spark", "arguments": {"block": "arrive"}})
     ok("arrival reads whole", json.loads(body["result"]["content"][0]["text"])["mode"], "whole")
     code, body = rpc("nonsense/method")

@@ -1,6 +1,6 @@
-"""tezt_biome — regression battery for the biome's sensing and unfolding.
+"""biome-battery — regression battery for the biome's sensing and unfolding.
 
-Run:  python3 tezt_biome.py     (exits nonzero on any failure)
+Run:  python3 biome-battery.py     (exits nonzero on any failure)
 
 Covers removable-surface detection, neighbour-sensing over a synthetic
 landscape (activated biome, dormant genome, agent shell, self-exclusion),
@@ -44,7 +44,7 @@ else:
     ok("home stays", sense._removable(os.path.expanduser("~")), False)
 
 print("neighbour sensing (synthetic landscape)")
-land = tempfile.mkdtemp(prefix="tezt-biome-")
+land = tempfile.mkdtemp(prefix="battery-biome-")
 try:
     me = os.path.join(land, "me")
     os.makedirs(me)
@@ -72,7 +72,7 @@ try:
             json.dump({"0": b[:-5]}, f)
 
     # the sensor also roams the host's real ledges (desktop runs, volumes);
-    # hold the tezt to the synthetic landscape only
+    # hold the test to the synthetic landscape only
     kin = [n for n in sense.sense_neighbours(me, network=False)
            if os.path.realpath(n.get("path", "")).startswith(os.path.realpath(land))]
     by_kind = sorted((n["kind"], n.get("state")) for n in kin)

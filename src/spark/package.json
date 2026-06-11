@@ -2,5 +2,5 @@
   "name": "spark",
   "version": "0.1.0",
   "type": "module",
-  "description": "spark — the coded kernel for pscale blocks (TypeScript). Run tezt with: node --experimental-strip-types tezt/tezt_spark.ts"
+  "description": "spark — the coded kernel for pscale blocks (TypeScript). Run the battery with: node --experimental-strip-types test-battery/spark-battery.ts"
 }

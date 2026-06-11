@@ -2,7 +2,7 @@
 
 Writes constitution/genome.json: a block stating what every conformal
 instance shares — the 0-9 geometry, the one spark signature, the wire
-surface, and the tezt battery as the conformance criterion — plus sha256
+surface, and the test battery as the conformance criterion — plus sha256
 fingerprints of the carried reference artifacts (slate, flint, spark.py,
 spark.ts). Two instances are kin when they carry the same genome version.
 
@@ -52,10 +52,11 @@ def freeze(version, date):
              "carries the single tool spark for connecting LLM apps. The legacy federation's "
              "/.well-known/pscale-beach is another world's door: a biome host signposts it, "
              "never serves it. The URL is the instance's identity.",
-        "5": "Conformance. An implementation is conformal when it passes the carried tezt "
+        "5": "Conformance. An implementation is conformal when it passes the carried test "
              "battery (at %s: 43 Python, 34 TypeScript). The battery, not the fingerprint, "
              "judges a fresh implementation; the fingerprints below identify the reference "
-             "artifacts this genome was frozen from." % version,
+             "artifacts this genome was frozen from. The plain-language account of every "
+             "carried battery is the block named battery." % version,
         "6": {"0": "Reference artifacts at %s, sha256 first 12 hex." % version},
     }
     for i, (name, fn) in enumerate(ARTIFACTS, start=1):

@@ -37,6 +37,7 @@ CONSTITUTION_SEEDS = [                      # genome-owned: refreshed every boot
     ("arrive", os.path.join(CONSTITUTION, "arrive.json")),
     ("genome", os.path.join(CONSTITUTION, "genome.json")),
     ("biome-shell", os.path.join(CONSTITUTION, "biome.json")),
+    ("battery", os.path.join(CONSTITUTION, "battery.json")),
     ("slate", os.path.join(HERE, "..", "spark", "slate.json")),
     ("flint", os.path.join(HERE, "..", "spark", "flint.json")),
 ]
@@ -46,8 +47,8 @@ WORLD_SEEDS = [                             # store-owned once sown: guests grow
 MARKS = {"0": "Marks at this commons — each digit one guest's trace. Read at attention 0, choose the next free digit, append beside the others."}
 
 INSTRUCTIONS = (
-    "biome-commons is a small public substrate: plain-JSON blocks — a text world named "
-    "thornkeep, a guest noticeboard named marks, and self-describing teaching blocks — "
+    "biome-commons is a small public substrate: plain-JSON blocks — a small text world, "
+    "a guest noticeboard named marks, and self-describing teaching blocks — "
     "served over HTTP and operated by one tool, spark. Reads have no side effects. A "
     "write happens only when you pass content, and lands in public view, fetchable by "
     "anyone in a browser. Nothing here involves accounts, keys, payments, or commitments. "
@@ -73,7 +74,7 @@ TOOL = {
     "inputSchema": {
         "type": "object",
         "properties": {
-            "block": {"type": "string", "description": "Block name, e.g. arrive, slate, genome, thornkeep, marks."},
+            "block": {"type": "string", "description": "Block name, e.g. arrive, lighthouse, slate, genome, marks."},
             "number": {"type": ["string", "null"], "description": "Pscale address — one decimal, pinned to the floor (e.g. '42.1'). Omit for disc/whole."},
             "attention": {"type": ["integer", "null"], "description": "Pscale integer — the scope. Omit with a number for the spindle; omit both for the whole block."},
             "content": {"description": "Payload for writes; omit to read."},

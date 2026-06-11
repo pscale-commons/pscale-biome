@@ -1,6 +1,6 @@
-"""tezt_mind — regression battery for the mind-pulse and the HTTP store.
+"""mind-battery — regression battery for the mind-pulse and the HTTP store.
 
-Run:  python3 tezt_mind.py     (exits nonzero on any failure)
+Run:  python3 mind-battery.py     (exits nonzero on any failure)
 
 Covers the address form, mechanical gap-finding, window composition, and
 the HttpStore membrane against an in-process commons. The LLM call is left
@@ -62,9 +62,9 @@ ok("the window carries the contract", "STRICT JSON" in win, True)
 ok("the gap's address", number, "45")
 
 print("the http store membrane")
-root = tempfile.mkdtemp(prefix="tezt-mind-")
+root = tempfile.mkdtemp(prefix="battery-mind-")
 store = FsStore(os.path.join(root, "blocks"))
-store.save_block("biome", {"0": "becoming", "1": "tezt · genome v4"})
+store.save_block("biome", {"0": "becoming", "1": "test · genome v4"})
 serve.seed(store)
 serve.Commons.store = store
 httpd = ThreadingHTTPServer(("127.0.0.1", 0), serve.Commons)

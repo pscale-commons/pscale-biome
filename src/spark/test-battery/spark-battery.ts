@@ -1,5 +1,5 @@
-// tezt_spark.ts — TS parity battery for spark.ts (mirrors tezt_spark.py).
-// Run:  node --experimental-strip-types tezt_spark.ts   (from src/spark/tezt)
+// spark-battery.ts — TS parity battery for spark.ts (mirrors spark-battery.py).
+// Run:  node --experimental-strip-types spark-battery.ts   (from src/spark/test)
 
 import { spark, floor, parse, parseReference, fold, AddressError } from "../spark.ts";
 

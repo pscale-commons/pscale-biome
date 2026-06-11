@@ -1,6 +1,6 @@
 // spark.ts — the coded kernel for pscale blocks (TypeScript port).
 //
-// Same protocol as spark.py, validated against the same tezt cases. A block is
+// Same protocol as spark.py, validated against the same test cases. A block is
 // JSON whose keys are single digits "0"-"9": digit "0" is a node's voicing, and
 // "1"-"9" its elaboration. The zero-spine sets the floor (the depth where it
 // first reaches a string); pscale = floor - depth. One call over two

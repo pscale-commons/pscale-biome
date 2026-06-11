@@ -1,6 +1,6 @@
-"""tezt_spark — regression battery for the coded spark kernel.
+"""spark-battery — regression battery for the coded spark kernel.
 
-Run:  python3 tezt_spark.py     (exits nonzero on any failure)
+Run:  python3 spark-battery.py     (exits nonzero on any failure)
 
 Covers address parsing, floor discovery, every read shape, every write,
 supernest invariance, fold, reference parsing, and star resolution.
