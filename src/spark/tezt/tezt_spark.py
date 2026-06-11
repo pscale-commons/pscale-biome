@@ -47,6 +47,8 @@ ok("empty", spark.parse("", 1), [])
 raises("multi-dot rejected", lambda: spark.parse("1.2.3", 1))
 raises("non-digit rejected", lambda: spark.parse("1a", 1))
 raises("exceeds-floor rejected", lambda: spark.parse("12.3", 1))
+raises("ring write refuses non-object content",
+       lambda: spark.spark({"0": "r", "1": "a"}, "1.1", 0, content="a string"))
 
 print("floor")
 ok("floor 1", spark.floor({"0": "r"}), 1)

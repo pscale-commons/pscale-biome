@@ -53,7 +53,7 @@ def freeze(version, date):
              "/.well-known/pscale-beach is another world's door: a biome host signposts it, "
              "never serves it. The URL is the instance's identity.",
         "5": "Conformance. An implementation is conformal when it passes the carried tezt "
-             "battery (at %s: 42 Python, 33 TypeScript). The battery, not the fingerprint, "
+             "battery (at %s: 43 Python, 34 TypeScript). The battery, not the fingerprint, "
              "judges a fresh implementation; the fingerprints below identify the reference "
              "artifacts this genome was frozen from." % version,
         "6": {"0": "Reference artifacts at %s, sha256 first 12 hex." % version},

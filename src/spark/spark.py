@@ -277,6 +277,12 @@ def _write(block, number, attention, content, flr):
         parent[walk[-1]] = content
         return {"mode": "point-write", "ok": True}
     if attention > term:                                  # ring write
+        if not isinstance(content, dict):
+            raise AddressError(
+                "a ring write replaces the digit children — content must be an "
+                "object of digit keys (note: an empty block has floor 0, so every "
+                "term is negative; create a new block with a whole-block write — "
+                "no number, object content)")
         depth = flr - attention
         parent = _ensure(block, walk[:depth - 1])
         for d in DIGITS:

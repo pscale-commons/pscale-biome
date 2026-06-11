@@ -226,6 +226,13 @@ function _write(block: Block, number: any, attention: any, content: any, flr: nu
     return { mode: "point-write", ok: true };
   }
   if (attention > term) {
+    if (typeof content !== "object" || content === null || Array.isArray(content)) {
+      throw new AddressError(
+        "a ring write replaces the digit children — content must be an " +
+        "object of digit keys (note: an empty block has floor 0, so every " +
+        "term is negative; create a new block with a whole-block write — " +
+        "no number, object content)");
+    }
     const depth = flr - attention;
     const parent = _ensure(block, walk.slice(0, depth - 1));
     for (const d of DIGITS) delete parent[d];

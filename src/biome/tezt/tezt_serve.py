@@ -141,6 +141,22 @@ try:
     code, body = rpc("tools/call", {"name": "hammer", "arguments": {}})
     ok("only spark is carried", body["error"]["code"], -32602)
 
+    print("the hinge at the door (guest block-creation)")
+    FOLD = {"0": "a guest block — landed whole", "1": "first branch"}
+    code, body = rpc("tools/call", {"name": "spark",
+                                    "arguments": {"block": "guest-block", "content": json.dumps(FOLD)}})
+    ok("a stringified whole block unwraps and lands",
+       json.loads(body["result"]["content"][0]["text"])["ok"], True)
+    code, body = rpc("tools/call", {"name": "spark", "arguments": {"block": "guest-block", "number": "1", "attention": 0}})
+    ok("and reads back through the geometry",
+       json.loads(body["result"]["content"][0]["text"])["text"], "first branch")
+    code, body = rpc("tools/call", {"name": "spark",
+                                    "arguments": {"block": "absent-block", "number": "1", "attention": 0,
+                                                  "content": "a point into nothing"}})
+    res = body["result"]
+    ok("a point-write into an absent block teaches instead of crashing",
+       res.get("isError") and "whole-block write" in res["content"][0]["text"], True)
+
     print("the boundary at the door")
     import urllib.error
     try:

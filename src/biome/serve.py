@@ -124,11 +124,21 @@ def seed(store):
 def run_spark(store, args):
     block = args["block"]
     if "content" in args and args["content"] is not None:
-        if not biome_legal(args["content"]):
+        content = args["content"]
+        number = args.get("number")
+        if isinstance(content, str) and (number is None or str(number) == ""):
+            # the hinge: a whole-block write needs an object; a stringified
+            # object is a client-harness artifact — unwrap it at the door
+            try:
+                parsed = json.loads(content)
+            except ValueError:
+                parsed = None
+            if isinstance(parsed, dict):
+                content = parsed
+        if not biome_legal(content):
             raise ValueError("beach-world shape refused — this substrate is the biome's: "
                              "every key a single digit 0-9")
-        return beach.write(store, block, args.get("number"), args.get("attention"),
-                           content=args["content"])
+        return beach.write(store, block, number, args.get("attention"), content=content)
     return beach.read(store, block, args.get("number"), args.get("attention"), star=True)
 
 

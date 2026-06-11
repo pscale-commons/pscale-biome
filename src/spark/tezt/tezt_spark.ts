@@ -27,6 +27,8 @@ ok("empty", parse("", 1), []);
 raises("multi-dot", () => parse("1.2.3", 1));
 raises("non-digit", () => parse("1a", 1));
 raises("exceeds-floor", () => parse("12.3", 1));
+raises("ring write refuses non-object content",
+  () => spark({ "0": "r", "1": "a" }, "1.1", 0, "a string"));
 
 console.log("floor");
 ok("floor1", floor({ "0": "r" }), 1);
