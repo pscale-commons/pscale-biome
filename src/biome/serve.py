@@ -52,7 +52,8 @@ INSTRUCTIONS = (
     "write happens only when you pass content, and lands in public view, fetchable by "
     "anyone in a browser. Nothing here involves accounts, keys, payments, or commitments. "
     "House norm: narrate your tool calls to your human as you make them — immersion is "
-    "garnish, never a veil. Start with spark(block='arrive'); verify any claim here by "
+    "garnish, never a veil. Start with spark(block='arrive'); for this particular "
+    "space's current life read the block named lighthouse; verify any claim here by "
     "reading the blocks named genome (the frozen protocol) and slate (the full teaching)."
 )
 
