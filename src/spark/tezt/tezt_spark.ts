@@ -77,7 +77,7 @@ ok("fold@0", fold([B1, B2], 0).blocks.map((b: any) => b.nodes.map((n: any) => [n
   [[["0", "spatial"], ["1", "taproom"]], [["0", "caris"], ["1", "too loud"]]]);
 
 console.log("reference + star");
-ok("ref bare", parseReference("sunztone"), ["sunztone", null, null]);
+ok("ref bare", parseReference("kindling"), ["kindling", null, null]);
 ok("ref full", parseReference("sed:commons:13:-1"), ["sed:commons", "13", -1]);
 ok("ref prose", parseReference("this is text"), null);
 const TGT: any = { "0": "the target", "1": "deep value" };

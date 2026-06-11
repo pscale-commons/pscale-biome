@@ -105,9 +105,9 @@ ok("fold @0", [[(n["address"], n["text"]) for n in b["nodes"]] for b in f["block
    [[("0", "spatial"), ("1", "taproom")], [("0", "caris"), ("1", "too loud")]])
 
 print("reference parsing")
-ok("bare name", spark.parse_reference("sunztone"), ("sunztone", None, None))
-ok("name:address", spark.parse_reference("sunztone:5"), ("sunztone", "5", None))
-ok("name:address:attention", spark.parse_reference("sunztone:5.1:-3"), ("sunztone", "5.1", -3))
+ok("bare name", spark.parse_reference("kindling"), ("kindling", None, None))
+ok("name:address", spark.parse_reference("kindling:5"), ("kindling", "5", None))
+ok("name:address:attention", spark.parse_reference("kindling:5.1:-3"), ("kindling", "5.1", -3))
 ok("namespaced", spark.parse_reference("sed:commons:13:-1"), ("sed:commons", "13", -1))
 ok("prose -> none", spark.parse_reference("this is just text"), None)
 ok("digit-led -> none", spark.parse_reference("123"), None)
