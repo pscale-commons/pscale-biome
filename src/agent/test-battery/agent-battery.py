@@ -91,6 +91,15 @@ system, message, bundle = kernel.compose_window(gamma)
 ok("the window carries the hydrated self", '"slate"' in system and "Slate" in system, True)
 ok("the given side carries the gap", "purpose:3" in message, True)
 
+print("the tolerant parser")
+ok("a clean object parses", kernel.parse_output('{"note": "n"}')["note"], "n")
+ok("a fenced header with prose after salvages",
+   kernel.parse_output('```json\n{"note": "header"}\n```\n\n---\nEssay prose follows.')["note"], "header")
+ok("a leading object before prose salvages",
+   kernel.parse_output('{"note": "lead", "writes": {}}\nthen { stray } prose')["note"], "lead")
+ok("pure prose still fails gracefully",
+   kernel.parse_output("no object here at all")["note"].startswith("[parse failure]"), True)
+
 print("writes: the guard and the fold")
 tmp = tempfile.mkdtemp(prefix="battery-agent-")
 kernel.SHELL_DIR = tmp
@@ -116,8 +125,32 @@ try:
        kernel.load_block("conditions")["9"].startswith("kernel report"), True)
     kernel.report_failures([])
     ok("a clean fold clears the report", "9" in kernel.load_block("conditions"), False)
+    kernel.report_failures([], parse_failed=True)
+    ok("an unparsed reply becomes perceived conditions",
+       "NOTHING folded" in kernel.load_block("conditions")["9"], True)
 finally:
     shutil.rmtree(tmp)
+
+print("the observer gathers, read-only")
+import observer
+land = tempfile.mkdtemp(prefix="battery-observer-")
+ad = os.path.join(land, "A", "agent")
+os.makedirs(os.path.join(ad, "shell")); os.makedirs(os.path.join(ad, "filmstrip"))
+json.dump({"0": "I am A", "1": "branch one"}, open(os.path.join(ad, "shell", "surface.json"), "w"))
+json.dump({"parsed": {"note": "[parse failure] essay"}, "applied": 0},
+          open(os.path.join(ad, "filmstrip", "t1.json"), "w"))
+json.dump({"parsed": {"note": "built the market"}, "applied": 3},
+          open(os.path.join(ad, "filmstrip", "t2.json"), "w"))
+try:
+    minds = observer.gather(land)
+    ok("surfaces gathered", minds["A"]["surface"]["0"], "I am A")
+    ok("unparsed wakes are masked, not quoted",
+       minds["A"]["recent"][0]["note"].startswith("(a wake spent"), True)
+    ok("folding wakes pass through", minds["A"]["recent"][1]["note"], "built the market")
+    win = observer.compose_window(minds)
+    ok("the charge is read-only narrative", "read-only chronicler" in win and "STRICT JSON" in win, True)
+finally:
+    shutil.rmtree(land)
 
 print()
 print("TOTAL: %d passed, %d failed" % (P, F))

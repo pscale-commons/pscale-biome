@@ -475,17 +475,33 @@ def route(output):
 
 # ── parse + filmstrip ──────────────────────────────────────────────────────
 
+def _first_object(text):
+    """The first brace-balanced span — salvages a leading JSON object from a
+    reply that lapses into prose after it."""
+    start = text.find("{")
+    while start != -1:
+        depth = 0
+        for i in range(start, len(text)):
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[start:i + 1]
+        start = text.find("{", start + 1)
+    return None
+
+
 def parse_output(text):
     cleaned = re.sub(r'^```(?:json)?\s*|\s*```$', '', text.strip(), flags=re.M)
-    for candidate in (cleaned, text):
+    fenced = re.search(r'```(?:json)?\s*([\s\S]*?)```', text)
+    for candidate in (cleaned, text,
+                      fenced.group(1) if fenced else None,
+                      _first_object(text)):
+        if not candidate:
+            continue
         try:
             return json.loads(candidate)
-        except Exception:
-            pass
-    m = re.search(r'\{[\s\S]*\}', text)
-    if m:
-        try:
-            return json.loads(m.group())
         except Exception:
             pass
     return {"note": "[parse failure] " + text[:160], "edits": [],
@@ -500,19 +516,26 @@ def write_filmstrip(frame):
     return path
 
 
-def report_failures(failed):
-    """The kernel's mechanical report into rho: refused writes are perceived
-    conditions for the next wake — the loop closes and the instance can
-    re-shape, instead of repeating a refused write blind. Cleared when a
-    wake folds clean. (Locus 4 writing a fact about its own fold, kin to
-    the history note and the reflexive re-dial.)"""
+def report_failures(failed, parse_failed=False):
+    """The kernel's mechanical report into rho: refused writes and unparsed
+    replies are perceived conditions for the next wake — the loop closes and
+    the instance can re-shape, instead of failing the same way blind.
+    Cleared when a wake folds clean. (Locus 4 writing a fact about its own
+    fold, kin to the history note and the reflexive re-dial.)"""
     cond = load_block("conditions") or {"0": "conditions"}
     had = isinstance(cond.get("9"), str) and cond["9"].startswith("kernel report")
+    msgs = []
+    if parse_failed:
+        msgs.append("the last reply was not a single JSON object, so NOTHING folded — the "
+                    "wake was spent and lost. Prose belongs inside the object: long content "
+                    "as the value of a write, the summary in note")
     if failed:
         lines = " ; ".join("%s -> %s" % (f["address"], f["error"][:80]) for f in failed[:3])
-        cond["9"] = ("kernel report — last wake's refused writes: %s. Refused by the "
-                     "substrate's shape rules, not judged: a populated branch takes an "
-                     "object or a deeper point, never a bare string." % lines)
+        msgs.append("refused writes: %s (refused by the substrate's shape rules, not "
+                    "judged: a populated branch takes an object or a deeper point, never "
+                    "a bare string)" % lines)
+    if msgs:
+        cond["9"] = "kernel report — " + " ; ".join(msgs) + "."
         save_block("conditions", cond)
     elif had:
         cond.pop("9", None)
@@ -559,7 +582,7 @@ def pulse(compose_only=False):
     text, usage = call_llm(system, message, model=model)
     output = parse_output(text)
     status, applied, failed = route(output)
-    report_failures(failed)
+    report_failures(failed, parse_failed=str(output.get("note", "")).startswith("[parse failure]"))
     frame.update({"output": text, "parsed": output, "usage": usage,
                   "status": status, "applied": applied, "failed": failed})
     path = write_filmstrip(frame)
