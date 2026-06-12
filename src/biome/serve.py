@@ -20,6 +20,8 @@ Nursery semantics: reads free, writes open — curation is the owner's.
 import json
 import os
 import sys
+import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -265,6 +267,19 @@ def main(root=None, port=None, host=None):
     if sown:
         print("sown:", ", ".join(sown))
     Commons.store = store
+
+    def _resense_loop():                                  # cadence 7.3: a slow cron pulse
+        import resense as R
+        while True:
+            time.sleep(21600)                             # six hours between scans
+            try:
+                changed, lines = R.resense(root)
+                if changed:
+                    print("re-sensed: kin changed — %d now visible" % len(lines))
+            except Exception as e:
+                print("re-sense skipped:", e)
+
+    threading.Thread(target=_resense_loop, daemon=True).start()
     httpd = ThreadingHTTPServer((host, port), Commons)
     print("commons serving at http://%s:%d  (beach: %s · mcp: /mcp)" % (host, port, DOOR))
     print("blocks:", ", ".join(store.list_blocks()))
