@@ -7,6 +7,17 @@ through the same code, per the founding rule (biome-design.md, out-of-scope:
 "do not create three separate deployments"). Read `CLAUDE.md` first (two-worlds
 boundary, naming rules), then `docs/handover.md` for full state.
 
+**The standing frame (ruled 2026-06-13):** nothing runs that isn't wanted.
+The value loop is the only closure that matters — no idle cron, no heartbeat
+scheduler. Agents wake because a given landed (event cadence, shell 7.2): one
+pulse per ask, cost at the moment of demand. Frame is not a block-type here —
+**a frame is the fold-read** (S + T + I + presence at one address, one grain;
+fold-synthesis 3.2/4.0): the page's main view IS a frame. Vapour needs no
+Supabase and no websockets at this scale — **vapour-by-poll** through the door
+(shell 3.4 sanctions blob-poll); SSE is a later upgrade. The RPG needs no pool
+machinery — the Limen's attestation mechanic (unplaced/held/fixed, the Weigher)
+IS the objective structure, re-derived in-world.
+
 The shell already names this form:
 - cognition 2.3 — "a human at the browser provides cognition by typing"
 - endpoints 3.3 — "browser interface at /xstream; humans inhabit the biome directly"
@@ -39,20 +50,28 @@ A single HTML page (no framework needed; spark.ts + fetch) served at `/xstream`
 2. **Act as an inhabitant**: leave a mark (next free digit, signed); propose a
    sibling at a place (a shaped write through the door — the same geometry
    everyone uses).
-3. **Address the collective**: a given-box — the text lands in an agent's
-   `conditions` as "a visitor's given, awaiting the next wake". NO key needed:
-   givens accumulate and fold on the collective's own cadence. (Optional
-   accelerator, later increment: BYOK — visitor key triggers a pulse now;
-   key used per-request, never stored/logged/echoed.)
+3. **Address the collective — given-triggered wakes**: a given-box; the text
+   lands in an agent's `conditions` as "a visitor's given" AND triggers one
+   pulse for that agent (event cadence — the wake happens because someone
+   asked; ~$0.05 on the steward's key per response at nursery scale; BYOK
+   per-request keys are the later increment for strangers). One pulse per
+   given, a per-day cap, never an idle wake.
 4. **Watch**: poll the surfaces/chronicle for what changed since your visit.
+5. **The frame view**: the page renders a chosen address as the fold — place
+   (thornkeep), happenings (scenes), who (characters + presence) — one scene,
+   one read. This is the load-bearing view; prove frame-as-fold here.
 
 The human's typing IS the cognition (2.3) — v1 needs no LLM calls at all.
 
 ## Increments after v1 (each its own decision with David)
 
-- VLS zones as interface discipline (vapour = unsent drafting in page state;
-  liquid = marks/proposals; solid = settled voicings) — xstream's actual
-  semantics, layer 1, distinct from the Limen's unplaced/held/fixed (layer 2).
+- VLS zones as interface discipline (vapour = unsent drafting, visible to
+  co-present others via vapour-by-poll through the door; liquid = marks/
+  proposals; solid = settled voicings) — xstream's actual semantics, layer 1,
+  distinct from the Limen's unplaced/held/fixed (layer 2).
+- The I register (characters block beside thornkeep/scenes) + the action
+  convention (a character's act is a given; the world folds the consequence
+  into scenes) — this is step 2 of the one path: the RPG becomes enterable.
 - BYOK pulse acceleration (the trust contract: per-request, never stored).
 - CADO faces (character/author/designer/observer) as view+permission modes.
 - The collective resident on the volume (only matters once pulses trigger
