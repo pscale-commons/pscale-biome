@@ -26,7 +26,7 @@ You're picking up an experimental project at a deliberate pause. The work is con
 - Don't treat agent / xstream / beach / RPG as modules to import — they are *roles the one genome unfolds into* / *acts on the substrate*.
 - Don't reintroduce hidden directories or `_` thinking.
 - Don't substitute metaphor for function. Be concrete. The biome's function is **LLM-enlivened** — that's what makes each form more than code.
-- `src/xstream` is a stale 2026-05-09 vendor; `src/agent` is not canonical mobius-3 (David's desktop copy is). Don't build on either without checking.
+- `src/xstream` is a stale 2026-05-09 vendor — reference only. `src/agent` IS the mobius-3 source (spark-speaking since the v007 recut); desktop/CORSAIR `mobius-3-runs` are its cut generations — runs diverge, never fold back.
 
 6. **The collective recut (2026-06-12, genome-v5 era):** mobius-3's source is THIS repo (`src/agent`, cut via `new-collective.sh`). The kernel now speaks spark (13 call sites; teaching = slate+flint; curriculum re-aimed at reflexive 9.1; cuts carry `spark/`); `src/agent` is biome-world (rule 4). Collective **v007** cut to Desktop+CORSAIR and proven live: one full round, three pulses, 20 edits, 0 failures, digit-legal voiced surfaces. agent-battery 26/26. Still z-era downstream: `CORSAIR/mobius/filmstrip-viewer` (bsp-star.js) wants a spark-shaped reader — the next mobius pass. v006-and-earlier runs remain frozen z-era fossils.
 
