@@ -37,7 +37,7 @@ class FsStore:
     def list_blocks(self, prefix=""):
         names = []
         for fn in sorted(os.listdir(self.root)):
-            if fn.endswith(".json"):
+            if fn.endswith(".json") and not fn.startswith("."):   # AppleDouble sidecars on removable surfaces are not blocks
                 name = fn[:-5].replace("__", ":")
                 if name.startswith(prefix):
                     names.append(name)
