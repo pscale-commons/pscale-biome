@@ -1,84 +1,82 @@
-# Hand-over — the face session (BYOK chat-face on the collective)
+# Hand-over — the face session: the biome's human surface (the xstream-form)
 
-You're building **the face**: an interface where a human engages mobius-3 — the
-A·B·C collective — and gets back something qualitatively different from straight
-Claude: persistent, multi-perspective, world-bearing. David is about to show
-people what he's building; the face (with the filmstrip visualiser, built in a
-separate session) is the demo surface. Read `CLAUDE.md` first (two-worlds
-boundary, naming rules), then `docs/handover.md` for the full state.
+You're unfolding the biome's **browser surface** — the form where a human
+inhabits the biome directly. This is NOT a chat-bot wrapper around the agents
+and NOT a separate deployment: it is the same biome serving one more surface
+through the same code, per the founding rule (biome-design.md, out-of-scope:
+"do not create three separate deployments"). Read `CLAUDE.md` first (two-worlds
+boundary, naming rules), then `docs/handover.md` for full state.
+
+The shell already names this form:
+- cognition 2.3 — "a human at the browser provides cognition by typing"
+- endpoints 3.3 — "browser interface at /xstream; humans inhabit the biome directly"
+- concurrency 2.4 — the target: "embedded LLM + human in the browser + connected
+  app via MCP, each writing to the same shell from a different vantage"
 
 ## What exists (don't rebuild)
 
-- **The collective** — `src/agent/` is the spark-speaking mobius-3 source;
-  the live run is `~/Desktop/mobius-3-runs/v007/` (A: world, B: rules,
-  C: substrate). One pulse = `cd <agent>/agent && python3 kernel.py`.
-  A pulse costs ~$0.05–0.10 on the key at `~/.config/mobius/anthropic-key`.
-- **The commons** — `https://biome-commons-production.up.railway.app`, serving
-  spark over `/mcp` and `/.well-known/biome-beach`. `src/biome/serve.py` is the
-  server; shell current 3.6 sanctions custom application endpoints beside the
-  canonical ones. `store_http.py` is the client adapter.
-- **Bridges** — `src/agent/publish-surfaces.py` (surfaces → commons as
-  `surface-mobius-a/-b/-c`), `src/agent/observer.py` (read-only chronicler →
-  `chronicle` block on the commons; first entry live: "The First Solid Thing").
-- **The window mechanics** — a prompt reaches an agent by landing in its
-  `conditions` block (the given); the next pulse folds a response into its
-  blocks and `surface`. The kernel reports refused writes and unparsed replies
-  into `conditions:9` (the feedback loop).
+- **The commons** — `https://biome-commons-production.up.railway.app`:
+  `serve.py` (stdlib HTTP) already serves `/mcp`, `/.well-known/biome-beach`,
+  and `GET /` (the arrive block as JSON). Custom endpoints are sanctioned
+  (shell 3.6). The same service hosts the face page — locally it's the same
+  code on 3210 in Chrome, even against the courier-stick's carried world.
+- **spark.ts** — at parity (34/34). The page can operate blocks client-side:
+  fetch whole blocks through the door, walk them with spark.ts in the browser,
+  write through the door (the membrane judges, same as any guest).
+- **The inhabitants** — the collective (v007, David's machine), the mind,
+  keel, the courier; surfaces at `surface-*`, story at `chronicle`, world at
+  `thornkeep`/`scenes`, ledger at `marks`, orientation at `lighthouse`.
 
-## The design sketch (one session)
+## v1 — the inhabitable page (one session)
 
-1. **Face = a thin page + one endpoint on the commons** (current 3.6): GET
-   serves the page; POST `/face` takes `{prompt, key}`.
-2. **BYOK**: the visitor's Anthropic key rides the request and is used ONLY for
-   the pulses that prompt triggers — never stored, never logged. State that on
-   the page. (David pays nothing for engagement.)
-3. **The loop**: prompt lands as a given (a `conditions` digit on the chosen
-   agent(s), signed "a visitor through the face"); trigger one pulse per
-   engaged agent with the visitor's key (`ANTHROPIC_API_KEY` env per subprocess,
-   or refactor `call_llm` to take a key argument); the response renders from
-   the agents' updated surfaces + the delta (what changed), not from the raw
-   LLM reply — the face shows the WORLD's response, which is the qualitative
-   difference.
-4. **Where the agents run — ON THE COMMONS (the BYOK insight)**: BYOK means
-   the collective needs no standing key — every pulse runs on the visiting
-   human's key — so nothing ties the agents to David's machine. The public
-   commons service hosts them: the agents' shells live on the Railway volume
-   (`/data/collective/…`, beside `/data/blocks`), the face endpoint runs in
-   serve.py beside the doors, and a visitor's prompt + key trigger pulses
-   in-place. David's machine keeps the local lab line (v007); the public
-   collective is a fresh cut (v008) seeded onto the volume — EITHER blank-world
-   OR carrying v007's current shells up so the Limen's history is the demo
-   (David's call; recommend carrying the Limen — the world is the value).
-   The mac-mini remains the $0 self-hosted alternative, but it needs the
-   tunnel David previously declined; Railway needs nothing new.
+A single HTML page (no framework needed; spark.ts + fetch) served at `/xstream`
+(keep `GET /` as arrive-JSON for arriving agents):
+
+1. **Read the place**: render lighthouse (who's here, what's growing), the
+   world (thornkeep + scenes at the same addresses — show the fold!), the
+   chronicle (the story so far), the marks (the ledger), the surfaces (who
+   you're among).
+2. **Act as an inhabitant**: leave a mark (next free digit, signed); propose a
+   sibling at a place (a shaped write through the door — the same geometry
+   everyone uses).
+3. **Address the collective**: a given-box — the text lands in an agent's
+   `conditions` as "a visitor's given, awaiting the next wake". NO key needed:
+   givens accumulate and fold on the collective's own cadence. (Optional
+   accelerator, later increment: BYOK — visitor key triggers a pulse now;
+   key used per-request, never stored/logged/echoed.)
+4. **Watch**: poll the surfaces/chronicle for what changed since your visit.
+
+The human's typing IS the cognition (2.3) — v1 needs no LLM calls at all.
+
+## Increments after v1 (each its own decision with David)
+
+- VLS zones as interface discipline (vapour = unsent drafting in page state;
+  liquid = marks/proposals; solid = settled voicings) — xstream's actual
+  semantics, layer 1, distinct from the Limen's unplaced/held/fixed (layer 2).
+- BYOK pulse acceleration (the trust contract: per-request, never stored).
+- CADO faces (character/author/designer/observer) as view+permission modes.
+- The collective resident on the volume (only matters once pulses trigger
+  server-side; givens-accumulate works with the collective wherever it lives).
 
 ## Constraints (hard)
 
-- Layer discipline: the face is layer-1 infrastructure; world vocabulary stays
-  layer 2 (the Limen's states are unplaced/held/fixed — never vapour/liquid/
-  solid, which are xstream's words; see CLAUDE.md rule 7).
-- Transparency norms hold: the face narrates what it does (whose conditions the
-  prompt landed in, which pulses ran, what folded).
-- Sovereignty: a visitor's prompt is a *given*, never a write into an agent's
-  purpose/surface; agents fold it themselves or don't.
-- No xstream vendoring (`src/xstream` is stale reference). If VLS-style
-  commit-stages are wanted in the face later, that's a deliberate design step
-  with David, not a port.
-- Costs are the visitor's (BYOK) — keep a per-prompt pulse cap (e.g. 3).
-- **Key handling is a trust contract**: the visitor's key lives in the request,
-  is passed to the Anthropic call, and is never stored, logged, or echoed —
-  say so on the page, honor it in the code (no key in filmstrip frames!).
-- **One pulse at a time per agent**: serve.py is threaded — guard pulses with
-  a lock/queue; a pulse takes 30–90s, so the face needs a composing-state
-  (Railway tolerates long requests; show progress, don't spin silently).
-- **Vandal-resistance is sovereignty + curation**: prompts land only as givens
-  (conditions), agents fold or refuse themselves, the steward prunes; if it
-  gets rough, the gatekeeper block is the next genome growth.
+- One deployment: the page is served by serve.py — no Vercel, no second repo.
+- Layer discipline: interface words (vapour/liquid/solid, faces) are layer 1;
+  the Limen's words (unplaced/held/fixed, Ashen Market) are layer 2 — the page
+  may DISPLAY world vocabulary but never adopts it for interface states.
+- Sovereignty: a visitor writes marks/proposals/givens — never an agent's
+  purpose or surface; agents fold givens themselves.
+- Transparency: the page shows what it reads and writes (addresses visible —
+  the geometry is the UI, not hidden behind it).
+- The membrane judges all writes (digit keys only) — the page composes legal
+  shapes rather than free JSON.
+- No xstream vendoring: `src/xstream` is stale reference. Re-derive; the
+  three-zone discipline arrives as a deliberate increment, not a port.
 
-## Open decisions for the session
+## Open decisions for David
 
-- One agent per prompt (route by content?) or all three pulse?
-- Streaming vs poll-until-folded (a pulse takes 30–90s — show the filmstrip
-  frame composing as the wait state?).
-- Where the conversation history lives (a `visits` block per face session?).
-- Whether the Observer chronicles face visits (probably yes — it's the story).
+- Page aesthetics/voice (this is the first thing outsiders see).
+- Which agent receives a visitor's given (route, broadcast, or visitor picks).
+- Whether the Observer chronicles visits (recommend yes).
+- When the public collective cut happens (volume-resident v008, carrying the
+  Limen up) — not needed for v1.
