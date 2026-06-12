@@ -110,6 +110,12 @@ try:
     status, applied, failed = kernel.route({"writes": {"B:1": "trespass", "surface:3": "mine to write"}})
     ok("a peer's block is read-only", failed[0]["address"], "B:1")
     ok("own blocks still fold", applied, 1)
+    kernel._cache["conditions"] = {"0": "conditions"}
+    kernel.report_failures([{"address": "surface:1", "error": "refusing to flatten"}])
+    ok("refused writes become perceived conditions",
+       kernel.load_block("conditions")["9"].startswith("kernel report"), True)
+    kernel.report_failures([])
+    ok("a clean fold clears the report", "9" in kernel.load_block("conditions"), False)
 finally:
     shutil.rmtree(tmp)
 

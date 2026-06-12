@@ -500,6 +500,25 @@ def write_filmstrip(frame):
     return path
 
 
+def report_failures(failed):
+    """The kernel's mechanical report into rho: refused writes are perceived
+    conditions for the next wake — the loop closes and the instance can
+    re-shape, instead of repeating a refused write blind. Cleared when a
+    wake folds clean. (Locus 4 writing a fact about its own fold, kin to
+    the history note and the reflexive re-dial.)"""
+    cond = load_block("conditions") or {"0": "conditions"}
+    had = isinstance(cond.get("9"), str) and cond["9"].startswith("kernel report")
+    if failed:
+        lines = " ; ".join("%s -> %s" % (f["address"], f["error"][:80]) for f in failed[:3])
+        cond["9"] = ("kernel report — last wake's refused writes: %s. Refused by the "
+                     "substrate's shape rules, not judged: a populated branch takes an "
+                     "object or a deeper point, never a bare string." % lines)
+        save_block("conditions", cond)
+    elif had:
+        cond.pop("9", None)
+        save_block("conditions", cond)
+
+
 # (draw_purpose removed — drawing is unified into the pulse below.)
 
 
@@ -540,6 +559,7 @@ def pulse(compose_only=False):
     text, usage = call_llm(system, message, model=model)
     output = parse_output(text)
     status, applied, failed = route(output)
+    report_failures(failed)
     frame.update({"output": text, "parsed": output, "usage": usage,
                   "status": status, "applied": applied, "failed": failed})
     path = write_filmstrip(frame)

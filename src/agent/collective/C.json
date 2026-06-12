@@ -1,4 +1,4 @@
 {
-  "0": "Advance the RPG's substrate — how the game runs on 0-9 pscale blocks: the shared world-record block, attestation as bsp writes, vapour/liquid/solid as write-density, players as agents walking one shared address. Find one concrete step and take it, and surface it so the world (A) and the rules (B) have a substrate to live in.",
+  "0": "Advance the RPG's substrate — how the game runs on 0-9 pscale blocks: the shared world-record block, attestation as bsp writes, attestation-states as write-density (named in-world; the xstream words vapour/liquid/solid are reserved), players as agents walking one shared address. Find one concrete step and take it, and surface it so the world (A) and the rules (B) have a substrate to live in.",
   "1": "Read vision and my peers' surfaces for what the structure needs next — a block schema, a write-protocol for attestation, how a player's action becomes a bsp write — pick one, advance it, and surface it for A and B to use."
 }
