@@ -39,11 +39,18 @@ boundary, naming rules), then `docs/handover.md` for the full state.
    the agents' updated surfaces + the delta (what changed), not from the raw
    LLM reply — the face shows the WORLD's response, which is the qualitative
    difference.
-4. **Where the agents run**: the commons (Railway) does NOT host the agents —
-   they live on David's machine. EITHER (a) the face runs locally first
-   (localhost demo: page + endpoint in front of the v007 run dir — simplest,
-   one session, demo-ready), OR (b) the collective gains a Railway-resident cut
-   later. Start with (a); don't block on (b).
+4. **Where the agents run — ON THE COMMONS (the BYOK insight)**: BYOK means
+   the collective needs no standing key — every pulse runs on the visiting
+   human's key — so nothing ties the agents to David's machine. The public
+   commons service hosts them: the agents' shells live on the Railway volume
+   (`/data/collective/…`, beside `/data/blocks`), the face endpoint runs in
+   serve.py beside the doors, and a visitor's prompt + key trigger pulses
+   in-place. David's machine keeps the local lab line (v007); the public
+   collective is a fresh cut (v008) seeded onto the volume — EITHER blank-world
+   OR carrying v007's current shells up so the Limen's history is the demo
+   (David's call; recommend carrying the Limen — the world is the value).
+   The mac-mini remains the $0 self-hosted alternative, but it needs the
+   tunnel David previously declined; Railway needs nothing new.
 
 ## Constraints (hard)
 
@@ -58,6 +65,15 @@ boundary, naming rules), then `docs/handover.md` for the full state.
   commit-stages are wanted in the face later, that's a deliberate design step
   with David, not a port.
 - Costs are the visitor's (BYOK) — keep a per-prompt pulse cap (e.g. 3).
+- **Key handling is a trust contract**: the visitor's key lives in the request,
+  is passed to the Anthropic call, and is never stored, logged, or echoed —
+  say so on the page, honor it in the code (no key in filmstrip frames!).
+- **One pulse at a time per agent**: serve.py is threaded — guard pulses with
+  a lock/queue; a pulse takes 30–90s, so the face needs a composing-state
+  (Railway tolerates long requests; show progress, don't spin silently).
+- **Vandal-resistance is sovereignty + curation**: prompts land only as givens
+  (conditions), agents fold or refuse themselves, the steward prunes; if it
+  gets rough, the gatekeeper block is the next genome growth.
 
 ## Open decisions for the session
 
