@@ -4,7 +4,7 @@
 # runnable WORKING clone. The project source is never run-mutated; each run is
 # an experiment with a frozen start state and its own filmstrip.
 #
-#   Source  (pristine, git)  : src/agent/  + src/sentinel/{sunztone,whetztone}
+#   Source  (pristine, git)  : src/agent/  + src/spark/{spark.py,slate,flint}
 #   Archive (frozen, CORSAIR): $ARCHIVE_ROOT/vNNN   — read-only, never run
 #   Working (mutating, Desk) : $WORKING_ROOT/vNNN   — runs; shell + filmstrip change
 #
@@ -15,8 +15,7 @@ export COPYFILE_DISABLE=1            # no macOS ._ AppleDouble files (esp. on ex
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"        # .../src/agent
 SRC_AGENT="$SCRIPT_DIR"
-SRC_SENTINEL="$(cd "$SCRIPT_DIR/../sentinel" && pwd)"
-SRC_ZAND="$(cd "$SCRIPT_DIR/../zand" && pwd)"
+SRC_SPARK="$(cd "$SCRIPT_DIR/../spark" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 ARCHIVE_ROOT="${ARCHIVE_ROOT:-/Volumes/CORSAIR/mobius/mobius-3-runs}"
@@ -48,12 +47,11 @@ ARCH="$ARCHIVE_ROOT/$V"; WORK="$WORKING_ROOT/$V"
 # --- assemble the self-contained package in staging ---
 STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
 PKG="$STAGE/$V"
-mkdir -p "$PKG/agent/shell" "$PKG/agent/filmstrip" "$PKG/sentinel" "$PKG/zand"
+mkdir -p "$PKG/agent/shell" "$PKG/agent/filmstrip" "$PKG/spark"
 cp "$SRC_AGENT/kernel.py" "$SRC_AGENT/heartbeat.py" "$SRC_AGENT/digest.py" "$PKG/agent/"
 cp "$SRC_AGENT"/shell/*.json "$PKG/agent/shell/"
 [ -f "$SRC_AGENT/shell/README.md" ] && cp "$SRC_AGENT/shell/README.md" "$PKG/agent/shell/"
-cp "$SRC_SENTINEL/sunztone.json" "$SRC_SENTINEL/whetztone.json" "$PKG/sentinel/"
-cp "$SRC_ZAND/zand.py" "$PKG/zand/"
+cp "$SRC_SPARK/spark.py" "$SRC_SPARK/slate.json" "$SRC_SPARK/flint.json" "$PKG/spark/"
 
 GIT_COMMIT="$(git -C "$PROJECT_DIR" rev-parse --short HEAD 2>/dev/null || echo uncommitted)"
 GIT_STATE="$(git -C "$PROJECT_DIR" diff --quiet 2>/dev/null && echo clean || echo dirty)"
@@ -69,8 +67,7 @@ cat > "$PKG/MANIFEST.md" <<EOF
 
 ## Layout
 - agent/ — kernel + shell. The shell MUTATES during the run; filmstrip/ accumulates.
-- sentinel/ — constant teaching (sunztone, whetztone), bundled for portability.
-- zand/ — the engine (zand.py), bundled so the package runs standalone.
+- spark/ — the engine (spark.py) and the constant teaching (slate, flint), bundled standalone.
 
 ## One-time key setup (then every run, every version, just works)
     mkdir -p ~/.config/mobius && echo 'sk-ant-...' > ~/.config/mobius/anthropic-key

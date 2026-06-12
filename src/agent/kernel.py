@@ -31,12 +31,12 @@ import sys
 import time
 import urllib.request
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "zand"))
-import zand  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "spark"))
+import spark  # noqa: E402
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 SHELL_DIR = os.path.join(BASE, "shell")
-SENTINEL_DIR = os.path.join(BASE, "..", "sentinel")
+TEACHING_DIR = os.path.join(BASE, "..", "spark")   # the engine and the constant teaching (slate, flint)
 FILMSTRIP_DIR = os.path.join(BASE, "filmstrip")
 
 API_URL = "https://api.anthropic.com/v1/messages"
@@ -99,7 +99,7 @@ def load_block(name):
     access, so peer content is an addressable reference, not an out-of-band read."""
     if name in _cache:
         return _cache[name]
-    for d in (SHELL_DIR, SENTINEL_DIR):
+    for d in (SHELL_DIR, TEACHING_DIR):
         p = os.path.join(d, name + ".json")
         if os.path.exists(p):
             with open(p) as f:
@@ -181,8 +181,16 @@ def call_llm(system, message, model=None):
 
 # ── F — compute the gap (Stage 1) ──────────────────────────────────────────
 
+def _format_address(digits, flr):
+    """Digits to the canonical display address: the decimal pins the floor.
+    Above-floor walks (shorter than the floor) render as bare digits — the
+    known geometry wrinkle, display-only here."""
+    s = "".join(digits)
+    return s if len(digits) <= flr else s[:flr] + "." + s[flr:]
+
+
 def _zero_text(node):
-    return node if isinstance(node, str) else zand.collect_zero_text(node)
+    return node if isinstance(node, str) else spark.voice(node)
 
 def _at(block, path):
     """Voiced text at a digit-path tuple, or None."""
@@ -199,7 +207,7 @@ def frontier_candidates(purpose, conditions):
     (structural gap, no descent). A branch both carry is a coherence compare, and
     we descend past it. Gromov-pruning: coupling = shared prefix, so the frontier
     is where ρ stops matching Π."""
-    floor = zand.floor_depth(purpose)
+    floor = spark.floor(purpose)
     out = []
 
     def rec(node, path):
@@ -214,9 +222,9 @@ def frontier_candidates(purpose, conditions):
             if not intended:                       # headless intent — descend, no cell
                 rec(child, p) if isinstance(child, dict) else None
                 continue
-            if zand.parse_reference(intended):     # a star anchor (e.g. vision:9), not a cell
+            if spark.parse_reference(intended):    # a star anchor (e.g. vision:9), not a cell
                 continue
-            addr_str = zand.format_address(list(p), floor)
+            addr_str = _format_address(list(p), floor)
             perceived = _at(conditions, p)
             if perceived is None:
                 out.append({"address": "purpose:" + addr_str, "type": "missing",
@@ -233,7 +241,7 @@ def frontier_candidates(purpose, conditions):
 def concentrated_field():
     refl = load_block("reflexive")
     try:
-        return render(zand.zand(refl, FIELD_ADDR, -1))
+        return render(spark.spark(refl, FIELD_ADDR, -1))
     except Exception:
         return ""
 
@@ -273,7 +281,7 @@ def run_F(use_llm=True):
 
 def read_reflexive_current():
     refl = load_block("reflexive")
-    sub = (zand.zand(refl, REFLEXIVE_CURRENT, -1) or {}).get("subtree") or {}
+    sub = (spark.spark(refl, REFLEXIVE_CURRENT, -1) or {}).get("subtree") or {}
     return {k: v for k, v in sorted(sub.items())
             if k.isdigit() and k != "0" and isinstance(v, str)}
 
@@ -287,11 +295,11 @@ def read_reflexive_current():
 # draw prompt. purpose:0 already carries "draw a new branch from vision when one
 # closes"; the empty gap + vision in `self` lead it there.
 
-CONCENTRATE = {"sunztone", "whetztone"}   # constant teaching → skeleton, never re-dumped
+CONCENTRATE = {"slate", "flint"}          # constant teaching → skeleton, never re-dumped
 
 
 def _nest(res):
-    """Unwrap a zand read result into a bare nested pscale value (string or dict)."""
+    """Unwrap a spark read result into a bare nested pscale value (string or dict)."""
     if not isinstance(res, dict):
         return res
     mode = res.get("mode")
@@ -315,11 +323,11 @@ def _skeleton(block):
     """A block concentrated to its ring: root voicing + each branch's heading."""
     out = {}
     z = block.get("0")
-    out["0"] = z if isinstance(z, str) else (zand.collect_zero_text(block) or "")
+    out["0"] = z if isinstance(z, str) else (spark.voice(block) or "")
     for d in "123456789":
         if d in block:
             v = block[d]
-            out[d] = v if isinstance(v, str) else zand.collect_zero_text(v)
+            out[d] = v if isinstance(v, str) else spark.voice(v)
     return out
 
 
@@ -327,7 +335,7 @@ def scoop(addr):
     """Hydrate one current from its address into nested pscale (string or dict),
     star-resolved. A bare block name → the whole block; a constant teaching →
     its skeleton; an address with attention → the dilated read, unwrapped."""
-    ref = zand.parse_reference(addr)
+    ref = spark.parse_reference(addr)
     if not ref:
         return addr
     name, address, attn = ref
@@ -338,8 +346,8 @@ def scoop(addr):
         return _skeleton(block)
     if not address and attn is None:
         return block                       # whole block, nested as-is
-    return _nest(zand.zand(block, number=address or None, attention=attn,
-                           star=True, block_loader=load_block))
+    return _nest(spark.spark(block, address or None, attn,
+                             star=True, loader=load_block))
 
 
 def _side(branch, builders):
@@ -398,14 +406,14 @@ def compose_window(gamma):
 # ── δ — apply classified edits, fold (Stages 2/3) ──────────────────────────
 
 def apply_write(name, addr, content):
-    """Apply one bsp write. The shape derives from address + content, not from a
+    """Apply one spark write. The shape derives from address + content, not from a
     named class: a string writes a point; an object writes that branch as a
     subtree; an object at the root supernests. A bare string never flattens a
     populated branch."""
     block = load_block(name) or {"0": name}
-    floor = zand.floor_depth(block)
+    floor = spark.floor(block)
     if isinstance(content, str) and addr:              # flatten guard
-        digits, _ = zand.canonicalise(addr, floor)
+        digits = spark.parse(addr, floor)
         node = block
         for d in digits:
             node = node[d] if isinstance(node, dict) and d in node else None
@@ -414,7 +422,7 @@ def apply_write(name, addr, content):
         if isinstance(node, dict) and any(k.isdigit() and k != "0" for k in node):
             raise ValueError(
                 "refusing to flatten a populated subtree at %s with a bare string" % addr)
-    zand.zand(block, addr or None, content=content)
+    spark.spark(block, addr or None, content=content)
     save_block(name, block)
 
 def route(output):

@@ -13,8 +13,7 @@ export COPYFILE_DISABLE=1
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_AGENT="$SCRIPT_DIR"
-SRC_SENTINEL="$(cd "$SCRIPT_DIR/../sentinel" && pwd)"
-SRC_ZAND="$(cd "$SCRIPT_DIR/../zand" && pwd)"
+SRC_SPARK="$(cd "$SCRIPT_DIR/../spark" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 ARCHIVE_ROOT="${ARCHIVE_ROOT:-/Volumes/CORSAIR/mobius/mobius-3-runs}"
 WORKING_ROOT="${WORKING_ROOT:-$HOME/Desktop/mobius-3-runs}"
@@ -42,7 +41,7 @@ STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
 PKG="$STAGE/$V"
 
 for a in "${AGENTS[@]}"; do
-  mkdir -p "$PKG/$a/agent/shell" "$PKG/$a/agent/filmstrip" "$PKG/$a/sentinel" "$PKG/$a/zand"
+  mkdir -p "$PKG/$a/agent/shell" "$PKG/$a/agent/filmstrip" "$PKG/$a/spark"
   cp "$SRC_AGENT/kernel.py" "$SRC_AGENT/heartbeat.py" "$SRC_AGENT/digest.py" "$PKG/$a/agent/"
   cp "$SRC_AGENT"/shell/*.json "$PKG/$a/agent/shell/"
   [ -f "$SRC_AGENT/shell/README.md" ] && cp "$SRC_AGENT/shell/README.md" "$PKG/$a/agent/shell/"
@@ -51,8 +50,7 @@ for a in "${AGENTS[@]}"; do
 p=json.load(open('$PKG/$a/agent/shell/purpose.json')); \
 p['2']=json.load(open('$SRC_AGENT/collective/$a.json')); \
 f=open('$PKG/$a/agent/shell/purpose.json','w'); json.dump(p,f,indent=2,ensure_ascii=False); f.write(chr(10))"
-  cp "$SRC_SENTINEL/sunztone.json" "$SRC_SENTINEL/whetztone.json" "$PKG/$a/sentinel/"
-  cp "$SRC_ZAND/zand.py" "$PKG/$a/zand/"
+  cp "$SRC_SPARK/spark.py" "$SRC_SPARK/slate.json" "$SRC_SPARK/flint.json" "$PKG/$a/spark/"
   # peers.json: the other two, pointing at their WORKING agent dirs
   others=(); for b in "${AGENTS[@]}"; do [ "$a" != "$b" ] && others+=("$b"); done
   printf '{\n  "%s": "%s/%s/agent",\n  "%s": "%s/%s/agent"\n}\n' \
