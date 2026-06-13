@@ -1,5 +1,7 @@
 # ztone — phased plan
 
+> 🗄️ **Retired intermediary-era document (2026-05-28) — "ztone" terminology is retired.** This describes the z-era first pass (zand/sunztone/whetztone) at pure-digit pscale, **superseded** by the spark set (slate/flint/spark, `src/spark/`); the agent line closed the z-era at the v007 recut (2026-06-12). Reference/history only — do **not** treat the phases here as the live plan. Current: the memory `project_biome_shape.md`, `docs/spark-spec.md`.
+
 Trajectory from the foundational primitive (done) to full ecosystem deployment. Phases 1-3 are complete; phases 4-10 are recommended in order but each can pick up independently.
 
 ## Phase 1 — Harden the primitive ✓ DONE

@@ -1,5 +1,7 @@
 # Presence via beach marks
 
+> ⚠️ **Old-world (beach) reference — NOT biome guidance.** This document describes the legacy `_`/1-9 federation: hidden directories, star-as-door, colon-named blocks (`sed:`, `grain:`, `shell:`), `/.well-known/pscale-beach`. The biome (new world) retired all of these — see [CLAUDE.md](../../CLAUDE.md) two-worlds boundary, rules 4–7. Read only to understand the old world; never import its mechanics into biome-world (`src/spark`, `src/biome`, `src/agent`). The biome federates via the `biome-beach` door in pure 0-9 (`src/biome/serve.py`).
+
 **Status**: Convention, 29 April 2026
 **Cross-reference**: [protocol-pscale-beach-v2.md](./protocol-pscale-beach-v2.md) §3.1, §6
 **Replaces**: per-application presence relays (e.g. xstream-play's `relay_blocks` table)

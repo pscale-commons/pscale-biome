@@ -1,5 +1,7 @@
 # Biome: Integrated Package for the pscale Ecology
 
+> 📅 **Founding-era document (2026-05-09) — describes the original design question, not current state.** Since this was written the project advanced through the spark recut, genome v1→v5 (live & public on Railway since 2026-06-10), the mobius-3 collective (v007), the courier flows, and the face. Still valuable as the founding vision — but for *current state* read the memory `project_biome_shape.md`, plus `docs/biome-shape.md`, `docs/handover.md`, `docs/face-handover.md`. Verify specifics against current code/substrate before acting.
+
 *Design overview for Claude Code handoff*
 
 ## What it is

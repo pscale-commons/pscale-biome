@@ -1,5 +1,7 @@
 # Block references in hidden directories
 
+> ⚠️ **Old-world (beach) reference — NOT biome guidance.** This whole document is built on **hidden directories** and star-as-door — exactly the mechanic the biome retired (the biome has *no hidden positions*; refs are plain leaves resolved by spark's refer/star over `name:address:attention`). See [CLAUDE.md](../../CLAUDE.md) two-worlds boundary, rules 4–7. Read only to understand the old world; never import this into biome-world (`src/spark`, `src/biome`, `src/agent`).
+
 **Status**: Convention, 29 April 2026
 **Cross-reference**: [protocol-pscale-beach-v2.md](./protocol-pscale-beach-v2.md) §6, sunstone §5, [protocol-agent-shell.md](./protocol-agent-shell.md)
 

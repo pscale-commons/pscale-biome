@@ -1,5 +1,7 @@
 # Beach-crab evolutionary ladder
 
+> ⚠️ **Old-world (beach) reference — NOT biome guidance.** This document describes the legacy `_`/1-9 federation: hidden directories, star-as-door, colon-named blocks (`sed:`, `grain:`, `shell:`), `/.well-known/pscale-beach`. The biome (new world) retired all of these — see [CLAUDE.md](../../CLAUDE.md) two-worlds boundary, rules 4–7. Read only to understand the old world; never import its mechanics into biome-world (`src/spark`, `src/biome`, `src/agent`). The biome federates via the `biome-beach` door in pure 0-9 (`src/biome/serve.py`).
+
 **Status**: Spec, 28 April 2026
 **Related**: `docs/protocol-pscale-beach-v2.md`, `src/evolution.json`
 

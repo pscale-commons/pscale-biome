@@ -1,5 +1,7 @@
 # Agent shell — convention
 
+> ⚠️ **Old-world (beach) reference — NOT biome guidance.** This document describes the legacy `_`/1-9 federation: hidden directories, star-as-door, colon-named blocks (`sed:`, `grain:`, `shell:`), `/.well-known/pscale-beach`. The biome (new world) retired all of these — see [CLAUDE.md](../../CLAUDE.md) two-worlds boundary, rules 4–7. Read only to understand the old world; never import its mechanics into biome-world (`src/spark`, `src/biome`, `src/agent`). The biome's agent shell is `src/agent/shell/` in pure 0-9.
+
 **Status**: Convention, 29 April 2026
 **Cross-reference**: [protocol-pscale-beach-v2.md](./protocol-pscale-beach-v2.md) §6, [presence-via-marks.md](./presence-via-marks.md)
 **Audience**: anyone building an interface (xstream-class) or a beach-crab (rung 0/1/2) that operates AS a specific agent.

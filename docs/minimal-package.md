@@ -1,5 +1,7 @@
 # Minimal package — open exploration
 
+> 📅 **Founding-era exploration (2026-05-09) — not current state.** The "working hypothesis" bundle below names the *sunstone/whetstone sentinel* set; that is **superseded** by the spark set (slate/flint/spark in `src/spark/`), and the biome's MCP surface now exists natively (`src/biome/serve.py` `/mcp`). Read for the founding reasoning; for *current state* see the memory `project_biome_shape.md` and `docs/spark-spec.md`. The live design shell is `src/biome/constitution/biome.json` (not the `_`-keyed `src/sentinel/biome.json` this doc predates).
+
 The biome.json shell describes seven environmental currents (storage, cognition, endpoints, persistence, concurrency, federation, cadence) plus an unfolding procedure. The **minimal package** is the smallest set of parts that, bundled together, can sense those currents in any host and unfold accordingly.
 
 This document is the open exploration. Not a spec. Add as you discover; remove as you reduce.

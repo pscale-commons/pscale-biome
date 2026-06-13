@@ -50,7 +50,7 @@ Two block-worlds exist and must never interbreed. They are mechanically distingu
 
 > Can the five concerns of a pscale node — storage, BSP function, MCP transport, hermit-crab shell, xstream interface — be unified into one package that, when placed on a host, **unfolds** to fit that host's conditions?
 
-Read [docs/biome-design.md](docs/biome-design.md) for the design overview. The seven environmental currents that the unfolding is governed by are at [src/sentinel/biome.json](src/sentinel/biome.json).
+Read [docs/biome-design.md](docs/biome-design.md) for the *founding* design overview (2026-05-09). The seven environmental currents that the unfolding is governed by live in the **live** biome-world shell [src/biome/constitution/biome.json](src/biome/constitution/biome.json) (`0`-keyed). ([src/sentinel/biome.json](src/sentinel/biome.json) is the original `_`-keyed shell from the founding session — superseded vendor per rule 4; historical origin only.)
 
 ## Operating principles
 
@@ -58,7 +58,7 @@ Read [docs/biome-design.md](docs/biome-design.md) for the design overview. The s
 
 2. **Don't push back to source repos.** If you need to update `bsp-mcp-server` or `pscale-beach` or `xstream`, **stop** and tell the user. The vendoring is one-way for a reason.
 
-3. **Don't add features the biome shell doesn't describe.** If a feature is needed, map it to a current in `src/sentinel/biome.json` (storage, cognition, endpoints, persistence, concurrency, federation, cadence). If it doesn't map, the shell needs to grow first.
+3. **Don't add features the biome shell doesn't describe.** If a feature is needed, map it to a current in the live shell `src/biome/constitution/biome.json` (storage, cognition, endpoints, persistence, concurrency, federation, cadence). If it doesn't map, the shell needs to grow first.
 
 4. **Sense before you build.** The biome unfolds from conditions, not configuration. Implementation should sense the host (filesystem? port? key? browser?) before deciding a shape.
 
@@ -68,27 +68,27 @@ Read [docs/biome-design.md](docs/biome-design.md) for the design overview. The s
 
 ## What's missing (deliberately)
 
-Two of the biome-design.md's five concerns are NOT vendored:
+Two of the biome-design.md's five concerns were NOT vendored at the start. Both have since been re-authored biome-native (status updated 2026-06-13) — don't re-create them:
 
-- **MCP transport.** The bsp-mcp server scaffolding (`src/server.ts`, `src/index.ts`, `src/tools/`) was not vendored because the biome's server shape is different — multi-surface, conditional unfolding. Re-author when the unfolding logic is clearer, or vendor with deliberate adaptation.
-- **Hermit-crab shell.** Mobius is the reference pattern (Python). The user has updates on a separate drive (pct-soliton work). When that lands and the user surfaces the canonical version, the embedded loop becomes the next vendoring decision — Python sidecar, TS port, or "host runs it externally and the biome just exposes the substrate."
+- **MCP transport.** ~~Not vendored.~~ **Now exists, biome-native:** `src/biome/serve.py` serves the single `spark` tool at `/mcp` (alongside the `biome-beach` wire door). The original bsp-mcp scaffolding (`src/server.ts`, `src/tools/`) was deliberately not vendored — and should not be.
+- **Hermit-crab shell.** **Now exists, biome-native:** `src/agent/` IS the mobius-3 reference, spark-speaking since the v007 recut (the collective runs there; `mind.py` is the embedded-cognition form). The "separate drive / pct-soliton" note is historical.
 
 ## Open questions
 
-In rough priority:
+These were the founding open-questions (2026-05-09). Most are now settled — status annotated inline (updated 2026-06-13); kept for provenance, not as live questions.
 
-1. What does "sense the host" actually do? Concrete inspection list at boot time.
-2. Vendor or path-import or wait-for-publish for `bsp-mcp-server`'s function code? Currently vendored.
-3. Where does the seed wizard live in a unified biome? Currently `src/init/seed.js` from pscale-beach.
-4. Is xstream's `App.block-agents.tsx` the right entry, or does the biome need its own React shell?
-5. How does the human author the shell when the biome is for them, not an LLM? (xstream-class interface, but for designer face on the biome's own structure.)
+1. What does "sense the host" actually do? Concrete inspection list at boot time. → **ANSWERED:** built at `src/biome/sense.py` (`sense_neighbours`, `sense_capacity`); `unfold.py` resolves a role from it.
+2. Vendor or path-import or wait-for-publish for `bsp-mcp-server`'s function code? → **MOOT:** the biome's function is the **spark set** (`src/spark/`), not `bsp()`. bsp-mcp stays an old-world reference; nothing is imported from it.
+3. Where does the seed wizard live in a unified biome? → **OVERTAKEN by the face:** the biome serves its own inhabitable page; seeding is genome-owned (constitution, refreshed on boot) + store-owned (world/marks, grown by guests).
+4. Is xstream's `App.block-agents.tsx` the right entry, or does the biome need its own React shell? → **OVERTAKEN:** the biome serves its own page at `/xstream` from `serve.py` (one deployment, no second repo). See `docs/face-handover.md`.
+5. How does the human author the shell when the biome is for them, not an LLM? → **THIS IS THE ACTIVE FRONT — "the face":** the face IS the biome's xstream-form; humans are inhabitants, typing is cognition. See `docs/face-handover.md` and the memory `project_biome_shape.md` (items 16–17).
 
 ## Don't lose track of
 
-- `src/sentinel/biome.json` is the design shell — the most architecturally load-bearing artifact in this project.
+- **The live design shell is `src/biome/constitution/biome.json`** (biome-world, `0`-keyed) — the most architecturally load-bearing artifact in this project. (`src/sentinel/biome.json` is the *original* `_`-keyed shell from the founding session — superseded vendor per rule 4; read only as historical origin, never edit it as the live shell. Both carry the same seven currents, in the two worlds' geometries.)
 - `docs/biome-design.md` is the design overview David and Claude crystallised before this project was scoped.
 - `docs/systemic-kernel.json` is the evaluation kernel for "is this proposal systemic or mechanical." Walk it when in doubt about whether a feature you're adding is derived or assembled.
-- `docs/protocols/` carries the substrate-wide protocols. Read them before authoring anything that interacts with the federation.
+- `docs/protocols/` carries the **old-world (beach) federation protocols** — `_`/1-9, hidden directories, star-as-door, colon-named blocks, `/.well-known/pscale-beach`. They describe the *legacy* federation, **not the biome's**. The biome federates via the `biome-beach` door in pure 0-9 (`src/biome/serve.py`, rules 4–7). Read protocols/ only to understand the old world; never import its mechanics into biome-world. (Each file now carries an old-world banner.)
 
 ## Provenance
 

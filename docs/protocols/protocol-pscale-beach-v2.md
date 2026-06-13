@@ -1,5 +1,7 @@
 # Pscale Beach Protocol v2
 
+> ⚠️ **Old-world (beach) reference — NOT biome guidance.** This is the legacy `_`/1-9 federation protocol (`/.well-known/pscale-beach`, marks/presence/pool conventions, colon-named blocks). The biome (new world) federates via a *separate* door, `/.well-known/biome-beach`, in pure 0-9, and *signposts* this old door (404 + note) without serving it — see [CLAUDE.md](../../CLAUDE.md) rules 4–7 and `src/biome/serve.py`. Read only to understand the old world; never import its mechanics into biome-world.
+
 **Status**: Draft, 28 April 2026
 **Replaces**: `protocol-pscale-beach.md` v1 (marks-as-flat-list, agent-specific endpoints)
 **Authors**: David Pinto with Claude (bsp-mcp-server reference instance)

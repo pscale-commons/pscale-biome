@@ -1,5 +1,7 @@
 # ztone — the pure-digit pscale primitive
 
+> 🗄️ **Retired intermediary-era document (2026-05-28) — "ztone" terminology is retired.** This spec describes the z-era first pass (zand/sunztone/whetztone) at pure-digit pscale, **superseded** by the spark set (slate/flint/spark, `src/spark/`). Reference/history only — the live primitive spec is `docs/spark-spec.md` and the live teaching blocks are `src/spark/slate.json` + `src/spark/flint.json`. Current state: the memory `project_biome_shape.md`.
+
 **Status:** read + write side complete. Three independent federated implementations have each passed the full test suite on first run (9/9, 69/69, 78/78), evidence the spec is operationally portable.
 
 ## What ztone is
