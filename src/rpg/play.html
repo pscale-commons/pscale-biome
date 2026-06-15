@@ -59,11 +59,7 @@ async function act() {
     })).json();
     const div = document.createElement("div");
     div.className = "scene";
-    let html = '<div class="you">you: ' + esc(intent) + "</div><br>" + esc(r.scene);
-    if (r.you_learn && r.you_learn.toLowerCase() !== "none")
-      html += '<div class="learn">you sense — ' + esc(r.you_learn) + "</div>";
-    if (r.prevailed) html += '<div class="meta">▸ ' + esc(r.prevailed) + "</div>";
-    div.innerHTML = html;
+    div.innerHTML = '<div class="you">you: ' + esc(intent) + "</div><br>" + esc(r.render);
     $("#log").insertBefore(div, $("#log").firstChild);
     $("#intent").value = "";
     if (r.state) $("#frame").textContent = r.state.window;   // the shell has grown

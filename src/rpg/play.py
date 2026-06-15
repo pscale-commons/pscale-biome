@@ -59,6 +59,24 @@ def recent_scenes(run_dir, n=3):
     return [b[k] for k in sorted(b) if k != "0" and isinstance(b[k], str)][-n:]
 
 
+def append_perceived(run_dir, name, render):
+    """Deposit a character's perceived moment into its own personal T."""
+    path = os.path.join(run_dir, "characters", name, "perceived.json")
+    blk = sp.load(path) if os.path.exists(path) else {
+        "0": "Perceived -- the moments this character has lived, in their own view (their personal T)."}
+    append_child(blk, render)
+    sp.save(path, blk)
+
+
+def perceived_recent(run_dir, name, n=3):
+    """A character's own recent perceived moments -- the filtered NOW feed (its aperture)."""
+    path = os.path.join(run_dir, "characters", name, "perceived.json")
+    if not os.path.exists(path):
+        return []
+    b = sp.load(path)
+    return [b[k] for k in sorted(b) if k != "0" and isinstance(b[k], str)][-n:]
+
+
 def full_field(world, here, recent=None):
     """The whole field for the arbiter: every who present, the objects in reach,
     and what has already happened (so consequences don't repeat)."""
@@ -76,33 +94,26 @@ def full_field(world, here, recent=None):
 def turn(run_dir, names, n):
     world = frame.load_world(os.path.join(run_dir, "world"))
     shells = {nm: frame.load_shell(os.path.join(run_dir, "characters", nm)) for nm in names}
-    recent = recent_scenes(run_dir)
     print("\n" + "#" * 72 + "\n# TURN %d\n" % n + "#" * 72)
     acts, here = [], None
+    # SOFT (act): each character perceives ONLY its own window (its perceived history), then acts
     for nm in names:
         here = frame.here_walk(shells[nm])
-        w = frame.bind_window(shells[nm], world, recent=recent)
-        print("\n----- %s :: WINDOW -----\n%s" % (nm.upper(), w["text"]))
-        voice, act = tiers.soft_voice(w["text"], nm)
-        print("\n----- %s :: VOICES & ACTS -----\n%s" % (nm.upper(), voice))
-        hid = frame.hidden_depth(shells[nm], world)
-        hidden_text = "\n".join("- " + x for x in hid["whos"]) + \
-                      "\n(objects in reach: " + "; ".join(hid["objects"][:3]) + ")"
-        g = tiers.medium_gate(nm, act, hidden_text)
-        print("\n----- %s :: THE GATE -----\n%s" % (nm.upper(), g["raw"]))
-        if g["reveal"] and g["writeback"] and g["writeback"].lower() != "none":
-            persist_to_conditions(run_dir, nm, "[earned] " + g["writeback"] + " (%s)" % (g["certainty"] or "?"))
-            print("  [-> earned -> %s/conditions]" % nm)
+        w = frame.bind_window(shells[nm], world, recent=perceived_recent(run_dir, nm))
+        voice, act = tiers.soft_act(w["text"], nm)
+        print("\n----- %s :: PERCEIVES & ACTS (soft) -----\n%s" % (nm.upper(), voice))
         acts.append((nm, act))
-    arb = tiers.hard_arbitrate(acts, full_field(world, here, recent))
-    print("\n===== HARD ARBITRATION (the collision) =====\n%s" % arb["raw"])
-    d = persist_scene(run_dir, arb["scene"] or arb["raw"])
-    print("  [-> scene deposited to scenes.json @ %s]" % d)
-    for nm, _ in acts:
-        g = arb["gains"].get(nm, "")
-        if g and g.lower() != "none":
-            persist_to_conditions(run_dir, nm, "[outcome] " + g)
-            print("  [-> outcome -> %s/conditions]" % nm)
+    # MEDIUM: resolve what ACTUALLY happens -- omniscient world-truth, shown to no player
+    res = tiers.medium_resolve(acts, full_field(world, here, recent_scenes(run_dir)))
+    print("\n===== MEDIUM :: RESOLUTION (world-truth, behind the screen) =====\n%s" % res["raw"])
+    persist_scene(run_dir, res["truth"])                       # HARD (admin): record the truth, advance
+    # SOFT (render): each character perceives only its own slice -- second person
+    for nm, act in acts:
+        r = tiers.soft_render(nm, frame.standpoint(shells[nm], world), act, res["truth"])
+        append_perceived(run_dir, nm, r["render"])
+        if r["perceived"]:
+            persist_to_conditions(run_dir, nm, "[perceived] " + r["perceived"])
+        print("\n----- %s :: SEES (soft, second person) -----\n%s" % (nm.upper(), r["render"]))
 
 
 if __name__ == "__main__":

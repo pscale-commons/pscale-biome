@@ -29,43 +29,38 @@ def state(char):
     world = frame.load_world(os.path.join(RUN_DIR, "world"))
     shell = frame.load_shell(os.path.join(RUN_DIR, "characters", char))
     cond = sp.load(os.path.join(RUN_DIR, "characters", char, "conditions.json"))
-    scenes = []
-    sc = os.path.join(RUN_DIR, "scenes.json")
-    if os.path.exists(sc):
-        sb = sp.load(sc)
-        scenes = [sb[k] for k in sorted(sb) if k != "0" and isinstance(sb[k], str)]
-    window = frame.bind_window(shell, world, recent=play.recent_scenes(RUN_DIR))["text"]
+    lived = play.perceived_recent(RUN_DIR, char, n=99)   # the character's OWN lived history (its view)
+    window = frame.bind_window(shell, world, recent=play.perceived_recent(RUN_DIR, char))["text"]
     return {"char": char, "window": window,
-            "conditions": [cond[k] for k in sorted(cond) if k != "0"], "scenes": scenes}
+            "conditions": [cond[k] for k in sorted(cond) if k != "0"], "scenes": lived}
 
 
 def run_turn(human_char, intention):
     world = frame.load_world(os.path.join(RUN_DIR, "world"))
     shells = {nm: frame.load_shell(os.path.join(RUN_DIR, "characters", nm)) for nm in CAST}
     here = frame.here_walk(shells[human_char])
-    recent = play.recent_scenes(RUN_DIR)
-    acts, log, you_learn = [], [], ""
+    # SOFT (act): you typed yours; each AI character acts from ONLY its own perceived window
+    acts = []
     for nm in CAST:
         if nm == human_char:
-            voice, act = "(you)", intention
+            act = intention
         else:
-            voice, act = tiers.soft_voice(frame.bind_window(shells[nm], world, recent=recent)["text"], nm)
-        hid = frame.hidden_depth(shells[nm], world)
-        g = tiers.medium_gate(nm, act, "\n".join("- " + x for x in hid["whos"]))
-        if g["reveal"] and g["writeback"] and g["writeback"].lower() != "none":
-            play.persist_to_conditions(RUN_DIR, nm, "[earned] " + g["writeback"] + " (%s)" % (g["certainty"] or "?"))
-            if nm == human_char:
-                you_learn = g["knowledge"]
+            w = frame.bind_window(shells[nm], world, recent=play.perceived_recent(RUN_DIR, nm))
+            _, act = tiers.soft_act(w["text"], nm)
         acts.append((nm, act))
-        log.append({"who": nm, "voice": voice})
-    arb = tiers.hard_arbitrate(acts, play.full_field(world, here, recent))
-    play.persist_scene(RUN_DIR, arb["scene"] or arb["raw"])
-    for nm, _ in acts:
-        gg = arb["gains"].get(nm, "")
-        if gg and gg.lower() != "none":
-            play.persist_to_conditions(RUN_DIR, nm, "[outcome] " + gg)
-    return {"scene": arb["scene"] or arb["raw"], "prevailed": arb["prevailed"],
-            "you_learn": you_learn, "you_gain": arb["gains"].get(human_char, ""), "state": state(human_char)}
+    # MEDIUM: resolve the world-truth (omniscient, shown to no player)
+    res = tiers.medium_resolve(acts, play.full_field(world, here, play.recent_scenes(RUN_DIR)))
+    play.persist_scene(RUN_DIR, res["truth"])                  # HARD (admin): record + advance
+    # SOFT (render): each character perceives only its own slice; you read yours
+    you_see = ""
+    for nm, act in acts:
+        r = tiers.soft_render(nm, frame.standpoint(shells[nm], world), act, res["truth"])
+        play.append_perceived(RUN_DIR, nm, r["render"])
+        if r["perceived"]:
+            play.persist_to_conditions(RUN_DIR, nm, "[perceived] " + r["perceived"])
+        if nm == human_char:
+            you_see = r["render"]
+    return {"render": you_see, "state": state(human_char)}
 
 
 class H(BaseHTTPRequestHandler):

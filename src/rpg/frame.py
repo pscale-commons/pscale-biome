@@ -93,6 +93,11 @@ def here_walk(shell):
     return shell["bind"]["2"].split(",")
 
 
+def standpoint(shell, world):
+    """The character's own standpoint voicing -- the X-1 identity pick (the who)."""
+    return _voice(world["identity"], here_walk(shell) + [shell["bind"]["3"]])
+
+
 def bind_window(shell, world, face="character", tier="medium", recent=None):
     """Compose the bound window. Returns {text, parts}. `recent` is the recent
     deposited scenes (the play's own T); once play has begun they replace the
