@@ -9,7 +9,7 @@ soft/medium small-and-fast, hard the most authoritative reading. Override any
 with RPG_SOFT / RPG_MEDIUM / RPG_HARD env vars (e.g. RPG_HARD=claude-sonnet-4-6
 to run the whole bench cheaply).
 """
-import os, json, urllib.request, urllib.error
+import os, re, json, urllib.request, urllib.error
 
 API_URL = "https://api.anthropic.com/v1/messages"
 
@@ -63,6 +63,12 @@ def _field(text, label):
     return ""
 
 
+def _scene_field(out):
+    """SCENE is multi-sentence; capture it whole, up to the next labelled field."""
+    m = re.search(r"SCENE:\s*(.*?)(?=\n[^\n]*GAINS:|\nWHO PREVAILED:|\Z)", out, re.S)
+    return m.group(1).strip().strip("*").strip() if m else _field(out, "SCENE")
+
+
 def soft_voice(window_text, name):
     p = ("You ARE a character in a coordinate-addressed world: the %s. Below is your bound moment. "
 "Speak ONLY from inside it -- you know only what is given here, and invent no facts beyond it.\n\n"
@@ -101,6 +107,6 @@ def hard_arbitrate(acts, full_field):
 "SCENE: <3-4 sentences, the canonical moment, for the world's scene block>\n%s\n"
 "WHO PREVAILED: <one phrase and why>") % (actlines, full_field, gains_fmt)
     out = call(TIERS["hard"], p, max_tokens=850)
-    return {"raw": out, "scene": _field(out, "SCENE"),
+    return {"raw": out, "scene": _scene_field(out),
             "gains": {n: _field(out, n.upper() + " GAINS") for n, _ in acts},
             "prevailed": _field(out, "WHO PREVAILED")}

@@ -51,6 +51,11 @@ wt = frame.bind_window(watch, world)["text"]
 check("watcher window: a different standpoint than the merchant",
       "won't be the merchant" in wt.lower() and "running my way" not in wt)
 
+wr = frame.bind_window(merch, world, recent=["THE TEST SCENE -- a cask burst and the room turned."])["text"]
+check("world-change: a recent scene enters NOW", "THE TEST SCENE" in wr)
+check("world-change: the seed micro-beat gives way once play has begun",
+      "flashes in the firelight" not in wr)
+
 # persistence round-trip on a temp copy (never mutate source)
 tmp = tempfile.mkdtemp()
 shutil.copytree(os.path.join(_HERE, "characters", "merchant"), os.path.join(tmp, "merchant"))

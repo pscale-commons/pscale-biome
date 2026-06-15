@@ -37,7 +37,7 @@ PKG="$STAGE/$V"
 mkdir -p "$PKG/spark"
 
 # the bench source
-cp "$SRC_RPG"/frame.py "$SRC_RPG"/tiers.py "$SRC_RPG"/play.py "$SRC_RPG"/rpg-battery.py "$SRC_RPG"/README.md "$PKG/"
+cp "$SRC_RPG"/frame.py "$SRC_RPG"/tiers.py "$SRC_RPG"/play.py "$SRC_RPG"/web.py "$SRC_RPG"/play.html "$SRC_RPG"/rpg-battery.py "$SRC_RPG"/README.md "$PKG/"
 cp -R "$SRC_RPG"/world "$SRC_RPG"/characters "$PKG/"
 # spark rides along so the cut is self-contained (frame.py finds ./spark/spark.py)
 cp "$SRC_SPARK"/spark.py "$SRC_SPARK"/slate.json "$SRC_SPARK"/flint.json "$PKG/spark/"
@@ -59,7 +59,11 @@ persisted world + shells; the play grows \`scenes.json\` and the characters'
 ## Conformance (no key, no cost)
     python3 rpg-battery.py
 
-## Play
+## Play in a browser (the xstream seed) -- you are the merchant
+    RPG_HARD=claude-sonnet-4-6 python3 web.py . 3220
+    # open http://127.0.0.1:3220 ; type an intention, watch the room respond
+
+## Or play headless (character-LLMs only)
     RPG_TURNS=2 python3 play.py .
     cat scenes.json characters/*/conditions.json   # what the play grew
 
@@ -75,4 +79,5 @@ echo "RPG bench $V created"
 echo "  snapshot (frozen):  $ARCH"
 echo "  experiment (run):   $WORK"
 echo
-echo "play:  cd \"$WORK\" && RPG_TURNS=2 python3 play.py ."
+echo "play (browser):  cd \"$WORK\" && RPG_HARD=claude-sonnet-4-6 python3 web.py . 3220   # then open http://127.0.0.1:3220"
+echo "play (headless): cd \"$WORK\" && RPG_TURNS=2 python3 play.py ."

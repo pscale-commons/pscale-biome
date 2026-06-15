@@ -44,6 +44,7 @@ cheaply).
 | `frame.py` | the composer — `bind_window(shell, world)`, `hidden_depth(...)` |
 | `tiers.py` | the three LLM roles — `soft_voice` / `medium_gate` / `hard_arbitrate` |
 | `play.py` | the driver — runs turns, persists write-backs + the scene deposit |
+| `web.py` + `play.html` | a local web interface — play a character in a browser (the **xstream seed**); you are the soft tier |
 | `rpg-battery.py` | conformance (no LLM): composition, aperture, persistence, fold |
 | `new-rpg.sh` | cuts a snapshot (frozen) + an experiment (a working run dir) |
 
@@ -53,9 +54,17 @@ cheaply).
 python3 rpg-battery.py                 # conformance — no key, no calls, no cost
 ./new-rpg.sh "first bench"             # cut v00N: frozen snapshot + working copy
 cd ~/Desktop/rpg-runs/v001
-RPG_TURNS=2 python3 play.py .          # play 2 turns in the experiment leg
+RPG_TURNS=2 python3 play.py .          # headless: character-LLMs play 2 turns
+RPG_HARD=claude-sonnet-4-6 python3 web.py . 3220   # browser: open http://127.0.0.1:3220 and play
 cat scenes.json characters/*/conditions.json   # what the play grew
 ```
+
+In the browser, your character's bound frame (HERE/NOW/WHO/SELF) is on the page;
+type an intention and the room responds — the medium gates what you earn, the
+hard arbitrates against the AI cast, and your shell grows under the frame. You
+are the soft tier (shell 2.3: a human at the browser provides cognition by
+typing). This is the first slice of the biome's `/xstream` face, scoped to one
+run and served off the public commons.
 
 Run `play.py` in a **cut**, not in source — it mutates shells and grows
 `scenes.json` (rig discipline: edit source, run the experiment). Costs ~a few

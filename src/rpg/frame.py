@@ -93,13 +93,15 @@ def here_walk(shell):
     return shell["bind"]["2"].split(",")
 
 
-def bind_window(shell, world, face="character", tier="medium"):
-    """Compose the bound window. Returns {text, parts}."""
+def bind_window(shell, world, face="character", tier="medium", recent=None):
+    """Compose the bound window. Returns {text, parts}. `recent` is the recent
+    deposited scenes (the play's own T); once play has begun they replace the
+    seed's scripted micro-beats as the NOW's events, so the world changes."""
     here, who = here_walk(shell), shell["bind"]["3"]
     S, T, I = world["space"], world["time"], world["identity"]
 
     here_lines = _descent(S, here) + _contents(S, here)
-    now_lines = _descent(T, here) + _contents(T, here)
+    now_lines = _descent(T, here) + (list(recent) if recent else _contents(T, here))
     standpoint = _voice(I, here + [who])
     collective = _voice(I, here)
     self_lines = [_shell_line(c, shell[c]) for c in ("purpose", "conditions", "history") if c in shell]

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>the taproom — you are a character</title>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#0b0d12; color:#cdd3df; font:15px/1.65 Georgia,serif;
+         max-width:740px; margin:0 auto; padding:24px 18px 80px; }
+  h1 { font:600 17px/1.4 system-ui,sans-serif; color:#e8edf6; letter-spacing:.2px; margin:0 0 14px; }
+  h1 b { color:#c7b3f0; }
+  label { display:block; font:11px system-ui,sans-serif; color:#7f8aa0;
+          text-transform:uppercase; letter-spacing:.1em; margin:18px 0 6px; }
+  .frame { white-space:pre-wrap; background:#11141b; border:1px solid #232838; border-radius:8px;
+           padding:14px; font:12.5px/1.55 ui-monospace,SFMono-Regular,monospace; color:#aeb6c6;
+           max-height:300px; overflow:auto; }
+  .scene { background:#141019; border-left:3px solid #6b4ea8; border-radius:6px;
+           padding:13px 15px; margin:12px 0; }
+  .scene .you { color:#9fb0c8; font-style:italic; }
+  .scene .learn { color:#7fd6a8; font:13px/1.5 system-ui,sans-serif; margin-top:8px; }
+  .scene .meta { color:#7f8aa0; font:12px system-ui,sans-serif; margin-top:8px; }
+  textarea { width:100%; box-sizing:border-box; background:#0e1117; color:#e8edf6;
+             border:1px solid #2a3146; border-radius:8px; padding:11px; font:15px/1.5 Georgia,serif; }
+  button { margin-top:9px; padding:9px 20px; background:#e8edf6; color:#0b0d12; border:0;
+           border-radius:8px; font:600 14px system-ui,sans-serif; cursor:pointer; }
+  button:disabled { background:#39414f; color:#8a93a6; cursor:default; }
+</style>
+</head>
+<body>
+  <h1>You are the <b id="who">character</b> · the Millstone taproom</h1>
+  <label>your bound moment — here · now · who you are</label>
+  <div class="frame" id="frame">reading the world…</div>
+  <div id="log"></div>
+  <label>what do you do?</label>
+  <textarea id="intent" rows="2" placeholder="e.g. I watch the dice over a few throws before I stake anything, counting whose hand they favour."></textarea>
+  <button id="go">act</button>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+async function load() {
+  const s = await (await fetch("/state")).json();
+  $("#who").textContent = s.char;
+  $("#frame").textContent = s.window;
+  document.title = "the taproom — you are the " + s.char;
+}
+
+async function act() {
+  const intent = $("#intent").value.trim();
+  if (!intent) return;
+  const go = $("#go");
+  go.disabled = true; go.textContent = "the room moves…";
+  try {
+    const r = await (await fetch("/act", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({intention: intent})
+    })).json();
+    const div = document.createElement("div");
+    div.className = "scene";
+    let html = '<div class="you">you: ' + esc(intent) + "</div><br>" + esc(r.scene);
+    if (r.you_learn && r.you_learn.toLowerCase() !== "none")
+      html += '<div class="learn">you sense — ' + esc(r.you_learn) + "</div>";
+    if (r.prevailed) html += '<div class="meta">▸ ' + esc(r.prevailed) + "</div>";
+    div.innerHTML = html;
+    $("#log").insertBefore(div, $("#log").firstChild);
+    $("#intent").value = "";
+    if (r.state) $("#frame").textContent = r.state.window;   // the shell has grown
+  } catch (e) {
+    alert("the room did not answer: " + e);
+  }
+  go.disabled = false; go.textContent = "act";
+}
+
+$("#go").addEventListener("click", act);
+$("#intent").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) act(); });
+load();
+</script>
+</body>
+</html>

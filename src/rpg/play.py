@@ -50,24 +50,38 @@ def persist_scene(run_dir, text):
     return d
 
 
-def full_field(world, here):
-    """The whole field for the arbiter: every who present + the objects in reach."""
+def recent_scenes(run_dir, n=3):
+    """The last n deposited scenes -- the play's own recent T, fed back into NOW."""
+    p = os.path.join(run_dir, "scenes.json")
+    if not os.path.exists(p):
+        return []
+    b = sp.load(p)
+    return [b[k] for k in sorted(b) if k != "0" and isinstance(b[k], str)][-n:]
+
+
+def full_field(world, here, recent=None):
+    """The whole field for the arbiter: every who present, the objects in reach,
+    and what has already happened (so consequences don't repeat)."""
     I, S = world["identity"], world["space"]
     place = sp.descend(I, here)
     whos = [(place[d] if isinstance(place[d], str) else sp.voice(place[d]))
             for d in "123456789" if isinstance(place, dict) and d in place]
     objs = frame._contents(S, here)
-    return "Whos present:\n- " + "\n- ".join(whos) + "\nObjects in reach: " + "; ".join(objs)
+    base = "Whos present:\n- " + "\n- ".join(whos) + "\nObjects in reach: " + "; ".join(objs)
+    if recent:
+        base += "\nAlready happened (most recent first):\n- " + "\n- ".join(reversed(list(recent)))
+    return base
 
 
 def turn(run_dir, names, n):
     world = frame.load_world(os.path.join(run_dir, "world"))
     shells = {nm: frame.load_shell(os.path.join(run_dir, "characters", nm)) for nm in names}
+    recent = recent_scenes(run_dir)
     print("\n" + "#" * 72 + "\n# TURN %d\n" % n + "#" * 72)
     acts, here = [], None
     for nm in names:
         here = frame.here_walk(shells[nm])
-        w = frame.bind_window(shells[nm], world)
+        w = frame.bind_window(shells[nm], world, recent=recent)
         print("\n----- %s :: WINDOW -----\n%s" % (nm.upper(), w["text"]))
         voice, act = tiers.soft_voice(w["text"], nm)
         print("\n----- %s :: VOICES & ACTS -----\n%s" % (nm.upper(), voice))
@@ -80,9 +94,9 @@ def turn(run_dir, names, n):
             persist_to_conditions(run_dir, nm, "[earned] " + g["writeback"] + " (%s)" % (g["certainty"] or "?"))
             print("  [-> earned -> %s/conditions]" % nm)
         acts.append((nm, act))
-    arb = tiers.hard_arbitrate(acts, full_field(world, here))
+    arb = tiers.hard_arbitrate(acts, full_field(world, here, recent))
     print("\n===== HARD ARBITRATION (the collision) =====\n%s" % arb["raw"])
-    d = persist_scene(run_dir, arb["raw"])
+    d = persist_scene(run_dir, arb["scene"] or arb["raw"])
     print("  [-> scene deposited to scenes.json @ %s]" % d)
     for nm, _ in acts:
         g = arb["gains"].get(nm, "")
