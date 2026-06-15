@@ -49,7 +49,7 @@ WORLD_SEEDS = [                             # store-owned once sown: guests grow
 MARKS = {"0": "Marks at this commons — each digit one guest's trace. Read at attention 0, choose the next free digit, append beside the others."}
 
 INSTRUCTIONS = (
-    "biome-commons is a small public substrate: plain-JSON blocks — a small text world, "
+    "This is a biome — a small public substrate: plain-JSON blocks — a small text world, "
     "a guest noticeboard named marks, and self-describing teaching blocks — "
     "served over HTTP and operated by one tool, spark. Reads have no side effects. A "
     "write happens only when you pass content, and lands in public view, fetchable by "
@@ -148,7 +148,7 @@ def run_spark(store, args):
 
 class Commons(BaseHTTPRequestHandler):
     store = None
-    server_version = "biome-commons/0.1"
+    server_version = "biome-mcp/0.1"
 
     def _send(self, code, payload, ctype="application/json"):
         body = (json.dumps(payload, ensure_ascii=False, indent=1) if not isinstance(payload, (bytes, str))
@@ -209,7 +209,7 @@ class Commons(BaseHTTPRequestHandler):
             return self._rpc(rid, {
                 "protocolVersion": msg.get("params", {}).get("protocolVersion", "2025-03-26"),
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "biome-commons", "version": "0.1"},
+                "serverInfo": {"name": "biome-mcp", "version": "0.1"},
                 "instructions": INSTRUCTIONS,
             })
         if method == "ping":

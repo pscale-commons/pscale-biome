@@ -112,7 +112,7 @@ try:
     print("the mcp surface")
     code, body = rpc("initialize", {"protocolVersion": "2025-03-26",
                                     "capabilities": {}, "clientInfo": {"name": "test"}})
-    ok("initialize answers", body["result"]["serverInfo"]["name"], "biome-commons")
+    ok("initialize answers", body["result"]["serverInfo"]["name"], "biome-mcp")
     ok("initialize explains itself", "Reads have no side effects" in body["result"]["instructions"]
        and "narrate" in body["result"]["instructions"], True)
     code, body = http("/mcp", {"jsonrpc": "2.0", "method": "notifications/initialized"})
