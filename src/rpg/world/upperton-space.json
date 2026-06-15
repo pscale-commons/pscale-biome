@@ -1,0 +1,97 @@
+{
+  "0": {
+    "0": {
+      "0": {
+        "0": "Upperton -- a dark-age town where a river cut a deep gorge. A town on the brow of the cliff, a town on the gorge floor by the water, the royal hold carved into the rock between them, and a counterweighted lift on the open face. Spatial aspect; time and identity are sibling blocks at these same addresses."
+      }
+    }
+  },
+  "1": {
+    "0": "Upper Town -- the brow. Close-built against the wind; market, inn, lift-head and the drawbridge mouth all crowded near the edge.",
+    "1": {
+      "0": "The brow market -- a cramped square at the cliff edge, a low wall the only guard against the drop, stalls and the inn around it.",
+      "1": "The lift-head winch house -- the upper drum and brake; the lift-master decides who rides.",
+      "2": {
+        "0": "The Millstone -- the inn on the brow, where strangers wake. Low and smoke-dark, named for the broken millstone set in its threshold.",
+        "1": {
+          "0": "The taproom -- one long room, benches both sides, a fire at the gable, the broken millstone underfoot at the door.",
+          "1": {
+            "0": "The long table -- black oak by the fire, scarred, the regulars' place.",
+            "1": "A name carved deep into the edge and scratched out.",
+            "2": {
+              "0": "A dented tankard left standing at the table-head.",
+              "1": "A bent coin wedged in the wood beneath it -- a southern mint, worth nothing this far inland."
+            }
+          },
+          "2": "The hearth -- a peat fire never wholly out, a black pot on a chain.",
+          "3": "The bar -- a plank counter, casks racked behind, a hatch down to the cellar."
+        },
+        "2": "The kitchen -- a low fire, a bread oven in the wall, a back door to the muck-lane.",
+        "3": {
+          "0": "The cellar -- cut into the rock, cool, stacked with casks.",
+          "1": "A draught comes from a seam in the back wall that ought not to be there."
+        },
+        "4": "The lofts -- three let rooms under the thatch, cold and cheap."
+      },
+      "3": "The lanes -- stepped alleys dropping between the market and the dwellings below the brow."
+    },
+    "2": "The chapel -- a small stone shrine at the cliff edge, a bell to mark the hours and the dead.",
+    "3": "The headman's hall -- timber, the long table of the brow's elders, where disputes are heard."
+  },
+  "2": {
+    "0": "The Cliff-Hold -- chambers and galleries cut into the cliff face, the royal house within, reached only across the drawbridge or up the guarded inner stair.",
+    "1": {
+      "0": "The window gallery -- a passage along the rock face, deep windows over the gorge, watchers and a few bows.",
+      "1": "A window-niche with a worn seat, the full drop to the river below it.",
+      "2": "A loop angled to cover the lift down its whole run."
+    },
+    "2": {
+      "0": "The royal chambers -- the deep warm rooms of the royal house, reached only past the guard.",
+      "1": "The audience chamber -- vaulted, one high window, a stone chair.",
+      "2": "The ruler's cell -- small, lit by a shaft cut up to the sky."
+    },
+    "3": {
+      "0": "The inner stair -- cut through the rock, joining brow to gorge floor, gated top and bottom -- the crown's own way.",
+      "1": "The upper gate -- an iron grille at the clifftop mouth.",
+      "2": "The lower gate -- a second grille at the floor, a murder-hole above it."
+    },
+    "4": "The hold gate -- the portcullis at the drawbridge's far end, the span's counterweight beside it."
+  },
+  "3": {
+    "0": "Lower Town -- the gorge floor. A town strung along the river: the mill, the tannery, dwellings, and the foot of the lift.",
+    "1": {
+      "0": "The mill -- a watermill on the race, the wheel turning, the town's grain ground here.",
+      "1": "The grinding floor -- the stones white with dust, the miller's tally on the wall.",
+      "2": "The race -- the cut channel driving the wheel, fast and narrow."
+    },
+    "2": "The tannery -- tan-pits by the water, hides on the racks, the stink carried off downstream.",
+    "3": {
+      "0": "The lift-foot -- the base of the lift, the lower drum, the loading yard.",
+      "1": "The lower winch house -- the bottom drum and brake, the down-crew taking the upper horn's call."
+    },
+    "4": "The strand-row -- dwellings along the river, in the cliff's shadow half the day."
+  },
+  "4": {
+    "0": "The Lift -- a counterweighted cage on the open cliff face, the one quick way between brow and floor for common folk, and its ropes can be cut.",
+    "1": {
+      "0": "The rising cage -- the east cage, climbing as its twin falls, packed each trip.",
+      "1": "A slatted platform, waist rails, room for six or a netted load.",
+      "2": "The grip-line -- a frayed second rope the riders cling to, trusted by none."
+    },
+    "2": {
+      "0": "The falling cage -- the west cage, descending as its partner rises, near-empty.",
+      "1": "Its platform, twin to the other, no better trusted."
+    },
+    "3": "The ropeways -- the tarred cables running the cliff face between the drums, watched for wear."
+  },
+  "5": {
+    "0": "The Drawbridge -- a span of oak from the brow across a quarried cut to the hold's gate; raised, the hold is an island in the rock.",
+    "1": "The span -- the oak roadway over the cut, the planks rumbling underfoot.",
+    "2": "The cut -- the chasm beneath, deliberately quarried, sheer to the gorge floor."
+  },
+  "6": {
+    "0": "The River and Gorge -- fast brown water at the cliff foot, the walls sheer, the only dry crossing a ford an hour upstream.",
+    "1": "The gorge floor path -- a track along the water between cliff and river, flood-marked.",
+    "2": "The ford -- an hour upstream, the one dry crossing, and watched."
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "0": {
+    "0": {
+      "0": {
+        "0": "Upperton as its own people hold it -- a hard, proud gorge-town the crown keeps and the roads forget. We live by the lift, the mill, and our own wits, and reckon ourselves apart from brow or floor or hold. Identity aspect; space and time are sibling blocks at these same addresses. Each node is an insight -- a perception, owned collectively high up, personally near the floor, and as bare observation below it."
+      }
+    }
+  },
+  "1": {
+    "0": "The brow-folk's Upperton: we are the town proper -- market, inn, the crown's own neighbours. The river-folk climb up to us, the road-folk pass through, and we hold the high ground and the high opinion to match.",
+    "1": {
+      "0": "The market-crowd's brow: a cold square you cross for the inn's warmth, a chance of real coin when a road-party comes, a press at the wall-edge with the long drop behind it.",
+      "1": "The winch-crew: the brow lives or dies on whether we run the cage. Today we hold the queue and they hate us for it; tomorrow they'll beg us.",
+      "2": {
+        "0": "The inn-folk's Millstone: the real town isn't the square, it's in here by the fire. Strangers come for a bed and leave knowing the floor's whole business, because everything gets said over ale.",
+        "1": {
+          "0": "The taproom tonight, as the room collectively feels it -- the house is with the newcomers, coin's loosening tongues, the dice are the centre of the world, and under the noise everyone is quietly minding everyone else's hands.",
+          "1": "The old regular: my bench, my name carved in the oak -- scratched out by some hold-clerk's spite years back. These road-folk are loud and their coin's good, but I've watched this dice-game run before and I know how it ends.",
+          "2": "The keeper: a fat night's takings if the dice don't turn to knives. I'm watching the merchant's purse and the hooded one by the fire both -- and the bent coin in my own table that every fool takes for luck.",
+          "3": "The visiting merchant: a poor backwater inn, but warm, and the dice are finally running my way. They say the coin wedged in the table is a charm -- I mean to prise it loose and carry my luck south.",
+          "4": "The hooded watcher: I know whose hand will sweep the stakes, and it won't be the merchant's. The coin's wedged too tight to lift -- but the tankard beside it isn't, and neither is a purse in a crowd."
+        },
+        "2": "The kitchen-folk: we never see the room, only the orders and the smoke. We know the inn by its hunger and its waste, and exactly who sends back good pottage.",
+        "4": "The lodgers: cold beds we've not yet claimed. To us the inn is a night's shelter and a door we'll want barred once the dice-money's been won and lost."
+      },
+      "3": "The lane-folk: we live the steps below the square and know every face that crosses the market -- who climbed up from the floor and who came in off the road -- long before the brow does."
+    },
+    "2": "The chapel-keeper: the brow forgets the shrine till there's a death. I keep the bell and the count of the drowned and the lost, and I know whose herd or kin hasn't come home.",
+    "3": "The brow elders: ours to judge the brow's quarrels -- today, whose load rides up first while the one cage runs; a small matter that could turn the market ugly by dark."
+  },
+  "2": {
+    "0": "The hold-folk's Upperton: the town below is ours to keep and to tax, and the lift and the stair are the leash. Let them think themselves free; the rock remembers who holds it.",
+    "1": "The gallery-watchers: we see the whole brow and floor from the rock and call it back along the gallery -- today a road-party come up, the lift fouled, the market restless.",
+    "2": "The royal household: an audience set for after dark over a fouled rope; we keep to the warm deep rooms and let the town wait on us, as it should.",
+    "3": "The stair-guards: two gates and a tally between the towns, the crown's own way kept clear; we know every soul the crown lets pass, and every one it doesn't."
+  },
+  "3": {
+    "0": "The river-folk's Upperton: we do the work the brow won't -- the mill, the tannery, the hauling -- and live in the cliff's shadow half the day. The brow looks down, the hold forgets us till the tax, and the lift decides if our goods ever rise.",
+    "1": "The millers: the town's bread turns on our wheel; with the lift fouled the new grain's ground and stacked with nowhere to go but the water if it spoils.",
+    "2": "The tanners: kept downstream for the stink and glad of the distance; we know the river's moods better than any, and it's rising.",
+    "3": "The foot-crew: we load what the upper crew may or may not raise; today the yard's choked, the down-call's constant, and the brake's smoking.",
+    "4": "The strand-folk: river-side and shadowed, first to flood and last to be helped; we read the water, and we're watching it climb."
+  },
+  "4": {
+    "0": "The lift-crews' Upperton: both towns hang on our ropes and only remember it when the drum fouls -- as it has. We decide who rises and who waits, and just now that is the most power anyone in Upperton holds.",
+    "1": "The upper crew: ours is the sound cage and the brake; we turn back all who can't show cause, and we feel the whole brow's temper in the queue.",
+    "2": "The down crew: we take the horn's call from above and haul blind to it, trusting a brake we can smell burning."
+  },
+  "5": {
+    "0": "The bridge-wardens: ours to raise or drop the one span to the hold. With the watch doubled we keep it up, and make an island of the crown's rock."
+  },
+  "6": {
+    "0": "The ford-watch: the only dry way in or out is ours to hold, an hour upstream. In spate like this we turn back all but the known -- and we see who tries the crossing in the dark."
+  }
+}
