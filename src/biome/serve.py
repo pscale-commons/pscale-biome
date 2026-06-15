@@ -31,6 +31,7 @@ sys.path.insert(0, HERE)
 
 import activate
 import beach
+import membrane
 import spark
 from store_fs import FsStore
 
@@ -80,6 +81,8 @@ TOOL = {
             "number": {"type": ["string", "null"], "description": "Pscale address — one decimal, pinned to the floor (e.g. '42.1'). Omit for disc/whole."},
             "attention": {"type": ["integer", "null"], "description": "Pscale integer — the scope. Omit with a number for the spindle; omit both for the whole block."},
             "content": {"description": "Payload for writes; omit to read."},
+            "handle": {"type": "string", "description": "Your located identity, when the identity membrane is on: the handle of your shell. Reads need none; a write must be signed by a handle that holds a registered shell (write 'shell-<handle>' to register). Ignored when the membrane is off."},
+            "proof": {"type": "string", "description": "Proof you hold your shell, when the membrane requires it. handle-mode needs none; lock-mode (later) takes your passphrase here."},
         },
         "required": ["block"],
     },
@@ -125,7 +128,14 @@ def seed(store):
     return refreshed, sown
 
 
+CONSTITUTION_NAMES = frozenset(name for name, _ in CONSTITUTION_SEEDS)
+
+
 def run_spark(store, args):
+    if membrane.enabled():                                   # the identity membrane (off by default)
+        ok, reason = membrane.check(store, args, CONSTITUTION_NAMES)
+        if not ok:
+            raise ValueError(reason)
     block = args["block"]
     if "content" in args and args["content"] is not None:
         content = args["content"]
