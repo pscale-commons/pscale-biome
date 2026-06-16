@@ -2,7 +2,7 @@
 
 The same membrane FsStore offers — load_block, save_block, list_blocks —
 spoken over a remote biome-beach door. This is how one form acts on a
-remote commons: the mind authors into it, the courier syncs with it.
+remote commons: the mind authors into it, related surfaces sync with it.
 Writes travel as spark writes through the door, so the remote membrane
 judges them like any guest's.
 """
