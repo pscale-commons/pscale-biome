@@ -46,13 +46,41 @@ them.
    earns. Output: the render (shown to the player) + a perceived-note for the
    character's own record.
 
-5. **settle** — code ref `play.persist_*`; the admin / "hard". The truth is
-   recorded; each character's perceived slice → its own `perceived`. **Consequences
-   (death, a move, a wound) are spark WRITES to world-blocks through the membrane**
-   — not code-modelled state. Persistence + federation are then the biome's
-   currents (storage + the door), not the RPG's code. This is the scaling pivot:
-   a death persists because the world-block persists and federates, not because a
-   server tracks it.
+5. **settle** — code ref `play.persist_*` (the bench's local form). **SPECIFIED
+   by the persistence probe (2026-06-16, scratch `/tmp/probe_settle.py`, real
+   spark-writes to the world-blocks).** The resolution becomes the world by
+   block-writes, on this rule:
+   - The **medium**, resolving, declares two things beside the per-character truth:
+     the **PUBLIC aftermath** (what anyone present would perceive) and the
+     **PRIVATE circumstance** (who / why — latent).
+   - **settle** (an LLM step) composes the writes from the PUBLIC aftermath and
+     spark-writes them into the channels the **aperture exposes**, so a later
+     character perceives the consequence *through the place itself*: **space/HERE**
+     (a body, overturned stools, a cooling pint), the **collective identity head**
+     (the room's public hush), the **time/NOW** (the aftermath), and the affected
+     entity's own node (the keeper → dead) as the record.
+   - The **PRIVATE circumstance** goes to **world-truth only** — never the public
+     blocks.
+   - **Proven end-to-end:** a newcomer binding the place later perceived the death
+     (body + hush) but **not** who did it or why; those were **earned by
+     discovery-by-action** (asking the regular gave a partial, hedged account — the
+     public story plus a hint — not the full private truth).
+   - **Coherence requirement (new finding):** a consequence usually touches **S, T
+     and I** — settle must propagate to **every register it changes** or they
+     contradict. The probe wrote the body (S) and the hush (I) but not the aftermath
+     in time, and the newcomer's NOW still showed the live dice-game beside a silent
+     corpse. *settle is not done until S, T and I agree* (this is where settle meets
+     the world-NOW-advance work — the consequence must enter the NOW too).
+   - **The load-bearing finding (aperture × persistence):** make a consequence
+     *public* by writing it where the aperture **shows** (space, the collective
+     head, the NOW), **not** into a private entity-node it hides; keep the private
+     circumstance in world-truth; let discovery-by-action bridge them.
+   - **Bench limit:** the *mechanism* (consequence → block-writes → coherent
+     read-back → aperture-correct public perception + discovery) is proven;
+     **federation is not** (single instance) — it only *distributes* the same
+     writes, so it stays the biome's job (storage current + the door). "A later
+     player passing through finds the keeper dead" is the same mechanism the probe
+     ran directly as "a newcomer binds the mutated world."
 
 ## Proven (the bench validated, over the wire)
 - **Perception-limiting holds** — the merchant never saw the theft.
@@ -67,10 +95,13 @@ them.
   stakes the player can affect, surfaced as something perceptible.
 - **Movement** — a character is pinned to one address. Movement = a **write to
   `bind.here`**, enacted per a move-rule. No move-function.
-- **World-state mutation / persistence** — consequences must be **block-writes to
-  the world** (the keeper struck from the identity fan) on a shared, federated
-  substrate (the commons), so a death persists for a later player. Per-cut local
-  worlds don't persist across players.
+- **World-state mutation / persistence** — **now specified** (see verb 5; the
+  persistence probe, 2026-06-16): consequences are spark-writes to the public
+  channels (space/HERE + the collective head + time/NOW) plus the entity's node,
+  the private circumstance to world-truth, propagated to every register the
+  consequence changes. The open part is the **federated** substrate (the commons)
+  so it persists *across players* — the bench proved the mechanism, not the
+  federation.
 - **Violence / HP** — a status in the shell the medium resolves against, so death
   is determinate, not arbitrary narration.
 - **Multi-PC** — the medium already resolves N acts together; multi-human needs
