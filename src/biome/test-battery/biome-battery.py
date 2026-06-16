@@ -110,8 +110,8 @@ ok("mind when a key is present", (r["role"], r["node"]), ("mind", "8.81"))
 ok("mind text from the shell", r["text"].startswith("Mind."), True)
 
 r = unfold.resolve_role(cond(removable=True, kin=KIN), shell)
-ok("courier on a removable surface", (r["role"], r["node"]), ("courier", "8.82"))
-ok("courier counts its kin", any("carry between" in s for s in r["reasons"]), True)
+ok("related on a removable surface", (r["role"], r["node"]), ("related", "8.82"))
+ok("related counts its kin", any("relate to" in s for s in r["reasons"]), True)
 
 r = unfold.resolve_role(cond(reach=["beach.example"]), shell)
 ok("commons when durable and a port is free", (r["role"], r["node"]), ("commons", "8.83"))

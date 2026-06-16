@@ -33,7 +33,7 @@ print("role -> form mapping (forms = beach / mind / interface; courier retracted
 ok("a commons is a beach", biome.form_for("commons"), "beach")
 ok("a substrate is a beach", biome.form_for("substrate"), "beach")
 ok("a key makes a mind", biome.form_for("mind"), "mind")
-ok("courier maps to no form (retracted; relates, does not serve)", biome.form_for("courier"), None)
+ok("a related (removable) surface has no form — it relates, does not serve", biome.form_for("related"), None)
 ok("an unknown role has no form", biome.form_for("whatever"), None)
 
 

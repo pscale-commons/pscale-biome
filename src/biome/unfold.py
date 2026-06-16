@@ -93,7 +93,7 @@ def _opt(shell, branch, idx):
     return spark.spark(shell, "%d.%d" % (branch, idx), -1).get("text")
 
 
-ROLES = {"mind": 1, "courier": 2, "commons": 3, "substrate": 4}
+ROLES = {"mind": 1, "related": 2, "commons": 3, "substrate": 4}
 
 
 def resolve_role(cond, shell):
@@ -110,9 +110,9 @@ def resolve_role(cond, shell):
     if cog["llm_key"]:
         name, reasons = "mind", ["an LLM key is present — cognition lives here"]
     elif cap.get("removable"):
-        name, reasons = "courier", ["the surface is removable — it travels"]
+        name, reasons = "related", ["the surface is removable — it relates by shared currents"]
         if local:
-            reasons.append("%d local instance%s to carry between"
+            reasons.append("%d local instance%s to relate to"
                            % (len(local), "" if len(local) == 1 else "s"))
     elif durable and ep["port_free"]:
         name, reasons = "commons", ["durable storage and a free port — a surface to serve"]

@@ -34,8 +34,9 @@ import unfold as U
 
 # The shell resolves a role; the launcher maps it to one of the genome's FORMS
 # (beach / mind — interface is served at the beach's doors, not launched here).
-# A role with no launchable form maps to None: courier is retracted (a removable
-# surface relates by shared currents, it does not serve), and bare storage waits.
+# A role with no launchable form maps to None: a removable surface resolves to the
+# 'related' role and relates by shared currents — it does not serve (courier, the
+# old name, is retracted); bare storage waits for a port.
 ROLE_TO_FORM = {
     "commons": "beach",      # durable storage + a free port → serve the substrate
     "substrate": "beach",    # durable storage → a beach, served once a port opens
