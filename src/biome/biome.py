@@ -7,12 +7,15 @@ closing the sense -> unfold -> become loop that biome-definition.json (branch
 human chose which script to run. This is the missing act-on-the-decision layer:
 unfold resolves, biome.py becomes.
 
-What launches in-process today: the beach — a substrate served through the
-biome-beach door and the biome-mcp interface (serve.py). The other resolutions
-are reported with their path rather than faked: a rock with a key resolves to a
-mind (the collective at src/agent, run through its own scripts); a removable
-surface resolves to carry (a relation by shared currents, not a server); bare
-storage resolves to a silent beach awaiting a port.
+The genome's FORMS are beach / mind / interface (STABILISED NOMENCLATURE,
+docs/xstream-session-handover.md). interface is served AT the beach's doors
+(/mcp = biome-mcp for an LLM; /xstream for a human, when built), so becoming the
+beach is what serves it — it is not a separate launch target. What launches
+in-process today is therefore the beach (serve.py) or a mind; other rocks
+resolve to no launchable form and are reported rather than faked: a rock with a
+key resolves to a mind (the collective at src/agent, via its own scripts); a
+removable surface relates by shared currents and serves nothing (courier is
+retracted — there is no carry form); bare storage waits for a port.
 
 Run:  python3 biome.py            # sense, unfold, and become the fit form
       python3 biome.py --dry-run  # sense and resolve only; launch nothing
@@ -29,23 +32,26 @@ import sense as sensor
 import spark
 import unfold as U
 
-# The shell resolves a role; the launcher maps it to a launchable FORM in the
-# settled vocabulary (beach / mind / carry / silent). courier is retracted as a
-# form — a removable surface relates by shared currents, it does not serve.
+# The shell resolves a role; the launcher maps it to one of the genome's FORMS
+# (beach / mind — interface is served at the beach's doors, not launched here).
+# A role with no launchable form maps to None: courier is retracted (a removable
+# surface relates by shared currents, it does not serve), and bare storage waits.
 ROLE_TO_FORM = {
     "commons": "beach",      # durable storage + a free port → serve the substrate
     "substrate": "beach",    # durable storage → a beach, served once a port opens
     "mind": "mind",          # an LLM key → this rock animates a shell
-    "courier": "carry",      # retracted as a form → relate, do not serve
 }
 
 
 def form_for(role):
-    return ROLE_TO_FORM.get(role, "silent")
+    # None = no launchable form for this role (e.g. a retracted-courier removable
+    # surface, or an unrecognised role). An absence, not a form.
+    return ROLE_TO_FORM.get(role)
 
 
 def become(cond=None, dry_run=False):
-    """Sense -> unfold -> become. Returns the resolved form name."""
+    """Sense -> unfold -> become. Returns the resolved form name, or None if the
+    rock affords no launchable form."""
     cond = sensor.sense() if cond is None else cond
     shell = spark.load(U.SHELL)
     intention = U.resolve_role(cond, shell)
@@ -54,13 +60,13 @@ def become(cond=None, dry_run=False):
     port_free = cond["endpoints"]["port_free"]
     durable = cond["storage"]["filesystem_writable"] or bool(cond["storage"]["hosted_db"])
     if form == "beach" and not durable:
-        form = "silent"          # a beach needs a surface to hold blocks; without one, nothing to serve
+        form = None              # a beach needs a surface to hold blocks; without one there is no form to become
 
     print("biome — sense · unfold · become")
     print("  rock        : storage=%s  port_free=%s  key=%s" % (
         cond["storage"]["filesystem_writable"] or bool(cond["storage"]["hosted_db"]),
         port_free, cond["cognition"]["llm_key"]))
-    print("  resolved    : role=%s  ->  form=%s" % (role, form))
+    print("  resolved    : role=%s  ->  form=%s" % (role, form or "none (nothing to become yet)"))
     print("  because     : %s" % "; ".join(intention["reasons"]))
 
     if dry_run:
@@ -68,7 +74,7 @@ def become(cond=None, dry_run=False):
         return form
 
     if form == "beach" and port_free:
-        print("  becoming the beach (door + biome-mcp) ...")
+        print("  becoming the beach — serving its doors (biome-beach; biome-mcp at /mcp; /xstream when built) ...")
         import serve
         serve.main()                                  # blocks: serve_forever
     elif form == "beach":
@@ -76,10 +82,9 @@ def become(cond=None, dry_run=False):
     elif form == "mind":
         print("  a mind — this rock animates a shell. Run the collective:")
         print("    cd ../agent && ./new-collective.sh '<hypothesis>'  then  ./run-round.sh")
-    elif form == "carry":
-        print("  a removable surface — relate to a beach by shared currents, do not serve.")
     else:
-        print("  silent storage — nothing to launch until a port or a key appears.")
+        print("  no form to become yet — this rock affords no servable beach and no key.")
+        print("  (a removable surface relates by shared currents; bare storage waits for a port.)")
     return form
 
 

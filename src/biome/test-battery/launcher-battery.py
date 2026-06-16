@@ -29,12 +29,12 @@ def ok(label, got, exp):
         print("  FAIL", label, "\n    got", got, "\n    exp", exp)
 
 
-print("role -> form mapping (settled vocabulary; courier retracted)")
+print("role -> form mapping (forms = beach / mind / interface; courier retracted)")
 ok("a commons is a beach", biome.form_for("commons"), "beach")
 ok("a substrate is a beach", biome.form_for("substrate"), "beach")
 ok("a key makes a mind", biome.form_for("mind"), "mind")
-ok("courier is carry, not a server", biome.form_for("courier"), "carry")
-ok("an unknown role falls to silent", biome.form_for("whatever"), "silent")
+ok("courier maps to no form (retracted; relates, does not serve)", biome.form_for("courier"), None)
+ok("an unknown role has no form", biome.form_for("whatever"), None)
 
 
 def cond(key=False, removable=False, fs=True, port=True):
@@ -50,8 +50,8 @@ def cond(key=False, removable=False, fs=True, port=True):
 print("become() resolves the fit form from the rock (dry-run, nothing launched)")
 ok("storage + port -> beach", biome.become(cond(fs=True, port=True), dry_run=True), "beach")
 ok("a key -> mind", biome.become(cond(key=True, fs=True, port=True), dry_run=True), "mind")
-ok("removable surface -> carry", biome.become(cond(removable=True, fs=True, port=False), dry_run=True), "carry")
-ok("no storage, no key -> silent", biome.become(cond(fs=False, port=False), dry_run=True), "silent")
+ok("removable surface -> no form (relates, does not serve)", biome.become(cond(removable=True, fs=True, port=False), dry_run=True), None)
+ok("no storage, no key -> no form", biome.become(cond(fs=False, port=False), dry_run=True), None)
 
 print()
 print("TOTAL: %d passed, %d failed" % (P, F))
