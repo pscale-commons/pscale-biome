@@ -254,33 +254,51 @@ def resonate(run_root, block_name="purpose", do_judge=False):
 
 
 def when(run_root, now=None):
-    """The WHEN-axis: each agent's periodic concerns — period, last-fired, phase —
-    read from `cadence` + `last-touched`, the complement to the fold's WHAT-axis.
-    Reuses the kernel's phase arithmetic so the reading and the prune agree."""
+    """The WHEN-axis (doc 3 C3): each agent's periodic concerns — period, phase,
+    offset φ, effective θ, state — plus, per concern, the Kuramoto order parameter
+    r and pairwise offsets over the coupled (effective) phases. The complement to
+    the fold's WHAT-axis. Reuses the kernel's own arithmetic so reading and prune
+    agree. r→0 with offsets near 1/3,2/3 is the splay; r→1 is unison/collapse."""
     import time
     now = time.time() if now is None else now
     cad = load_triad(run_root, "cadence")
     lt = load_triad(run_root, "last-touched")
+    phi = load_triad(run_root, "phi")
     paths = sorted({p for c in cad.values() for p in kernel._cadence_paths(c)})
     if not paths:
         print("no periodic concern authored under %s — every concern is aperiodic." % run_root)
         return
-    print("when — phase state across %s, now=%d (ripeness ≥ %.1f)"
-          % ("·".join(sorted(cad)), int(now), kernel.RIPENESS))
-    print("\n  concern │ agent │ period │ last-fired │ phase │ state")
-    print("  ────────┼───────┼────────┼────────────┼───────┼────────")
+    coupled = any(kernel._at(phi.get(a, {}), p) not in (None, "") for p in paths for a in cad)
+    print("when — phase state across %s, now=%d (ripeness ≥ %.1f%s)"
+          % ("·".join(sorted(cad)), int(now), kernel.RIPENESS, ", coupled" if coupled else ""))
+    print("\n  concern │ agent │ period │ phase │   φ   │ eff-θ │ state")
+    print("  ────────┼───────┼────────┼───────┼───────┼───────┼────────")
+    eff = {}
     for path in paths:
+        eff[path] = {}
         for a in sorted(cad):
             period = kernel._at(cad[a], path)
             if period is None:
                 continue
-            last = kernel._at(lt.get(a, {}), path)
-            ph = kernel._phase(period, last, now)
+            ph = kernel._phase(period, kernel._at(lt.get(a, {}), path), now)
+            fraw = kernel._at(phi.get(a, {}), path)
+            fv = float(fraw) if fraw not in (None, "") else 0.0
+            eff[path][a] = kernel._theta(ph + fv)
             phs = "  ∞ " if ph == float("inf") else "%.2f" % ph
-            state = "ripe" if ph >= kernel.RIPENESS else "dormant"
-            print("  %-7s │   %s   │ %6s │ %10s │ %5s │ %s"
-                  % (".".join(path), a, period,
-                     "never" if last is None else str(int(float(last))), phs, state))
+            state = "ripe" if (ph + fv) >= kernel.RIPENESS else "dormant"
+            print("  %-7s │   %s   │ %6s │ %5s │ %+5.2f │ %.3f │ %s"
+                  % (".".join(path), a, period, phs, fv, eff[path][a], state))
+    print("\n  coupling readout (effective θ): order parameter r + pairwise offsets")
+    for path in paths:
+        ths = eff[path]
+        if len(ths) < 2:
+            continue
+        r = kernel.order_parameter(list(ths.values()))
+        ags = sorted(ths)
+        offs = "  ".join("%s%s %.2f" % (ags[i], ags[j], (ths[ags[i]] - ths[ags[j]]) % 1)
+                         for i in range(len(ags)) for j in range(i + 1, len(ags)))
+        read = "splay" if r < 0.4 else "unison/collapse" if r > 0.85 else "partial"
+        print("    %-7s  r=%.3f   [%s]   -> %s" % (".".join(path), r, offs, read))
 
 
 if __name__ == "__main__":

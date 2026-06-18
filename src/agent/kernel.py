@@ -25,6 +25,7 @@ Run:
 """
 
 import json
+import math
 import os
 import re
 import sys
@@ -309,10 +310,11 @@ def _cadence_paths(cadence):
     return out
 
 
-def phase_prune(candidates, cadence, lasts, now=None):
+def phase_prune(candidates, cadence, lasts, now=None, phis=None):
     """Drop periodic candidates not yet ripe — the sibling of the frontier prune,
-    on the time axis. A candidate sleeps if itself or any ancestor branch carries
-    a period whose phase < RIPENESS; aperiodic candidates pass untouched. Pure
+    on the time axis. A candidate sleeps if itself or any ancestor branch carries a
+    period whose effective phase < RIPENESS; aperiodic candidates pass untouched.
+    effective_phase = phase + φ (the coupling offset, when supplied). Pure
     arithmetic, makes no γ. Returns (kept, pruned)."""
     if not _cadence_paths(cadence):
         return candidates, []                               # nothing periodic → no-op
@@ -322,10 +324,14 @@ def phase_prune(candidates, cadence, lasts, now=None):
         path = tuple(c.get("path") or ())
         asleep = False
         for k in range(1, len(path) + 1):                   # itself + each ancestor prefix
-            period = _at(cadence, path[:k])
+            pre = path[:k]
+            period = _at(cadence, pre)
             if period is None:
                 continue
-            if _phase(period, _at(lasts, path[:k]), now) < RIPENESS:
+            ph = _phase(period, _at(lasts, pre), now)
+            if phis and pre in phis:                        # effective_phase = phase + φ
+                ph += phis[pre]
+            if ph < RIPENESS:
                 asleep = True
                 break
         (pruned if asleep else kept).append(c)
@@ -353,7 +359,110 @@ def stamp_touched(gamma, applied, cadence, lasts, now=None):
     return stamped
 
 
-def run_F(use_llm=True, now=None):
+# ── coupling — the phase channel between agents (doc 3) ─────────────────────
+# The natural-frequency oscillators of doc 2 gain a coupling. Each publishes its
+# (effective) cycle-position θ — a kernel-owned face, distinct from the semantic
+# surface — reads proximate peers' θ, and nudges a per-concern offset φ toward a
+# coordinated-but-OFFSET target: the splay (distributed, never unison). The nudge
+# is Sakaguchi (a separation lag α): align toward, hold distance from — with α a
+# little past a quarter-cycle the in-phase state goes unstable and the splay
+# locks. effective_phase = phase + φ. Kernel-mechanical throughout; the LLM never
+# sees θ or φ. φ is fed to the prune (given teeth) only under MOBIUS_COUPLE; the
+# default is the handoff's dry-run — φ computed, published, instrumented, no teeth
+# (teeth need free-running, the daemon the kernel refuses).
+
+COUPLE_GAIN = float(os.environ.get("MOBIUS_COUPLE_GAIN", "0.1"))     # nudge strength K
+COUPLE_ALPHA = float(os.environ.get("MOBIUS_COUPLE_ALPHA", "0.30"))  # separation lag, cycles
+COUPLE = os.environ.get("MOBIUS_COUPLE", "") not in ("", "0", "false")
+PHASE_VOICING = ("Phase — the published cycle-position θ (effective phase mod 1) of "
+                 "each periodic concern; the coupling face peers read, distinct from "
+                 "the semantic surface. Kernel-written each pulse.")
+PHI_VOICING = ("Phi — the kernel-maintained phase offset φ per periodic concern, "
+               "accumulated by the separation nudge toward the splay. Private; "
+               "effective_phase = phase + φ. Never authored or read by the LLM.")
+
+
+def _theta(phase):
+    """Fractional cycle-position in [0,1). ∞ (never fired) → 0 by convention."""
+    if phase == float("inf"):
+        return 0.0
+    return phase - math.floor(phase)
+
+
+def order_parameter(thetas):
+    """Kuramoto r = |mean e^{2πiθ}| ∈ [0,1]. r→1 is unison; r→0 is the splay."""
+    if not thetas:
+        return 0.0
+    c = sum(math.cos(2 * math.pi * t) for t in thetas) / len(thetas)
+    s = sum(math.sin(2 * math.pi * t) for t in thetas) / len(thetas)
+    return math.hypot(c, s)
+
+
+def couple_nudge(theta_own, theta_peers):
+    """The Sakaguchi separation nudge Δφ for one wake: align toward, hold distance
+    from. No peers → 0."""
+    if not theta_peers:
+        return 0.0
+    s = sum(math.sin(2 * math.pi * ((tp - theta_own) - COUPLE_ALPHA)) for tp in theta_peers)
+    return COUPLE_GAIN * s / len(theta_peers)
+
+
+def _peer_thetas():
+    """Each proximate peer's published θ face — {peer: {addr: θ}} — from its
+    phase.json. The phase channel only; the semantic surface stays separate. At the
+    triad every peer is proximate; a Gromov filter would sit here at scale."""
+    out = {}
+    for name, d in load_peers().items():
+        p = os.path.join(d, "shell", "phase.json")
+        if not os.path.exists(p):
+            continue
+        try:
+            blk = json.load(open(p, encoding="utf-8"))
+        except Exception:
+            continue
+        flr = spark.floor(blk)
+        ths = {}
+        for path in _cadence_paths(blk):
+            try:
+                ths[_format_address(list(path), flr)] = float(_at(blk, path))
+            except (TypeError, ValueError):
+                pass
+        out[name] = ths
+    return out
+
+
+def couple_and_publish(cadence, lasts, now):
+    """One wake of the phase channel (doc 3 C0–C2): publish own effective θ
+    (phase.json), read proximate peers' θ, nudge own φ toward the splay
+    (separation), persist φ (phi.json). Returns {concern_path: φ}. No γ, no LLM."""
+    concerns = _cadence_paths(cadence)
+    if not concerns:
+        return {}
+    flr = spark.floor(cadence)
+    phi_block = load_block("phi") or {"0": PHI_VOICING}
+    face = {"0": PHASE_VOICING}
+    own = {}                                            # publish effective θ = phase + prior φ
+    for path in concerns:
+        addr = _format_address(list(path), flr)
+        prior = _at(phi_block, path)
+        phi0 = float(prior) if prior not in (None, "") else 0.0
+        th = _theta(_phase(_at(cadence, path), _at(lasts, path), now) + phi0)
+        own[path] = (addr, th, phi0)
+        spark.spark(face, addr, content="%.4f" % th)
+    save_block("phase", face)
+    peers = _peer_thetas()                              # read peers' published θ, nudge φ
+    out = {}
+    for path in concerns:
+        addr, th, phi0 = own[path]
+        peer_ths = [pt[addr] for pt in peers.values() if addr in pt]
+        phi = phi0 + couple_nudge(th, peer_ths)
+        spark.spark(phi_block, addr, content="%.4f" % phi)
+        out[path] = phi
+    save_block("phi", phi_block)
+    return out
+
+
+def run_F(use_llm=True, now=None, phis=None):
     """F[ρ, Π] → sparse γ. Two mechanical prunes precede the per-cell compare:
     the frontier walk (coupling, in frontier_candidates) and the phase prune
     (ripeness, here). Neither makes a γ; both only decide which cells F examines."""
@@ -363,7 +472,7 @@ def run_F(use_llm=True, now=None):
     candidates = frontier_candidates(purpose, conditions)
     cadence = load_block("cadence") or {}
     lasts = load_block("last-touched") or {}
-    candidates, pruned = phase_prune(candidates, cadence, lasts, now=now)
+    candidates, pruned = phase_prune(candidates, cadence, lasts, now=now, phis=phis)
     gamma = []
     for c in candidates:
         if c["type"] == "missing":
@@ -649,7 +758,14 @@ def report_failures(failed, parse_failed=False):
 
 def pulse(compose_only=False, now=None):
     flush_cache()
-    gamma, pruned = run_F(use_llm=not compose_only, now=now)   # Stage 1 (frontier + phase prune)
+    if now is None:
+        now = time.time()
+    cadence = load_block("cadence") or {}                      # doc 3: publish θ, read peers, nudge φ
+    phis = ({} if compose_only
+            else couple_and_publish(cadence, load_block("last-touched") or {}, now))
+    gamma, pruned = run_F(use_llm=not compose_only, now=now,
+                          phis=phis if COUPLE else None)        # φ given teeth only under MOBIUS_COUPLE
+    # Stage 1 (frontier + phase prune)
     system, message, bundle = compose_window(gamma)
     frame = {"ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
              "reflexive_current": bundle, "gamma": gamma,
