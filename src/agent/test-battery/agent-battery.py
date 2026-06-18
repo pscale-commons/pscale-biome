@@ -82,11 +82,14 @@ kernel._cache["reflexive"] = {"0": "refl", "2": {"0": "field", "1": "the anchors
                               "9": {"0": "bundle", "1": "slate", "4": "purpose"}}
 kernel._cache["purpose"] = PI
 kernel._cache["conditions"] = RHO
+kernel._cache["cadence"] = {"0": "cadence"}              # inert: no periodic concerns
+kernel._cache["last-touched"] = {"0": "last-touched"}
 ok("the bundle re-dials, zero excluded", kernel.read_reflexive_current(),
    {"1": "slate", "4": "purpose"})
-gamma = kernel.run_F(use_llm=False)
+gamma, pruned = kernel.run_F(use_llm=False)
 ok("F without an LLM keeps structural gaps only",
    all(g["type"] == "missing" for g in gamma) and len(gamma) == 2, True)
+ok("the phase prune is a no-op with no cadence authored", pruned, [])
 system, message, bundle = kernel.compose_window(gamma)
 ok("the window carries the hydrated self", '"slate"' in system and "Slate" in system, True)
 ok("the given side carries the gap", "purpose:3" in message, True)

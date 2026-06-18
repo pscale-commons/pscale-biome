@@ -228,10 +228,12 @@ def frontier_candidates(purpose, conditions):
             perceived = _at(conditions, p)
             if perceived is None:
                 out.append({"address": "purpose:" + addr_str, "type": "missing",
+                            "path": list(p),                        # the purpose-branch walk (for the phase prune)
                             "target": "conditions:" + addr_str,     # the ρ-side gap to write
                             "intended": intended, "perceived": None})  # frontier; no descent
             else:
                 out.append({"address": "purpose:" + addr_str, "type": "compare",
+                            "path": list(p),
                             "intended": intended, "perceived": perceived})
                 if isinstance(child, dict):
                     rec(child, p)
@@ -257,15 +259,113 @@ def compare_cell(c, field):
     if not t or t.upper().startswith("EMPTY"):
         return None
     return {"address": c["address"], "type": "diverge", "divergence": t[:200],
+            "path": c.get("path"),
             "intended": c["intended"], "perceived": c["perceived"]}
 
-def run_F(use_llm=True):
-    """F[ρ, Π] → sparse γ."""
+# ── phase — the second prune, by ripeness in time (doc 2) ───────────────────
+# Cadence lives in two parallel digit-keyed blocks, never as metadata on purpose
+# (biome keys are digits only): `cadence` carries each periodic concern's period
+# in seconds — authored, the reference side (Π); `last-touched` carries when it
+# last fired — kernel-stamped, the perceived side (ρ). Both mirror purpose's
+# branch addresses. phase = (now − last_touched) / period. A branch absent from
+# cadence is aperiodic and never pruned. The LLM never reads, writes, or reasons
+# about any of this — it is arithmetic, like the address walk itself.
+
+RIPENESS = float(os.environ.get("MOBIUS_RIPENESS", "1.0"))      # admit at phase ≥ this
+LAST_TOUCHED_VOICING = ("Last-touched — when each periodic concern last fired, "
+                        "epoch seconds, by purpose-branch address. The kernel "
+                        "stamps this on a fold; it is never authored or read into "
+                        "the window.")
+
+
+def _phase(period, last_touched, now):
+    """(now − last_touched) / period. Never-fired (no last_touched) → ∞ → admit."""
+    if last_touched is None:
+        return float("inf")
+    try:
+        p, lt = float(period), float(last_touched)
+    except (TypeError, ValueError):
+        return float("inf")
+    return (now - lt) / p if p > 0 else float("inf")
+
+
+def _cadence_paths(cadence):
+    """Every purpose-branch path that carries a period (a voiced cadence node),
+    excluding the block's own 0-voicing. A periodic parent and its periodic
+    children both appear — periodicity is hierarchical."""
+    out = []
+
+    def rec(node, path):
+        if not isinstance(node, dict):
+            if path:
+                out.append(path)                            # a bare-string period leaf
+            return
+        if path and isinstance(node.get("0"), str):
+            out.append(path)                                # a node carrying its own period at 0
+        for d in "123456789":
+            if d in node:
+                rec(node[d], path + (d,))
+    rec(cadence, ())
+    return out
+
+
+def phase_prune(candidates, cadence, lasts, now=None):
+    """Drop periodic candidates not yet ripe — the sibling of the frontier prune,
+    on the time axis. A candidate sleeps if itself or any ancestor branch carries
+    a period whose phase < RIPENESS; aperiodic candidates pass untouched. Pure
+    arithmetic, makes no γ. Returns (kept, pruned)."""
+    if not _cadence_paths(cadence):
+        return candidates, []                               # nothing periodic → no-op
+    now = time.time() if now is None else now
+    kept, pruned = [], []
+    for c in candidates:
+        path = tuple(c.get("path") or ())
+        asleep = False
+        for k in range(1, len(path) + 1):                   # itself + each ancestor prefix
+            period = _at(cadence, path[:k])
+            if period is None:
+                continue
+            if _phase(period, _at(lasts, path[:k]), now) < RIPENESS:
+                asleep = True
+                break
+        (pruned if asleep else kept).append(c)
+    return kept, pruned
+
+
+def stamp_touched(gamma, applied, cadence, lasts, now=None):
+    """A2 — stamp last-touched = now for each periodic concern that did real work
+    this wake: a γ-entry in its subtree and at least one applied edit. A concern
+    admitted but coherent (no γ under it) is NOT stamped — it stays admitted, the
+    necessary-not-sufficient rule. Mutates `lasts`; returns the stamped paths."""
+    if not applied:
+        return []
+    concerns = _cadence_paths(cadence)
+    if not concerns:
+        return []
+    now = time.time() if now is None else now
+    gpaths = [tuple(g["path"]) for g in gamma if g.get("path")]
+    flr = spark.floor(lasts) if lasts else 1
+    stamped = []
+    for path in concerns:
+        if any(gp[:len(path)] == path for gp in gpaths):
+            spark.spark(lasts, _format_address(list(path), flr), content=str(int(now)))
+            stamped.append(path)
+    return stamped
+
+
+def run_F(use_llm=True, now=None):
+    """F[ρ, Π] → sparse γ. Two mechanical prunes precede the per-cell compare:
+    the frontier walk (coupling, in frontier_candidates) and the phase prune
+    (ripeness, here). Neither makes a γ; both only decide which cells F examines."""
     purpose = load_block("purpose")
     conditions = load_block("conditions")
     field = concentrated_field()
+    candidates = frontier_candidates(purpose, conditions)
+    cadence = load_block("cadence") or {}
+    lasts = load_block("last-touched") or {}
+    candidates, pruned = phase_prune(candidates, cadence, lasts, now=now)
     gamma = []
-    for c in frontier_candidates(purpose, conditions):
+    for c in candidates:
         if c["type"] == "missing":
             gamma.append(c)                                  # structural gap
         elif c["type"] == "compare":
@@ -274,7 +374,7 @@ def run_F(use_llm=True):
                 if g:
                     gamma.append(g)
             # without an LLM (compose-only) coherence is undecidable here → assume coheres
-    return gamma
+    return gamma, pruned
 
 
 # ── compose the live current (the window) ──────────────────────────────────
@@ -547,12 +647,13 @@ def report_failures(failed, parse_failed=False):
 
 # ── pulse ──────────────────────────────────────────────────────────────────
 
-def pulse(compose_only=False):
+def pulse(compose_only=False, now=None):
     flush_cache()
-    gamma = run_F(use_llm=not compose_only)            # Stage 1
+    gamma, pruned = run_F(use_llm=not compose_only, now=now)   # Stage 1 (frontier + phase prune)
     system, message, bundle = compose_window(gamma)
     frame = {"ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
              "reflexive_current": bundle, "gamma": gamma,
+             "phase_pruned": [c["address"] for c in pruned],   # A3 — the rhythm log (dormant this wake)
              "system": system, "message": message}
 
     if compose_only:
@@ -565,6 +666,9 @@ def pulse(compose_only=False):
         print("  γ (%d gaps):" % len(gamma))
         for g in gamma:
             print("    %s [%s]" % (g["address"], g["type"]))
+        if pruned:
+            print("  phase-pruned (dormant, not yet ripe): %s"
+                  % ", ".join(c["address"] for c in pruned))
         print("  system %d chars   message %d chars" % (len(system), len(message)))
         return
 
@@ -582,6 +686,10 @@ def pulse(compose_only=False):
     text, usage = call_llm(system, message, model=model)
     output = parse_output(text)
     status, applied, failed = route(output)
+    cadence = load_block("cadence") or {}                       # A2 — stamp the concerns that fired
+    lasts = load_block("last-touched") or {"0": LAST_TOUCHED_VOICING}
+    if stamp_touched(gamma, applied, cadence, lasts, now=now):
+        save_block("last-touched", lasts)
     report_failures(failed, parse_failed=str(output.get("note", "")).startswith("[parse failure]"))
     frame.update({"output": text, "parsed": output, "usage": usage,
                   "status": status, "applied": applied, "failed": failed})
@@ -590,9 +698,13 @@ def pulse(compose_only=False):
           % (path, len(gamma), "draw/opus" if not gamma else "δ/working"))
     print("  edits=%d  failed=%d  status=%s  note=%s"
           % (applied, len(failed), status, (output.get("note") or "")[:64]))
+    if pruned:
+        print("  phase-pruned (dormant): %s" % ", ".join(c["address"] for c in pruned))
     return {"status": status, "heartbeat": output.get("heartbeat"),
             "applied": applied, "gamma": len(gamma)}
 
 
 if __name__ == "__main__":
-    pulse(compose_only="--compose-only" in sys.argv)
+    _now = os.environ.get("MOBIUS_NOW")              # experiment hook: drive a synthetic clock
+    pulse(compose_only="--compose-only" in sys.argv,
+          now=float(_now) if _now else None)
