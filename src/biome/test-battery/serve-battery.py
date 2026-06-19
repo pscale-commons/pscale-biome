@@ -141,6 +141,55 @@ try:
     code, body = rpc("tools/call", {"name": "hammer", "arguments": {}})
     ok("only spark is carried", body["error"]["code"], -32602)
 
+    print("the vapour relay (out-of-band, the server's own — 3.4)")
+    code, body = http("/relay", {"frame": "taproom", "handle": "alice",
+                                 "vapour": "I read the run before I raise", "face": "character"})
+    ok("a heartbeat is accepted and returns the frame", body["frame"], "taproom")
+    code, body = http("/relay", {"frame": "taproom", "handle": "bob", "vapour": "watching the hood"})
+    ok("two are co-present at the frame", body["here"], 2)
+    code, body = http("/relay?frame=taproom&handle=alice")
+    ok("alice polls — sees bob, not herself", [p["handle"] for p in body["present"]], ["bob"])
+    ok("and reads bob's live vapour", body["present"][0]["vapour"], "watching the hood")
+    code, body = http("/relay?frame=cellar")
+    ok("vapour is frame-scoped — the cellar is empty", body["here"], 0)
+    code, body = http("/relay", {"frame": "taproom", "handle": "alice", "depart": True})
+    ok("a clean departure is acknowledged", body["departed"], "alice")
+
+    print("the human face (3.3, served at /xstream) — recipe-driven, not coded")
+    with urllib.request.urlopen("http://127.0.0.1:%d/xstream" % PORT) as r:
+        page, ctype = r.read().decode("utf-8"), r.headers.get("Content-Type", "")
+    ok("/xstream serves html", ctype.startswith("text/html"), True)
+    ok("the page is the shared VLS frame", all(z in page for z in ("vapour", "liquid", "solid")), True)
+    ok("it rides the door + relay (no framework)",
+       "/.well-known/biome-beach" in page and "/relay" in page, True)
+    ok("the fold is read from a recipe block + spark, not coded",
+       'readBlock("frame")' in page and "/spark.js" in page, True)
+    with urllib.request.urlopen("http://127.0.0.1:%d/spark.js" % PORT) as r:
+        sparkjs, jtype = r.read().decode("utf-8"), r.headers.get("Content-Type", "")
+    ok("/spark.js serves the read-walk", jtype.startswith("text/javascript")
+       and "export function spindle" in sparkjs and "export function ring" in sparkjs, True)
+
+    print("the frame recipe — the fold as a door-legal block")
+    RECIPE = {"0": "Frame — the fold recipe",
+              "1": {"0": "registers", "1": {"0": "here · space", "1": "upperton-space"},
+                    "2": {"0": "now · time", "1": "upperton-time"}},
+              "2": "1,1,2,1", "3": "witness the table"}
+    code, body = http("/.well-known/biome-beach", {"block": "frame", "content": RECIPE})
+    ok("a frame recipe lands through the door", body.get("ok"), True)
+    code, body = http("/.well-known/biome-beach?block=frame")
+    ok("and reads back as registers + walk", (body["2"], body["1"]["1"]["1"]),
+       ("1,1,2,1", "upperton-space"))
+
+    print("liquid — a committed intention, door-legal and frame-scoped")
+    code, body = http("/.well-known/biome-beach",
+                      {"block": "liquid-alice",
+                       "content": {"0": "alice — committed", "1": "1,1,2,1",
+                                   "2": "I read the run before I stake"}})
+    ok("a liquid commit lands through the door", body.get("ok"), True)
+    code, body = http("/.well-known/biome-beach?block=liquid-alice")
+    ok("and reads back, frame-scoped", (body["1"], body["2"]),
+       ("1,1,2,1", "I read the run before I stake"))
+
     print("the hinge at the door (guest block-creation)")
     FOLD = {"0": "a guest block — landed whole", "1": "first branch"}
     code, body = rpc("tools/call", {"name": "spark",

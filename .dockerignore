@@ -1,0 +1,8 @@
+.git
+node_modules
+.vercel
+site
+docs
+*.mp4
+*.zip
+__pycache__

@@ -1,0 +1,257 @@
+{
+  "earth": [
+    {
+      "display": "Earth",
+      "block": "real-world-original",
+      "spindle": "3"
+    }
+  ],
+  "mercury": [
+    {
+      "display": "Mercury",
+      "block": "real-world-original",
+      "spindle": "1"
+    }
+  ],
+  "venus": [
+    {
+      "display": "Venus",
+      "block": "real-world-original",
+      "spindle": "2"
+    }
+  ],
+  "europe": [
+    {
+      "display": "Europe",
+      "block": "europe",
+      "spindle": "3,1"
+    }
+  ],
+  "united kingdom": [
+    {
+      "display": "United Kingdom",
+      "block": "united-kingdom",
+      "spindle": "3,1,1"
+    }
+  ],
+  "wales": [
+    {
+      "display": "Wales",
+      "block": "wales",
+      "spindle": "3,1,1,1"
+    }
+  ],
+  "gwynedd": [
+    {
+      "display": "Gwynedd",
+      "block": "wales",
+      "spindle": "3,1,1,1,0,1"
+    }
+  ],
+  "ceidio": [
+    {
+      "display": "Ceidio",
+      "block": "wales",
+      "spindle": "3,1,1,1,0,1,0,0,1"
+    }
+  ],
+  "the house": [
+    {
+      "display": "the house",
+      "block": "wales",
+      "spindle": "3,1,1,1,0,1,0,0,1,1"
+    }
+  ],
+  "the room": [
+    {
+      "display": "the room",
+      "block": "wales",
+      "spindle": "3,1,1,1,0,1,0,0,1,1,1"
+    },
+    {
+      "display": "the room",
+      "block": "west-midlands",
+      "spindle": "3,1,1,2,1,1,0,0,1,1,1"
+    },
+    {
+      "display": "the room",
+      "block": "south-yorkshire",
+      "spindle": "3,1,1,3,1,0,1,0,1,1,1"
+    }
+  ],
+  "west midlands": [
+    {
+      "display": "West Midlands",
+      "block": "west-midlands",
+      "spindle": "3,1,1,2"
+    }
+  ],
+  "birmingham": [
+    {
+      "display": "Birmingham",
+      "block": "west-midlands",
+      "spindle": "3,1,1,2,1"
+    }
+  ],
+  "sutton coldfield": [
+    {
+      "display": "Sutton Coldfield",
+      "block": "west-midlands",
+      "spindle": "3,1,1,2,1,1"
+    }
+  ],
+  "birbarn close": [
+    {
+      "display": "Birbarn Close",
+      "block": "west-midlands",
+      "spindle": "3,1,1,2,1,1,0,0,1"
+    }
+  ],
+  "33 birbarn close": [
+    {
+      "display": "33 Birbarn Close",
+      "block": "west-midlands",
+      "spindle": "3,1,1,2,1,1,0,0,1,1"
+    }
+  ],
+  "south yorkshire": [
+    {
+      "display": "South Yorkshire",
+      "block": "south-yorkshire",
+      "spindle": "3,1,1,3"
+    }
+  ],
+  "sheffield": [
+    {
+      "display": "Sheffield",
+      "block": "south-yorkshire",
+      "spindle": "3,1,1,3,1"
+    }
+  ],
+  "nether edge": [
+    {
+      "display": "Nether Edge",
+      "block": "south-yorkshire",
+      "spindle": "3,1,1,3,1,0,1"
+    }
+  ],
+  "machon bank": [
+    {
+      "display": "Machon Bank",
+      "block": "south-yorkshire",
+      "spindle": "3,1,1,3,1,0,1,0,1"
+    }
+  ],
+  "the coach house, 9 machon bank": [
+    {
+      "display": "the Coach House, 9 Machon Bank",
+      "block": "south-yorkshire",
+      "spindle": "3,1,1,3,1,0,1,0,1,1"
+    }
+  ],
+  "montenegro": [
+    {
+      "display": "Montenegro",
+      "block": "montenegro",
+      "spindle": "3,1,2"
+    }
+  ],
+  "ulcinj": [
+    {
+      "display": "Ulcinj",
+      "block": "montenegro",
+      "spindle": "3,1,2,0,0,1"
+    }
+  ],
+  "the pristan": [
+    {
+      "display": "the Pristan",
+      "block": "montenegro",
+      "spindle": "3,1,2,0,0,1,0,0,1"
+    }
+  ],
+  "apartments milic": [
+    {
+      "display": "Apartments Milic",
+      "block": "montenegro",
+      "spindle": "3,1,2,0,0,1,0,0,1,1"
+    }
+  ],
+  "the apartment room": [
+    {
+      "display": "the apartment room",
+      "block": "montenegro",
+      "spindle": "3,1,2,0,0,1,0,0,1,1,1"
+    }
+  ],
+  "(asia": [
+    {
+      "display": "(Asia",
+      "block": "real-world-original",
+      "spindle": "3,2"
+    }
+  ],
+  "(africa": [
+    {
+      "display": "(Africa",
+      "block": "real-world-original",
+      "spindle": "3,3"
+    }
+  ],
+  "(north america": [
+    {
+      "display": "(North America",
+      "block": "real-world-original",
+      "spindle": "3,4"
+    }
+  ],
+  "(south america": [
+    {
+      "display": "(South America",
+      "block": "real-world-original",
+      "spindle": "3,5"
+    }
+  ],
+  "(oceania": [
+    {
+      "display": "(Oceania",
+      "block": "real-world-original",
+      "spindle": "3,6"
+    }
+  ],
+  "mars": [
+    {
+      "display": "Mars",
+      "block": "real-world-original",
+      "spindle": "4"
+    }
+  ],
+  "jupiter": [
+    {
+      "display": "Jupiter",
+      "block": "real-world-original",
+      "spindle": "5"
+    }
+  ],
+  "saturn": [
+    {
+      "display": "Saturn",
+      "block": "real-world-original",
+      "spindle": "6"
+    }
+  ],
+  "uranus": [
+    {
+      "display": "Uranus",
+      "block": "real-world-original",
+      "spindle": "7"
+    }
+  ],
+  "neptune": [
+    {
+      "display": "Neptune",
+      "block": "real-world-original",
+      "spindle": "8"
+    }
+  ]
+}

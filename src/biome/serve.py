@@ -9,6 +9,10 @@ implementation.
   GET  /.well-known/biome-beach?block=NAME    whole block, as JSON          (3.2)
   POST /.well-known/biome-beach               {block, number, attention, content} write
   POST /mcp                                   MCP, streamable HTTP, one tool: spark  (3.1)
+  GET  /relay?frame=F&handle=H                live presence + vapour at a frame       (3.4)
+  POST /relay                                 {frame, handle, vapour, face} heartbeat (3.4)
+  GET  /xstream                               the human face — a shared VLS frame      (3.3)
+  GET  /spark.js                              the read-walk the face imports
   */   /.well-known/pscale-beach              the old world's door — a signpost, never served
 
 Run from a run-folder:  python3 biome/serve.py [port]     (default 3210, binds
@@ -31,11 +35,17 @@ sys.path.insert(0, HERE)
 
 import activate
 import beach
+import discover
+import federate
 import membrane
 import spark
+from relay import Relay
 from store_fs import FsStore
 
 CONSTITUTION = os.path.join(HERE, "constitution")
+FACE = os.path.join(HERE, "face.html")          # the human interface (3.3), served at /xstream
+SPARK_JS = os.path.join(HERE, "spark.js")       # the read-walk the face imports (the browser spark)
+WORLD = os.path.join(HERE, "world.html")         # the spatial walker — descend a place-block from a root
 CONSTITUTION_SEEDS = [                      # genome-owned: refreshed every boot
     ("arrive", os.path.join(CONSTITUTION, "arrive.json")),
     ("genome", os.path.join(CONSTITUTION, "genome.json")),
@@ -158,6 +168,7 @@ def run_spark(store, args):
 
 class Commons(BaseHTTPRequestHandler):
     store = None
+    relay = Relay()                          # the server's own vapour relay (3.4) — ephemeral, out-of-band
     server_version = "biome-mcp/0.1"
 
     def _send(self, code, payload, ctype="application/json"):
@@ -167,20 +178,57 @@ class Commons(BaseHTTPRequestHandler):
             body = body.encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", ctype)
+        self.send_header("Access-Control-Allow-Origin", "*")   # a public substrate: any page may read it
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+    def do_OPTIONS(self):                                       # CORS preflight (cross-origin writes)
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def _body(self):
         n = int(self.headers.get("Content-Length") or 0)
         return json.loads(self.rfile.read(n).decode("utf-8")) if n else {}
 
+    def _base(self):                                     # the public URL a caller reached us on
+        host = self.headers.get("Host", "")
+        proto = self.headers.get("X-Forwarded-Proto", "http")
+        return ("%s://%s" % (proto, host)) if host else ""
+
     def do_GET(self):
         url = urlparse(self.path)
         if url.path == "/":
             return self._send(200, self.store.load_block("arrive"))
+        if url.path == "/xstream":
+            try:
+                with open(FACE, encoding="utf-8") as f:
+                    return self._send(200, f.read(), "text/html; charset=utf-8")
+            except OSError:
+                return self._send(404, {"absent": "/xstream"})
+        if url.path == "/spark.js":
+            try:
+                with open(SPARK_JS, encoding="utf-8") as f:
+                    return self._send(200, f.read(), "text/javascript; charset=utf-8")
+            except OSError:
+                return self._send(404, {"absent": "/spark.js"})
+        if url.path == "/world":                          # the spatial walker (3.3, spatial form)
+            try:
+                with open(WORLD, encoding="utf-8") as f:
+                    return self._send(200, f.read(), "text/html; charset=utf-8")
+            except OSError:
+                return self._send(404, {"absent": "/world"})
         if url.path == LEGACY_DOOR:
             return self._send(404, SIGNPOST)
+        if url.path == "/relay":
+            q = parse_qs(url.query)
+            frame = (q.get("frame") or [""])[0]
+            handle = (q.get("handle") or [None])[0]
+            return self._send(200, self.relay.view(frame, exclude=handle))
         if url.path == DOOR:
             name = (parse_qs(url.query).get("block") or [None])[0]
             if not name:
@@ -188,6 +236,14 @@ class Commons(BaseHTTPRequestHandler):
             block = self.store.load_block(name)
             return self._send(200, block) if block is not None \
                 else self._send(404, {"absent": name})
+        if url.path == "/gazetteer":                     # discovery: the whole name -> URL index (derived)
+            return self._send(200, discover.index(federate.loader(self.store), base=self._base()))
+        if url.path == "/resolve":                       # discovery: name -> the URL(s) to fetch it
+            nm = (parse_qs(url.query).get("name") or [None])[0]
+            if not nm:
+                return self._send(400, {"error": "name required, e.g. /resolve?name=Sheffield"})
+            return self._send(200, {"name": nm,
+                "matches": discover.resolve(federate.loader(self.store), nm, base=self._base())})
         return self._send(404, {"absent": url.path})
 
     def do_POST(self):
@@ -198,6 +254,16 @@ class Commons(BaseHTTPRequestHandler):
             return self._send(400, {"error": "body was not JSON"})
         if url.path == LEGACY_DOOR:
             return self._send(404, SIGNPOST)
+        if url.path == "/relay":
+            handle = body.get("handle")
+            if not handle:
+                return self._send(400, {"error": "a vapour beat names its handle"})
+            frame = body.get("frame", "")
+            if body.get("depart"):
+                self.relay.depart(frame, handle)
+                return self._send(200, {"ok": True, "departed": handle})
+            return self._send(200, self.relay.beat(
+                frame, handle, body.get("vapour", ""), body.get("face", "observer")))
         if url.path == DOOR:
             if "block" not in body:
                 return self._send(400, {"error": "a write names its block"})
