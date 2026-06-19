@@ -1,5 +1,18 @@
 # The real world as a pscale block — a starting point
 
+> **Current (2026-06-19) — read this first; some examples below are superseded.** The
+> live source of truth is the deployed island and its `lighthouse` block
+> (`realworld-biome-production.up.railway.app`). Two changes since the body was written:
+> (1) the root block is now **`real-world-original`**, voicing *"the solar system"* (no
+> separate "Sol" node), with **Earth = digit 3** among the planets — so worked addresses
+> lead with `3` (Ceidio = `311101001`, not the older `1111010011`). (2) The pscale spine
+> is David's **size/population ladder** (room 0, building +1, street/village +2, town +3,
+> …, city +6, region +7, country +8, continent +9, Earth +10, solar system +11), with
+> scales a path skips shown as `0`s. The *mechanism* described below — patchwork,
+> floor-relative addressing, federation, discovery — is unchanged. Discovery has since
+> been built as a served resolver (`/resolve`, `/gazetteer`) — see
+> [discovery-lighthouse-gazetteer.md](discovery-lighthouse-gazetteer.md).
+
 **Status:** working system, 2026-06-18. Built: the `src/biome/world/earth/` patchwork
 (seeded to 143 places across all continents) + `locate.py` (read) + `grow.py` (write,
 idempotent) + `cartographer.py` (overnight LLM mapper) + an auto-maintained gazetteer.
