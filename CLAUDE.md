@@ -52,6 +52,15 @@ Two block-worlds exist and must never interbreed. They are mechanically distingu
 
 Read [docs/biome-design.md](docs/biome-design.md) for the *founding* design overview (2026-05-09). The seven environmental currents that the unfolding is governed by live in the **live** biome-world shell [src/biome/constitution/biome.json](src/biome/constitution/biome.json) (`0`-keyed). ([src/sentinel/biome.json](src/sentinel/biome.json) is the original `_`-keyed shell from the founding session — superseded vendor per rule 4; historical origin only.)
 
+## Live: the real-world spatial island (2026-06-19)
+
+A worked, deployed instance of the biome principle — a real-world pscale spatial map served as its **own biome island** (a separate cosmology from the RPG commons), with a human walker, a name→URL resolver, and biome-mcp. A new session can find and use it:
+
+- **Live biome:** `https://realworld-biome-production.up.railway.app` — the door, `/mcp` (biome-mcp), `/resolve?name=<place>` (the gazetteer: name → URL, derived live), and `/world` (the walker). Read its `lighthouse` block first for orientation.
+- **Human UI:** `https://happyseaurchin.com/virtual-ai-agents/real-world/`.
+- **Source:** branch `feat/real-world-spatial` — blocks in `src/biome/world/earth/`; `discover.py` (+ `serve.py` `/resolve`), `grow.py`, `locate.py`, `cartographer.py`, `federate.py`. Design: [docs/real-world-spatial-spec.md](docs/real-world-spatial-spec.md) + [docs/discovery-lighthouse-gazetteer.md](docs/discovery-lighthouse-gazetteer.md). Memory: `project_real_world_spatial`.
+- Root block `real-world-original` ("the solar system", Earth = digit 3); spine room 0 → solar system +11. **Reads are free** (a plain fetch + the spark function + a URL); the per-biome MCP is a write-gate + convenience, not needed to read.
+
 ## Operating principles
 
 1. **This is not production.** Nothing here ships to a real user. No Vercel deploy. No Railway deploy. No npm publish. Until the user explicitly asks.
