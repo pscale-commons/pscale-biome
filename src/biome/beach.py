@@ -10,15 +10,21 @@ second implementation.
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "spark"))
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, "..", "spark"))
+sys.path.insert(0, HERE)
 import spark
+import federate
 
 
 def read(store, name, number=None, attention=None, star=False):
+    ps = federate.peers()
     block = store.load_block(name)
+    if block is None and ps:                  # a named block we lack may live on a peer
+        block = federate.fetch_any(name, ps)
     if block is None:
         return {"mode": "absent", "block": name}
-    loader = (lambda n: store.load_block(n)) if star else None
+    loader = federate.loader(store) if star else None   # local-only unless BIOME_PEERS is set
     return spark.spark(block, number, attention, star=star, loader=loader)
 
 
