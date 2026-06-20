@@ -27,8 +27,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "spark"))
 sys.path.insert(0, HERE)
 import grow
+import rules
 
 MODEL = os.environ.get("CARTOGRAPHER_MODEL", "claude-sonnet-4-6")
+
+
+def _ladder():
+    """The size/population ladder for voicing -- read fresh from the editable `spine`
+    block (the D of CADO) each call, so a live edit takes effect; rules.py supplies the
+    built-in fallback if the block is absent. Edit spine.1 and the mapper scales anew."""
+    return rules.read()[3]
 
 
 def _key():
@@ -76,9 +84,7 @@ districts) and list those instead. NEVER list more than 8.
 For each, give:
   - "name": its common name
   - "voice": one short descriptive line, ending with " pscale +N" where N is the scale
-     by SIZE and POPULATION (10^N people, roughly): room/1-person 0, building/10 +1,
-     street-or-village/100 +2, town/1k +3, large-town-or-valley/10k +4, smaller-city/100k +5,
-     city/1m +6, region-or-megacity/10m +7, country/100m +8, continent/1b +9, Earth +10.
+     by SIZE and POPULATION (10^N people, roughly): {ladder}.
      Pick the nearest scale to the place's real size; consecutive places may skip scales.
   - "block": true only if it deserves its own map block (a country, or a very large
      city or region); otherwise false
@@ -89,7 +95,7 @@ inside, reply {{"children":[]}}."""
 
 
 def enumerate_children(chain):
-    out = _call(PROMPT.format(place=chain[-1], path=" > ".join(chain)))
+    out = _call(PROMPT.format(place=chain[-1], path=" > ".join(chain), ladder=_ladder()))
     if not out:
         return []
     m = re.search(r"\{.*\}", out, re.S)

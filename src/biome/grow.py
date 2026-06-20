@@ -27,14 +27,16 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "spark"))
+sys.path.insert(0, HERE)
 import spark
+import rules
 
 EARTH = os.environ.get("BIOME_EARTH") or os.path.join(HERE, "world", "earth")
 # the gazetteer lives BESIDE the blocks dir (never inside it -- it is name-keyed, not a block)
 GAZETTEER = os.environ.get("BIOME_GAZETTEER") or os.path.join(os.path.dirname(EARTH), "earth-gazetteer.json")
-ROOT = "real-world-original"
-ROOT_PSCALE = 11
-COUNTRY_PSCALE = 5            # the rough pscale at which a place becomes its own block by default
+# the root, its pscale, and the shard scale are POLICY -- read from the editable `spine`
+# block (the D of CADO), not constants here. rules.py turns that block into values.
+ROOT, ROOT_PSCALE, COUNTRY_PSCALE = rules.ROOT, rules.ROOT_PSCALE, rules.COUNTRY_PSCALE
 
 
 # --- names ------------------------------------------------------------------
@@ -182,7 +184,7 @@ def ensure(chain, earth=None):
     bucket = _gaz(earth, chain[0][0])
     if bucket:
         spindle = [s for s in bucket[0]["spindle"].split(",") if s]
-    elif _norm(chain[0][0]) in ("real-world-original", "the solar system", "earth"):
+    elif _norm(chain[0][0]) in (_norm(ROOT), "the solar system", "earth"):
         spindle = ["3"] if _norm(chain[0][0]) == "earth" else []
     else:
         raise ValueError("anchor %r is not mapped -- reindex, or start from a "
@@ -278,7 +280,7 @@ def reindex(earth=None):
         if isinstance(node.get("0"), dict):
             walk(block_name, node["0"], spindle + ["0"], False, seen)
 
-    earth.register("Earth", "real-world-original", ["3"])
+    earth.register("Earth", ROOT, ["3"])
     walk(ROOT, earth.load(ROOT), [], False, {ROOT})
     earth.flush()
     return sum(len(v) for v in earth.gaz.values())

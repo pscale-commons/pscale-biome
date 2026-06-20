@@ -34,11 +34,13 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "spark"))
+sys.path.insert(0, HERE)
 import spark
+import rules
 
 EARTH = os.path.join(HERE, "world", "earth")
-ROOT = "real-world-original"            # the cosmology root block
-ROOT_PSCALE = 11        # Sol sits at pscale +11 on the standard spine
+ROOT = rules.ROOT                # the cosmology root block (policy -- read from `spine`)
+ROOT_PSCALE = rules.ROOT_PSCALE  # the root's pscale (the solar system, +11 by default)
 FLOOR_PSCALE = 0        # the room -- the magnitude point
 
 

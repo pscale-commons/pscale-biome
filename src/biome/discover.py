@@ -13,10 +13,13 @@ import os
 import re
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "spark"))
+_HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(_HERE, "..", "spark"))
+sys.path.insert(0, _HERE)
 import spark
+import rules
 
-ROOT_PSCALE = 11
+ROOT_PSCALE = rules.ROOT_PSCALE       # policy -- the root's pscale, read from the `spine` block
 
 
 def _norm(s):
@@ -30,10 +33,13 @@ def _disp(v):
     return v.split(" -- ")[0].split(" / ")[0].strip()
 
 
-def index(load, root="real-world-original", base=""):
+def index(load, root=None, base=""):
     """Walk the patchwork from `root` (load(name) -> block or None) and return
     {norm_name: [entry]}, entry = {name, block, walk (in-block), pscale, url}.
-    `url` is the door URL to FETCH the block; `walk` descends within it to the place."""
+    `url` is the door URL to FETCH the block; `walk` descends within it to the place.
+    `root` defaults to the editable `spine` block's root -- so the resolver is not
+    bound to the real world; point spine at another root and it indexes that world."""
+    root = root or rules.ROOT
     door = (base.rstrip("/") if base else "") + "/.well-known/biome-beach"
     gaz, seen = {}, {root}
 
@@ -75,6 +81,6 @@ def index(load, root="real-world-original", base=""):
     return gaz
 
 
-def resolve(load, name, root="real-world-original", base=""):
+def resolve(load, name, root=None, base=""):
     """name -> [entry]; each entry's `url` fetches the block, `walk` finds the place in it."""
     return index(load, root, base).get(_norm(name), [])
