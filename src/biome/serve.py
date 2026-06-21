@@ -11,7 +11,7 @@ implementation.
   POST /mcp                                   MCP, streamable HTTP, one tool: spark  (3.1)
   GET  /relay?frame=F&handle=H                live presence + vapour at a frame       (3.4)
   POST /relay                                 {frame, handle, vapour, face} heartbeat (3.4)
-  GET  /xstream                               the human face — a shared VLS frame      (3.3)
+  GET  /xstream                               the human interface — a shared VLS frame (3.3)
   GET  /spark.js                              the read-walk the face imports
   */   /.well-known/pscale-beach              the old world's door — a signpost, never served
 
@@ -37,6 +37,7 @@ import activate
 import beach
 import discover
 import federate
+import fold
 import membrane
 import rules
 import spark
@@ -44,7 +45,7 @@ from relay import Relay
 from store_fs import FsStore
 
 CONSTITUTION = os.path.join(HERE, "constitution")
-FACE = os.path.join(HERE, "face.html")          # the human interface (3.3), served at /xstream
+INTERFACE = os.path.join(HERE, "interface.html")  # the human interface (3.3), served at /xstream
 SPARK_JS = os.path.join(HERE, "spark.js")       # the read-walk the face imports (the browser spark)
 WORLD = os.path.join(HERE, "world.html")         # the spatial walker — descend a place-block from a root
 CONSTITUTION_SEEDS = [                      # genome-owned: refreshed every boot
@@ -221,7 +222,7 @@ class Commons(BaseHTTPRequestHandler):
             return self._send(200, self.store.load_block("arrive"))
         if url.path == "/xstream":
             try:
-                with open(FACE, encoding="utf-8") as f:
+                with open(INTERFACE, encoding="utf-8") as f:
                     return self._send(200, f.read(), "text/html; charset=utf-8")
             except OSError:
                 return self._send(404, {"absent": "/xstream"})
@@ -270,6 +271,35 @@ class Commons(BaseHTTPRequestHandler):
                         seen.add(key)
                         matches.append(m)
             return self._send(200, {"name": nm, "matches": matches})
+        if url.path == "/frame":                         # engagement: stand at where/when/who -> the S*T*I moment
+            q = parse_qs(url.query)
+            where = (q.get("where") or [None])[0]
+            roots = self._roots()
+            if not where:
+                return self._send(400, {"error": "where required, e.g. /frame?where=Ceidio&who=david"})
+            if not roots:
+                return self._send(404, {"absent": "this biome carries no world to stand in"})
+            try:                                          # synth=False: return the bind PROMPT, no server-side LLM
+                fr = fold.frame(where, (q.get("when") or ["now"])[0], (q.get("who") or [""])[0],
+                                earth_loader=federate.loader(self.store), root=roots[0], synth=False)
+            except ValueError as e:
+                return self._send(404, {"error": str(e)})
+            return self._send(200, fr)
+        if url.path == "/social":                         # engagement: the I-fan folded -> the collective (1^9)
+            q = parse_qs(url.query)
+            where = (q.get("where") or [None])[0]
+            roots = self._roots()
+            if not where:
+                return self._send(400, {"error": "where required, e.g. /social?where=Ceidio"})
+            if not roots:
+                return self._send(404, {"absent": "this biome carries no world"})
+            mirror_only = (q.get("mirror") or ["0"])[0] not in ("0", "false", "")
+            try:
+                sf = fold.social_fold(where, mirror_only=mirror_only,
+                                      earth_loader=federate.loader(self.store), root=roots[0], synth=False)
+            except ValueError as e:
+                return self._send(404, {"error": str(e)})
+            return self._send(200, sf)
         return self._send(404, {"absent": url.path})
 
     def do_POST(self):
