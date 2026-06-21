@@ -1,0 +1,17 @@
+{
+  "david": {
+    "31110100111": {
+      "by": "check-in",
+      "method": "device-attested",
+      "valid": "2026-06-21"
+    }
+  },
+  "asha": {
+    "31110100111": {
+      "by": "check-in",
+      "method": "host-vouched",
+      "valid": "2026-06-21"
+    }
+  },
+  "happyseaurchin": {}
+}
