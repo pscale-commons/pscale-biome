@@ -90,8 +90,12 @@ truth — the structure is.
   and **`GET /gazetteer`** (CORS-open, derived live, never a stale file). Verified on the
   live island: a cold reader knowing only `https://realworld-biome-production.up.railway.app`
   calls `/resolve?name=Ulcinj`, gets a URL, and a plain `fetch` of it returns the block —
-  no MCP. One island deep; **delegating to peers' own `/resolve` is the next step** toward
-  the whole web (each island authoritative for its own names, like DNS).
+  no MCP. **Now federated (2026-06-21): a biome also asks its peers' own `/resolve`
+  non-recursively (`&delegate=0`, so peers answer from their own index and don't
+  re-delegate — loop-safe) and merges the matches** — each island authoritative for its
+  own names, like DNS, no central registry (`federate.resolve_peers`; `serve.py /resolve`).
+  Verified across two local biomes: one lacking the Montenegro branch entirely (no ref to
+  follow) resolves Ulcinj *only* by delegating to its peer, and returns the peer's URL.
 
 ## Where this leaves the lighthouse vs gazetteer question
 

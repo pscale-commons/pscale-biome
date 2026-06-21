@@ -14,6 +14,7 @@ serves only its own blocks -- so there is no recursion and no loop.
 import os
 import json
 import urllib.request
+import urllib.parse
 
 DOOR = "/.well-known/biome-beach"
 
@@ -57,3 +58,37 @@ def loader(store, cache=None):
         cache[n] = b
         return b
     return load
+
+
+# --- resolve delegation: ask peers' own resolvers (DNS-style) ----------------
+#
+# loader() above spreads ONE island across hosts (a walk fetches a block it lacks
+# from a peer's door). This is different: a name that lives in ANOTHER island --
+# unreachable from this biome's own root -- is resolved by asking the peer's
+# /resolve, which is authoritative for its own names. The query is NON-recursive
+# (&delegate=0): the peer answers from its own index and does not re-delegate, so
+# there is no loop. Each island stays authoritative for its own names.
+
+def ask_resolve(peer, name, timeout=8):
+    """Ask ONE peer's resolver for a name, non-recursively. Returns its match list
+    (each match's url already points at the peer's own host), tagged with `via`, or []."""
+    url = "%s/resolve?name=%s&delegate=0" % (peer, urllib.parse.quote(name))
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    except Exception:
+        return []
+    matches = data.get("matches", []) if isinstance(data, dict) else []
+    for m in matches:
+        if isinstance(m, dict):
+            m.setdefault("via", peer)
+    return matches
+
+
+def resolve_peers(name, ps=None):
+    """Aggregate non-recursive resolutions from all peers. Flat list of match
+    entries; empty when no peers are set, so a lone biome is unchanged."""
+    out = []
+    for p in (ps if ps is not None else peers()):
+        out.extend(ask_resolve(p, name))
+    return out

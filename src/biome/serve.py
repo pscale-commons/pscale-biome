@@ -239,11 +239,22 @@ class Commons(BaseHTTPRequestHandler):
         if url.path == "/gazetteer":                     # discovery: the whole name -> URL index (derived)
             return self._send(200, discover.index(federate.loader(self.store), base=self._base()))
         if url.path == "/resolve":                       # discovery: name -> the URL(s) to fetch it
-            nm = (parse_qs(url.query).get("name") or [None])[0]
+            q = parse_qs(url.query)
+            nm = (q.get("name") or [None])[0]
             if not nm:
                 return self._send(400, {"error": "name required, e.g. /resolve?name=Sheffield"})
-            return self._send(200, {"name": nm,
-                "matches": discover.resolve(federate.loader(self.store), nm, base=self._base())})
+            matches = discover.resolve(federate.loader(self.store), nm, base=self._base())
+            # DNS-style delegation: on the user's query (delegate != 0) also ask peers'
+            # own resolvers, non-recursively (they answer &delegate=0 -- no loop), and
+            # merge. Each island stays authoritative for its own names.
+            if (q.get("delegate") or ["1"])[0] != "0":
+                seen = {(m.get("url"), m.get("walk")) for m in matches}
+                for m in federate.resolve_peers(nm):
+                    key = (m.get("url"), m.get("walk"))
+                    if key not in seen:
+                        seen.add(key)
+                        matches.append(m)
+            return self._send(200, {"name": nm, "matches": matches})
         return self._send(404, {"absent": url.path})
 
     def do_POST(self):
