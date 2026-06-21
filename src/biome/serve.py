@@ -38,6 +38,7 @@ import beach
 import discover
 import federate
 import membrane
+import rules
 import spark
 from relay import Relay
 from store_fs import FsStore
@@ -200,6 +201,20 @@ class Commons(BaseHTTPRequestHandler):
         proto = self.headers.get("X-Forwarded-Proto", "http")
         return ("%s://%s" % (proto, host)) if host else ""
 
+    def _roots(self):                                    # the cosmology root(s) this biome indexes
+        """Sense which world(s) this biome's resolver indexes, from its OWN store: a
+        `roots` block (plain-name leaves) if the biome declares one, else the spine's
+        root when this biome actually carries that block, else none. So discovery is a
+        generic unfolding -- a biome resolves whatever world it holds, not the real
+        world by default. The (3,6) relation axis of the constitution, made conditional."""
+        rb = self.store.load_block("roots")
+        if isinstance(rb, dict):
+            named = [rb[d] for d in spark.DIGITS if isinstance(rb.get(d), str)]
+            present = [n for n in named if self.store.load_block(n) is not None]
+            if present:
+                return present
+        return [rules.ROOT] if self.store.load_block(rules.ROOT) is not None else []
+
     def do_GET(self):
         url = urlparse(self.path)
         if url.path == "/":
@@ -237,13 +252,13 @@ class Commons(BaseHTTPRequestHandler):
             return self._send(200, block) if block is not None \
                 else self._send(404, {"absent": name})
         if url.path == "/gazetteer":                     # discovery: the whole name -> URL index (derived)
-            return self._send(200, discover.index(federate.loader(self.store), base=self._base()))
+            return self._send(200, discover.index(federate.loader(self.store), self._roots(), base=self._base()))
         if url.path == "/resolve":                       # discovery: name -> the URL(s) to fetch it
             q = parse_qs(url.query)
             nm = (q.get("name") or [None])[0]
             if not nm:
                 return self._send(400, {"error": "name required, e.g. /resolve?name=Sheffield"})
-            matches = discover.resolve(federate.loader(self.store), nm, base=self._base())
+            matches = discover.resolve(federate.loader(self.store), nm, self._roots(), base=self._base())
             # DNS-style delegation: on the user's query (delegate != 0) also ask peers'
             # own resolvers, non-recursively (they answer &delegate=0 -- no loop), and
             # merge. Each island stays authoritative for its own names.

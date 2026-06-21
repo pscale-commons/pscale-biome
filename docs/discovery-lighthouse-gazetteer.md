@@ -96,6 +96,15 @@ truth — the structure is.
   own names, like DNS, no central registry (`federate.resolve_peers`; `serve.py /resolve`).
   Verified across two local biomes: one lacking the Montenegro branch entirely (no ref to
   follow) resolves Ulcinj *only* by delegating to its peer, and returns the peer's URL.
+- **A genome current, not a real-world feature (2026-06-21).** The resolver no longer roots
+  at the real world: `serve.py` senses the cosmology root(s) from the biome's **own store**
+  — a `roots` block (plain-name leaves) if it declares one, else the spine root it carries,
+  else none — and `discover.index/resolve` take that list. So discovery is the constitution's
+  **(3,6) relation axis** (the resolver *endpoint* a biome exposes + *federation* delegation
+  to peers) unfolded by **every** biome over whatever world it holds — not a new current.
+  Demonstrated across distinct cosmologies: an earth biome and an invented "Rivertown Vale"
+  biome each resolve their own world, and the earth biome resolves Rivertown *only* by
+  delegating to its peer.
 
 ## Where this leaves the lighthouse vs gazetteer question
 

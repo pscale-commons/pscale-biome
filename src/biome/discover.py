@@ -33,15 +33,19 @@ def _disp(v):
     return v.split(" -- ")[0].split(" / ")[0].strip()
 
 
-def index(load, root=None, base=""):
-    """Walk the patchwork from `root` (load(name) -> block or None) and return
-    {norm_name: [entry]}, entry = {name, block, walk (in-block), pscale, url}.
+def index(load, roots=None, base=""):
+    """Walk the patchwork from each root in `roots` (load(name) -> block or None) and
+    return {norm_name: [entry]}, entry = {name, block, walk (in-block), pscale, url}.
     `url` is the door URL to FETCH the block; `walk` descends within it to the place.
-    `root` defaults to the editable `spine` block's root -- so the resolver is not
-    bound to the real world; point spine at another root and it indexes that world."""
-    root = root or rules.ROOT
+    `roots` is the cosmology root(s) this biome carries -- a list, or one name; it
+    defaults to the editable `spine` block's root. The resolver is bound to no
+    particular world: it indexes whatever roots the biome itself declares."""
+    if roots is None:
+        roots = [rules.ROOT]
+    elif isinstance(roots, str):
+        roots = [roots]
     door = (base.rstrip("/") if base else "") + "/.well-known/biome-beach"
-    gaz, seen = {}, {root}
+    gaz, seen = {}, set(roots)
 
     def add(name, block, in_walk, spindle):
         if not name or name.startswith("("):            # skip headless "(... to be mapped)" slots
@@ -73,14 +77,15 @@ def index(load, root=None, base=""):
         if isinstance(node.get("0"), dict):                               # traverse the structural 0-rungs
             walk(block, node["0"], in_walk + ["0"], spindle + ["0"], False)
 
-    root_block = load(root)
-    if root_block is None:
-        return gaz
-    add(_disp(spark.voice(root_block)), root, [], [])                     # the root itself
-    walk(root, root_block, [], [], False)
+    for root in roots:
+        root_block = load(root)
+        if root_block is None:
+            continue
+        add(_disp(spark.voice(root_block)), root, [], [])                 # the root itself
+        walk(root, root_block, [], [], False)
     return gaz
 
 
-def resolve(load, name, root=None, base=""):
+def resolve(load, name, roots=None, base=""):
     """name -> [entry]; each entry's `url` fetches the block, `walk` finds the place in it."""
-    return index(load, root, base).get(_norm(name), [])
+    return index(load, roots, base).get(_norm(name), [])
