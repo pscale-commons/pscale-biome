@@ -88,9 +88,9 @@ These were the founding open-questions (2026-05-09). Most are now settled — st
 
 1. What does "sense the host" actually do? Concrete inspection list at boot time. → **ANSWERED:** built at `src/biome/sense.py` (`sense_neighbours`, `sense_capacity`); `unfold.py` resolves a role from it.
 2. Vendor or path-import or wait-for-publish for `bsp-mcp-server`'s function code? → **MOOT:** the biome's function is the **spark set** (`src/spark/`), not `bsp()`. bsp-mcp stays an old-world reference; nothing is imported from it.
-3. Where does the seed wizard live in a unified biome? → **OVERTAKEN by the face:** the biome serves its own inhabitable page; seeding is genome-owned (constitution, refreshed on boot) + store-owned (world/marks, grown by guests).
-4. Is xstream's `App.block-agents.tsx` the right entry, or does the biome need its own React shell? → **OVERTAKEN:** the biome serves its own page at `/xstream` from `serve.py` (one deployment, no second repo). See `docs/face-handover.md`.
-5. How does the human author the shell when the biome is for them, not an LLM? → **THIS IS THE ACTIVE FRONT — "the face":** the face IS the biome's xstream-form; humans are inhabitants, typing is cognition. See `docs/face-handover.md` and the memory `project_biome_shape.md` (items 16–17).
+3. Where does the seed wizard live in a unified biome? → **OVERTAKEN by the interface:** the biome serves its own inhabitable page; seeding is genome-owned (constitution, refreshed on boot) + store-owned (world/marks, grown by guests).
+4. Is xstream's `App.block-agents.tsx` the right entry, or does the biome need its own React shell? → **OVERTAKEN:** the biome serves its own page at `/xstream` from `serve.py` (one deployment, no second repo). See `docs/interface-handover.md`.
+5. How does the human author the shell when the biome is for them, not an LLM? → **THIS IS THE ACTIVE FRONT — the interface:** the interface IS the biome's xstream-form; humans are inhabitants, typing is cognition. See `docs/interface-handover.md` and the memory `project_biome_shape.md` (items 16–17).
 
 ## Don't lose track of
 

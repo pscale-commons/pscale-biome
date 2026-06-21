@@ -4,7 +4,7 @@ This file IS the opener for the xstream-integration session. Copy everything
 below the line into a fresh session to start it. It is the saved copy of the
 paste; keep the two identical (re-paste from here, or update here when the state
 moves). Last updated 2026-06-15. The xstream *brief* (the v1 spec) is
-`docs/face-handover.md`, which this opener points the new session at.
+`docs/interface-handover.md`, which this opener points the new session at.
 
 ---
 
@@ -14,7 +14,7 @@ the LLM enlivens. The nomenclature below is hard-won — hold it exactly; drift 
 
 ORIENT (in order): CLAUDE.md → docs/biome-definitive-reference.md → walk src/biome/
 biome-definition.json through spark (branches 1 molecule → 2 manifestation → 3 ecology) →
-docs/face-handover.md (your brief). THEN connect the biome-mcp connector and read the LIVE
+docs/interface-handover.md (your brief). THEN connect the biome-mcp connector and read the LIVE
 island (arrive, lighthouse, marks, thornkeep/scenes, surface-*, and the upperton-*/sti-*
 blocks another session is actively building). Note: biome-definition + the REWRITTEN arrive
 are repo-only — read them from src/, not the live island (the live arrive is still the old one).
@@ -60,7 +60,7 @@ THE IDENTITY MEMBRANE (built this session — USE it):
   character IS an agent shell" (memory project_sti_frame_model) — a human-character and an
   LLM-character are one shell mechanism. The page's "register" flow = composing a shell.
 
-THE XSTREAM BUILD (v1, per face-handover.md):
+THE XSTREAM BUILD (v1, per interface-handover.md):
 • The interface-for-humans FORM: ONE page served by serve.py at /xstream (keep GET / = arrive).
   ONE deployment, no Vercel, no second repo, no vendoring src/xstream (stale).
 • v1 needs NO LLM calls, NO keys — typing is cognition. Read the place (lighthouse, the world via

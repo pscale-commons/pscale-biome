@@ -12,8 +12,8 @@ Frame-scoped: humans sharing a frame (a scene, an address) see one another's
 vapour; humans at other frames do not. The register also knows its LOAD — the
 live count across every frame — and ADVERTISES a capacity it does not enforce:
 when the load reaches the cap it says `saturated`, and that signal is what the
-unfolder reads to point a newcomer at a neighbour's face, or to raise another
-(endpoints 3.3/3.4 unfold by condition, not configuration; a saturated face is
+unfolder reads to point a newcomer at a neighbour's interface, or to raise another
+(endpoints 3.3/3.4 unfold by condition, not configuration; a saturated interface is
 a condition). The relay never refuses a human — it only tells the truth about
 how crowded it is.
 
