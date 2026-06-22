@@ -38,6 +38,7 @@ import beach
 import discover
 import federate
 import fold
+import located
 import membrane
 import rules
 import spark
@@ -318,8 +319,17 @@ class Commons(BaseHTTPRequestHandler):
             if body.get("depart"):
                 self.relay.depart(frame, handle)
                 return self._send(200, {"ok": True, "departed": handle})
-            return self._send(200, self.relay.beat(
-                frame, handle, body.get("vapour", ""), body.get("face", "observer")))
+            face = body.get("face", "observer")
+            view = self.relay.beat(frame, handle, body.get("vapour", ""), face)
+            try:                                              # persist the STANDING the beat carries
+                roots = self._roots()                         # (handle/where/face); the vapour stays
+                located.situate(self.store, handle,           # ephemeral on the relay. best-effort,
+                                world=(roots[0] if roots else ""),  # idempotent (writes only on change),
+                                face=face, where=frame, present=frame,    # never breaks the heartbeat.
+                                island=self._base(), infra=self.headers.get("Host", ""))
+            except Exception:
+                pass
+            return self._send(200, view)
         if url.path == DOOR:
             if "block" not in body:
                 return self._send(400, {"error": "a write names its block"})
