@@ -4,8 +4,10 @@
 heartbeat persists the standing (idempotent, best-effort; vapour stays ephemeral);
 seam 3 — `membrane.py` reads `located.3` for the live face, capped at the shell's
 grant; seam 2 — `src/agent/shell/located.json` + a reference in the reflexive bundle
-(grouped with `conditions` as the present-pair). Tests: `src/biome/test-located.py`
-(13 checks) + a live relay smoke. The membrane stays flag-gated (off by default).*
+(grouped with `conditions` as the present-pair); plus the concurrent multi-world ring
+at `8` (a handle present in several worlds at once). Tests: `src/biome/test-located.py`
+(22 checks) + live relay smokes (single + ring). The membrane stays flag-gated (off
+by default).*
 
 
 *The minimal self-knowledge an LLM holds so it knows itself regardless of what it is
@@ -39,9 +41,11 @@ real-world and thornkeep at once — so `located` is keyed per world.
 ## The block — `located-<handle>`
 
 Per-handle, biome-world hyphenated name (never a colon). 0-9 keys, semantic-at-0, a
-**now-snapshot** rewritten on each re-situate. v1 holds the **current standing** with
-the world explicit at `2`; a handle present in two worlds at once extends to per-world
-standings (the multi-world ring — your ruling 1; noted, not yet built).
+**now-snapshot** rewritten on each re-situate. `0`–`7` are the **active standing** — the
+world the handle is currently acting in; `8` is the **concurrent ring** — the other
+worlds it also stands in (your ruling 1, multi-world: built). A handle present in
+real-world *and* thornkeep keeps the active one flat and the rest under `8`, each a full
+`0`–`7` standing, until it departs one.
 
 ```json
 {
@@ -52,13 +56,18 @@ standings (the multi-world ring — your ruling 1; noted, not yet built).
   "4": "<where   — L2 coordinate or pool in that world: a room, a place-address, a pool>",
   "5": "<island  — L1 beach/island serving it (the federation node)>",
   "6": "<infra   — L0 host/URL the bits run on>",
-  "7": "<present — L3 the live frame/pool I am synthesising in here (where my vapour flows), if any>"
+  "7": "<present — L3 the live frame/pool I am synthesising in here (where my vapour flows), if any>",
+  "8": { "0": "Also standing in: <world>, …", "1": "<a full 0–7 standing in another world>", "…": "…" }
 }
 ```
 
 `0`–`4` are the **minimal self** (who/world/face/where + the line) — the smallest thing
-an LLM app gets back. `5`–`7` are the framing layers. `when` is *now* (the rewrite
-cadence). This is exactly the shape `/relay` already heartbeats live —
+an LLM app gets back. `5`–`7` are the framing layers; `8` the concurrent ring. `when` is
+*now* (the rewrite cadence). `situate(world=W)` makes W active and preserves the prior
+active world into the ring; `depart(world=W)` drops it (promoting a ring world if W was
+active); `face_of(world=…)` reads per-world, default active — what the membrane uses.
+This is exactly the shape `/relay` already heartbeats live (a beat may name its
+`world`) —
 `{frame, handle, vapour, face}` — so `located` is the *persisted* form of the relay
 ping, and the live vapour keeps flowing through `/relay`.
 

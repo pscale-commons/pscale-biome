@@ -61,6 +61,33 @@ def main():
         ("reflexive bundle still valid + references located + conditions",
          "located" in json.dumps(refl["9"]) and "conditions" in json.dumps(refl["9"])),
     ]
+
+    # the concurrent multi-world ring -- a handle present in two worlds at once
+    def legal(x):
+        if isinstance(x, dict):
+            return all(k.isdigit() and legal(v) for k, v in x.items())
+        return True
+    r = FsStore(tempfile.mkdtemp())
+    located.situate(r, "nomad", kind="agent", world="real-world", face="author", where="Ceidio")
+    located.situate(r, "nomad", kind="agent", world="thornkeep", face="character", where="the Drum")
+    nb = located.read(r, "nomad")
+    checks += [
+        ("ring: active is the latest world", nb["2"] == "thornkeep" and nb["3"] == "character"),
+        ("ring: the other world is preserved at 8", "real-world" in json.dumps(nb.get("8", {}))),
+        ("ring: worlds() lists both, active first", located.worlds(r, "nomad") == ["thornkeep", "real-world"]),
+        ("ring: face_of(world) is per-world", located.face_of(r, "nomad", "real-world") == "author"
+                                              and located.face_of(r, "nomad", "thornkeep") == "character"),
+        ("ring: face_of() is the active face", located.face_of(r, "nomad") == "character"),
+        ("ring: still biome-legal (digit keys all the way down)", legal(nb)),
+    ]
+    located.situate(r, "nomad", kind="agent", world="real-world", face="author", where="Ceidio")
+    checks.append(("ring: re-situating a ring world swaps it active",
+                   located.worlds(r, "nomad") == ["real-world", "thornkeep"]))
+    located.depart(r, "nomad", "thornkeep")
+    checks.append(("ring: depart drops a ring world", located.worlds(r, "nomad") == ["real-world"]))
+    located.depart(r, "nomad", "real-world")
+    checks.append(("ring: departing the last leaves a neutral standing", located.worlds(r, "nomad") == []))
+
     try:
         py_compile.compile(os.path.join(HERE, "serve.py"), doraise=True)
         checks.append(("serve.py compiles with located wired into /relay", True))

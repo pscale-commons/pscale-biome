@@ -322,13 +322,13 @@ class Commons(BaseHTTPRequestHandler):
             face = body.get("face", "observer")
             view = self.relay.beat(frame, handle, body.get("vapour", ""), face)
             try:                                              # persist the STANDING the beat carries
-                roots = self._roots()                         # (handle/where/face); the vapour stays
-                located.situate(self.store, handle,           # ephemeral on the relay. best-effort,
-                                world=(roots[0] if roots else ""),  # idempotent (writes only on change),
-                                face=face, where=frame, present=frame,    # never breaks the heartbeat.
-                                island=self._base(), infra=self.headers.get("Host", ""))
-            except Exception:
-                pass
+                roots = self._roots()                         # (handle/world/where/face); the vapour
+                located.situate(self.store, handle,           # stays ephemeral. best-effort, idempotent
+                                world=(body.get("world") or (roots[0] if roots else "")),  # (writes only
+                                face=face, where=frame, present=frame,    # on change), never breaks the
+                                island=self._base(), infra=self.headers.get("Host", ""))  # heartbeat. A
+            except Exception:                                 # multi-world client names its world; else
+                pass                                          # the island's root world is assumed.
             return self._send(200, view)
         if url.path == DOOR:
             if "block" not in body:
