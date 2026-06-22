@@ -13,9 +13,11 @@ the rest, and keeps the gazetteer (a name->spindle index) current. It is
 idempotent: run the same chain twice and the second is a no-op, so many agents on
 overlapping ground converge instead of colliding.
 
-pscale is global and authoritative: ROOT_PSCALE (Sol, +11) minus how many digits
-were walked; the room is the floor, pscale 0. The structural 0-rungs (the empty
-scales the spine leaves between named levels) are traversed automatically.
+pscale is COMPUTED at read time, never stored: ROOT_PSCALE (Sol, +11) minus how
+many digits were walked; the room is the floor, pscale 0. It is never written into
+a place's voicing -- a baked "pscale +N" goes stale the instant the block
+supernests (guarded by test-no-pscale-in-semantics.py). The structural 0-rungs (the
+empty scales the spine leaves between named levels) are traversed automatically.
 
   python3 grow.py reindex                          # rebuild the gazetteer
   python3 grow.py add Earth Europe France Paris     # grow a chain
@@ -193,7 +195,7 @@ def ensure(chain, earth=None):
     if isinstance(node, str):              # anchor is a delegating leaf with no block yet
         ref = spark.parse_reference(node)  # materialise it (e.g. the continent stubs in sol)
         block_name = ref[0] if ref else _slug(node)
-        node = {"0": "%s -- pscale %+d" % (chain[0][0], ROOT_PSCALE - len(spindle))}
+        node = {"0": str(chain[0][0])}
         earth.save(block_name, node)
         earth.register(chain[0][0], block_name, spindle)
     dirty, created = set(), []
@@ -218,7 +220,8 @@ def ensure(chain, earth=None):
         elif voice:
             voicing = voice
         else:
-            voicing = "%s -- pscale %+d" % (name, pscale_here)
+            voicing = name                           # no pscale label: scale is structural,
+                                                      # computed at read-time, never stored
         as_block = want_block if want_block is not None else (pscale_here == COUNTRY_PSCALE)
         slot = _next_slot(host)
         spindle = spindle + zpath + slot
@@ -316,14 +319,14 @@ def demo():
     print("reindex:", reindex(earth), "named places")
     chains = [
         ["Earth", "Europe",
-         {"name": "France", "block": True, "voice": "France -- western Europe, pscale +5."},
-         {"name": "Ile-de-France", "voice": "Ile-de-France -- the Paris region, pscale +4."},
-         {"name": "Paris", "voice": "Paris -- the capital on the Seine, pscale +3."},
-         {"name": "Le Marais", "voice": "Le Marais -- the old quarter, pscale +2."},
-         {"name": "12 Rue de Bretagne", "voice": "12 Rue de Bretagne -- a building, pscale +1."},
-         {"name": "the apartment", "voice": "the apartment -- the floor, pscale 0."}],
+         {"name": "France", "block": True, "voice": "France -- western Europe."},
+         {"name": "Ile-de-France", "voice": "Ile-de-France -- the Paris region."},
+         {"name": "Paris", "voice": "Paris -- the capital on the Seine."},
+         {"name": "Le Marais", "voice": "Le Marais -- the old quarter."},
+         {"name": "12 Rue de Bretagne", "voice": "12 Rue de Bretagne -- a building."},
+         {"name": "the apartment", "voice": "the apartment -- the floor."}],
         ["Earth", "Europe", "France", "Ile-de-France", "Paris",
-         {"name": "Montmartre", "voice": "Montmartre -- the hill, 18th, pscale +2."}],
+         {"name": "Montmartre", "voice": "Montmartre -- the hill, 18th."}],
     ]
     for chain in chains:
         r = ensure(chain, earth)

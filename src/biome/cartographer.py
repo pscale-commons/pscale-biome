@@ -83,11 +83,12 @@ districts) and list those instead. NEVER list more than 8.
 
 For each, give:
   - "name": its common name
-  - "voice": one short descriptive line, ending with " pscale +N" where N is the scale
-     by SIZE and POPULATION (10^N people, roughly): {ladder}.
-     Pick the nearest scale to the place's real size; consecutive places may skip scales.
-  - "block": true only if it deserves its own map block (a country, or a very large
-     city or region); otherwise false
+  - "voice": one short descriptive line for the place -- its character in a few words.
+     Do NOT write any pscale or scale number into the voice: scale is structural and is
+     computed when the map is read, never stored in the text.
+  - "block": true only if it deserves its own map block -- judge by SIZE and POPULATION
+     (roughly 10^N people: {ladder}): a country, or a very large city or region, gets a
+     block; otherwise false
 
 Reply with ONLY a JSON object: {{"children":[{{"name":"..","voice":"..","block":false}}]}}
 If "{place}" is itself a single building or room with nothing meaningful to map
