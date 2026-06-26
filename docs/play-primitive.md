@@ -1,10 +1,10 @@
 # `play` — the biome's RPG primitive (spec + build status)
 
-*Authored 2026-06-23 (Track B). The model-free, packaged RPG engine: `src/biome/play.py`,
-with the `play()` entry destined to become an MCP tool on biome-mcp. Companions:
-`scene.py` (mechanical helpers + the NHITL test-bench), `fold.py` (the real-world
-engagement layer this mirrors). Built and proven model-free; **not yet wired to the MCP
-surface** — that is a genome + deploy step, David's to rule.*
+*Authored 2026-06-23 (Track B); MCP-wired 2026-06-26. The model-free, packaged RPG engine:
+`src/biome/play.py`, with the `play()` entry now exposed as the MCP tool `play` beside
+`spark`. Companions: `scene.py` (mechanical helpers + the NHITL test-bench), `fold.py` (the
+real-world engagement layer this mirrors). Built, proven model-free, and **wired to the MCP
+surface** (`serve.py`, tested locally over `POST /mcp`); deploy is David's to rule.*
 
 ## The one idea
 
@@ -76,6 +76,7 @@ Resolution triggers are **designer policy** in the ruleset: first-reader-after-t
 
 ## Build status
 - **Built + proven model-free** (`play.py`): save / submit+verdict / voice+weave / access. Demo runs free (no API).
+- **Wired to the MCP surface (2026-06-26).** `serve.py` carries `play` beside `spark`: `tools/list` returns both; `tools/call name=play` dispatches to `play.play(...)` and returns the frame as JSON text (the `run_play` seam, mirroring `run_spark`). `play`/`scene` now act on the store **object** (`load_block`/`save_block`/`list_blocks`), so `play` runs over whatever store the biome holds (filesystem or a remote beach); a bare directory path is still coerced to an `FsStore` at the CLI/demo entrypoints, so the standalone runners are unchanged. **Tested locally end-to-end over `POST /mcp`** — read frame → four submits → free mechanical verdict → the beat fetchable as plain JSON from the beach door — at zero server-model cost. `serve-battery` covers it (49 pass). `play`'s writes are open (the identity membrane gates the spark door, not `play`).
 - **Reuses:** `scene.py` (mechanical reads, window, verdict — and the NHITL LLM test-bench used in the live multiplayer test), `fold.py` (the real-world twin).
 - **Live-tested (the LLM beat form, `scene_serve.py`):** 4-seat multiplayer — two humans on two computers + an agent + an NPC, emergent aperture-intact play. That form pays per beat; `play.py` is the model-free production form that replaces it.
-- **Open:** MCP wiring (genome surface + deploy — David's call) · async time/commit triggers · a visitor-side history-summary helper · retiring `scene.py`'s server-LLM.
+- **Open:** deploy — David's call: *which* biome-mcp carries `play` (an existing island holding the RPG world, or a dedicated RPG island), noting a second MCP tool is a genome-surface (constitutional) change · membrane-gating `play`'s writes (the deferred passphrase layer) · async time/commit triggers · a visitor-side history-summary helper · retiring `scene.py`'s server-LLM · generalising past the hardcoded Upperton seats (`scene.SPOT`) and the Upperton-pinned `read_S/T/I`.

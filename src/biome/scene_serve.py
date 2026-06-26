@@ -27,8 +27,9 @@ from urllib.parse import urlparse, parse_qs
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import scene
+from store_fs import FsStore
 
-STORE = scene.STORE_DEFAULT
+STORE = FsStore(scene.STORE_DEFAULT)            # the store object scene/play act on
 WHERE = scene._where(scene.TAPROOM)
 SEATS = ["merchant", "watcher", "keeper", "regular"]
 PAGE = os.path.join(HERE, "scene.html")
@@ -186,7 +187,7 @@ class H(BaseHTTPRequestHandler):
 def main():
     global CHARS
     port = int(sys.argv[1]) if sys.argv[1:] else int(os.environ.get("PORT", 3221))
-    if not os.path.isdir(STORE) or not os.path.isfile(os.path.join(STORE, "upperton-spatial.json")):
+    if scene._b(STORE, "upperton-spatial") is None:
         scene.seed(store=STORE)
     CHARS = scene.load_chars(STORE)
     open_beat()

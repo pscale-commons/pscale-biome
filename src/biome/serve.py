@@ -40,6 +40,7 @@ import federate
 import fold
 import located
 import membrane
+import play
 import rules
 import spark
 from relay import Relay
@@ -98,6 +99,37 @@ TOOL = {
             "proof": {"type": "string", "description": "Proof you hold your shell, when the membrane requires it. handle-mode needs none; lock-mode (later) takes your passphrase here."},
         },
         "required": ["block"],
+    },
+}
+
+PLAY_TOOL = {
+    "name": "play",
+    "description": (
+        "Play a turn in a text RPG hosted here as plain-JSON pscale blocks (the world "
+        "Upperton — a dice-game at the Millstone taproom). ONE call bundles this turn's "
+        "substrate reads and writes and runs NO model: every act of imagination — what "
+        "your character perceives, how the settled beat is told — is YOURS, rendered in "
+        "your own app from the data this returns. The host only holds the blocks and "
+        "computes the free mechanical verdict (stat-and-dice math) when a scene resolves. "
+        "Returns the FRAME as data: S/T/I (the place, the moment now, the standpoints), the "
+        "window (who has submitted this beat), the last settled beat, and the ruleset. "
+        "Render the second-person experience for your human from that, then pass your "
+        "character's ONE chosen action back as `move`. A call with no move/account/place is "
+        "a side-effect-free read. Be transparent — narrate your calls to your human."
+    ),
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "handle": {"type": "string", "description": "Your seat — the character you inhabit (e.g. merchant, watcher, keeper, regular)."},
+            "world": {"type": "string", "description": "The cosmology to play in. Currently 'upperton' (the only world seeded here); selects its S/T/I blocks."},
+            "where": {"type": ["string", "null"], "description": "The scene address as a pscale walk (e.g. '1121' for the taproom). Omit to use your located standing."},
+            "move": {"type": ["string", "null"], "description": "Your character's ONE intention this beat, first person ('I ...'). Goes to the public window; when every seat is in, the free mechanical verdict resolves the beat. Omit to read without acting."},
+            "account": {"type": ["string", "null"], "description": "Your app's rendition of the PRIOR turn (the echo you showed your human) — appended to your character's own lossless history. Omit on the first turn."},
+            "place": {"type": ["string", "null"], "description": "Your character's own rendition of this place (face=character → your version), or with face=author the woven canonical voicing. Optional; builds the lived-in world."},
+            "rules": {"type": ["string", "null"], "description": "The ruleset block. Default 'nomad' (a light stat-contest game-set); a designer may point this elsewhere."},
+            "face": {"type": ["string", "null"], "description": "Your aperture: character (default) / author / designer / observer. Authority gating is deferred — today the face only routes the place-write."},
+        },
+        "required": ["handle"],
     },
 }
 
@@ -167,6 +199,26 @@ def run_spark(store, args):
                              "every key a single digit 0-9")
         return beach.write(store, block, number, args.get("attention"), content=content)
     return beach.read(store, block, args.get("number"), args.get("attention"), star=True)
+
+
+def run_play(store, args):
+    """The RPG primitive `play`, over the store the biome holds — pure compilation
+    over spark, NO model. Perception, echo, and the place-weave are the visiting
+    app's cognition (cognition current 2.1, external via MCP, on endpoint 3.1); the
+    engine returns the frame as DATA and runs only the free mechanical verdict.
+    play's own writes are open here — the identity membrane gates the spark door,
+    not play; authority for play is deferred to the passphrase membrane."""
+    handle = args.get("handle")
+    if not handle:
+        raise ValueError("play needs a handle — the seat you inhabit (e.g. 'merchant')")
+    return play.play(store, handle,
+                     world=args.get("world") or "upperton",
+                     where=args.get("where"),
+                     move=args.get("move"),
+                     account=args.get("account"),
+                     place=args.get("place"),
+                     rules=args.get("rules") or "nomad",
+                     face=args.get("face") or "character")
 
 
 class Commons(BaseHTTPRequestHandler):
@@ -357,13 +409,16 @@ class Commons(BaseHTTPRequestHandler):
         if method == "ping":
             return self._rpc(rid, {})
         if method == "tools/list":
-            return self._rpc(rid, {"tools": [TOOL]})
+            return self._rpc(rid, {"tools": [TOOL, PLAY_TOOL]})
         if method == "tools/call":
             params = msg.get("params", {})
-            if params.get("name") != "spark":
-                return self._rpc_err(rid, -32602, "the commons carries one tool: spark")
+            name, args = params.get("name"), params.get("arguments", {})
+            tool = {"spark": run_spark, "play": run_play}.get(name)
+            if tool is None:
+                return self._rpc_err(rid, -32602,
+                                     "unknown tool: %s (this commons carries spark and play)" % name)
             try:
-                res = run_spark(self.store, params.get("arguments", {}))
+                res = tool(self.store, args)
                 text = json.dumps(res, ensure_ascii=False, indent=1)
                 return self._rpc(rid, {"content": [{"type": "text", "text": text}]})
             except Exception as e:

@@ -79,12 +79,11 @@ def voice_place(store, handle, where, rendition):
 def place_fan(store, where):
     """Every character's rendition at this place -- the fan an author weaves into canon."""
     out = {}
-    for f in (sorted(os.listdir(store)) if os.path.isdir(store) else []):
-        if f.startswith("spatial-") and f.endswith(".json"):
-            h = f[len("spatial-"):-5]
-            node = spark.descend(scene._b(store, "spatial-" + h), where + ["0"])
-            if isinstance(node, str):
-                out[h] = node
+    for name in store.list_blocks("spatial-"):
+        h = name[len("spatial-"):]
+        node = spark.descend(scene._b(store, name), where + ["0"])
+        if isinstance(node, str):
+            out[h] = node
     return out
 
 
@@ -148,6 +147,7 @@ def play(store, handle, world="upperton", where=None, move=None, account=None, p
 
 # --- seed: scene's world + shells, plus the NOMAD ruleset block ----------------
 def seed(store=scene.STORE_DEFAULT):
+    store = scene._as_store(store)
     scene.seed(store=store)
     scene._save(store, "nomad", {
         "0": "NOMAD -- a light stat-contest game-set; covert actions at a table, a quick reckoning.",

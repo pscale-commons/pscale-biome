@@ -118,10 +118,13 @@ try:
     code, body = http("/mcp", {"jsonrpc": "2.0", "method": "notifications/initialized"})
     ok("a notification is accepted", code, 202)
     code, body = rpc("tools/list")
-    ok("one tool, named spark", [t["name"] for t in body["result"]["tools"]], ["spark"])
-    desc = body["result"]["tools"][0]["description"]
+    ok("two tools, spark and play", [t["name"] for t in body["result"]["tools"]], ["spark", "play"])
+    tools = {t["name"]: t for t in body["result"]["tools"]}
+    desc = tools["spark"]["description"]
     ok("the tool leads with plain terms", desc.startswith("Read and write this commons"), True)
     ok("the tool states its side-effect rule", "side-effect-free" in desc, True)
+    ok("play declares it runs no model", "NO model" in tools["play"]["description"], True)
+    ok("play requires a handle", tools["play"]["inputSchema"]["required"], ["handle"])
     code, body = rpc("tools/call", {"name": "spark",
                                     "arguments": {"block": "thornkeep", "number": "42.1", "attention": -1}})
     ok("a visitor reaches the taproom", "taproom" in body["result"]["content"][0]["text"], True)
@@ -136,10 +139,15 @@ try:
        ["first trace — test", "second trace — via mcp"])
     code, body = rpc("tools/call", {"name": "spark", "arguments": {"block": "arrive"}})
     ok("arrival reads whole", json.loads(body["result"]["content"][0]["text"])["mode"], "whole")
+    code, body = rpc("tools/call", {"name": "play", "arguments": {"handle": "merchant"}})
+    fr = json.loads(body["result"]["content"][0]["text"])
+    ok("play returns the frame as data (side-effect-free read)", "window" in fr and fr["where"] == "1,1,2,1", True)
+    code, body = rpc("tools/call", {"name": "play", "arguments": {}})
+    ok("play without a handle is refused", body["result"]["isError"], True)
     code, body = rpc("nonsense/method")
     ok("unknown method refused", body["error"]["code"], -32601)
     code, body = rpc("tools/call", {"name": "hammer", "arguments": {}})
-    ok("only spark is carried", body["error"]["code"], -32602)
+    ok("an unknown tool is refused", body["error"]["code"], -32602)
 
     print("the vapour relay (out-of-band, the server's own — 3.4)")
     code, body = http("/relay", {"frame": "taproom", "handle": "alice",

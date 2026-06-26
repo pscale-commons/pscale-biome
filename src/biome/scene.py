@@ -29,6 +29,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "spark"))
 sys.path.insert(0, HERE)
 import spark
 import fold
+from store_fs import FsStore
 
 DIGITS = "123456789"
 TAPROOM = "1121"                       # the Millstone taproom -- the dice-game scene
@@ -37,14 +38,22 @@ STORE_DEFAULT = os.path.expanduser("~/Desktop/biome-runs/trackB-rpg")
 
 
 # --- store + block helpers ----------------------------------------------------
+# scene/play act on a STORE OBJECT (load_block/save_block/list_blocks) -- the same
+# surface serve.py holds, so play() runs over whatever store the biome unfolds
+# (a filesystem dir, or a remote biome-beach). A bare directory path is still
+# accepted at the CLI/demo entrypoints (coerced to an FsStore), so the standalone
+# runners keep working unchanged.
+
+def _as_store(store):
+    return FsStore(store) if isinstance(store, str) else store
+
 
 def _b(store, name):
-    p = os.path.join(store, name + ".json")
-    return spark.load(p) if os.path.isfile(p) else None
+    return store.load_block(name)
 
 
 def _save(store, name, block):
-    spark.save(os.path.join(store, name + ".json"), block)
+    store.save_block(name, block)
 
 
 def leaves(node):
@@ -212,7 +221,7 @@ def echo(store, where, handle, char, verdict):
 # --- seed a bench store from the Upperton files -------------------------------
 
 def seed(world=WORLD_DEFAULT, store=STORE_DEFAULT):
-    os.makedirs(store, exist_ok=True)
+    store = _as_store(store)
     for nm in ("upperton-spatial", "upperton-temporal", "upperton-identity"):
         _save(store, nm, spark.load(os.path.join(world, nm + ".json")))
     shells = {
@@ -256,6 +265,7 @@ def load_chars(store):
 
 
 def run(store, beats=2, order=("regular", "keeper", "merchant", "watcher")):
+    store = _as_store(store)
     where = _where(TAPROOM)
     chars = load_chars(store)
     print("=" * 84)
