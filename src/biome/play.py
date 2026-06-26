@@ -107,14 +107,15 @@ def _resolve_where(store, handle, where):
 
 # --- ACCESS: compose the frame, as data (NO LLM) ------------------------------
 def compose_frame(store, handle, world, where, rules, face):
-    sp = scene.SPOT.get(handle, "0")
-    i_self, i_room = scene.read_I(store, where, sp)
+    chars = scene.load_chars(store)                   # the cast, derived from the store's seated shells
+    sp = chars.get(handle, {}).get("sp", "0")
+    i_self, i_room = scene.read_I(store, where, sp, world)
     subs = dict(scene.submissions(store))
-    seats = list(scene.SPOT.keys())
+    seats = list(chars)
     frame = {
         "world": world, "where": ",".join(where), "handle": handle, "face": face, "rules": rules,
-        "S": scene.read_S(store, where),
-        "T": scene.read_T(store, where),
+        "S": scene.read_S(store, where, world),
+        "T": scene.read_T(store, where, world),
         "I": i_self, "room": i_room,
         "window": {"submitted": list(subs), "waiting": [h for h in seats if h not in subs],
                    "yours": subs.get(handle)},
@@ -140,7 +141,9 @@ def play(store, handle, world="upperton", where=None, move=None, account=None, p
             voice_place(store, handle, w, place)       # my own version of the place
     if move:                                           # SUBMIT this move -> the window
         scene.submit_write(store, handle, move)
-        if all(h in {x for x, _ in scene.submissions(store)} for h in scene.SPOT):   # n-threshold trigger
+        cast = set(scene.load_chars(store))            # the seated cast, from the store
+        submitted = {x for x, _ in scene.submissions(store)}
+        if cast and cast <= submitted:                 # n-threshold trigger: every seated character is in
             scene.resolve(store, w, scene.load_chars(store), rules)                   # mechanical verdict (dice from ruleset)
     return compose_frame(store, handle, world, w, rules, face)
 

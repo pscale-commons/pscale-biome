@@ -31,12 +31,12 @@ from store_fs import FsStore
 
 STORE = FsStore(scene.STORE_DEFAULT)            # the store object scene/play act on
 WHERE = scene._where(scene.TAPROOM)
-SEATS = ["merchant", "watcher", "keeper", "regular"]
+SEATS = []                                       # the cast, derived from the store in main()
+NHITL = []                                       # the seats the server auto-plays, set in main()
 PAGE = os.path.join(HERE, "scene.html")
 
 HUMANS = set(filter(None, os.environ.get("SCENE_HUMANS", "merchant,keeper").split(",")))
 AGENTS = set(filter(None, os.environ.get("SCENE_AGENTS", "watcher").split(",")))
-NHITL = [h for h in SEATS if h not in HUMANS and h not in AGENTS]
 
 LOCK = threading.RLock()
 STATE = {"beat": 1, "phase": "open", "sees": {}, "echoes": {}, "verdict": None, "filling": False}
@@ -185,13 +185,15 @@ class H(BaseHTTPRequestHandler):
 
 
 def main():
-    global CHARS
+    global CHARS, SEATS, NHITL
     port = int(sys.argv[1]) if sys.argv[1:] else int(os.environ.get("PORT", 3221))
-    if scene._b(STORE, "upperton-spatial") is None:
-        scene.seed(store=STORE)
+    if scene._b(STORE, "upperton-spatial") is None or not scene.load_chars(STORE):
+        scene.seed(store=STORE)                              # fresh, or a pre-seat-block store -> (re)seed the cast
     CHARS = scene.load_chars(STORE)
+    SEATS = sorted(CHARS)                                   # the cast, derived from the store
+    NHITL = [h for h in SEATS if h not in HUMANS and h not in AGENTS]
     open_beat()
-    print("scene_serve on 0.0.0.0:%d  store=%s" % (port, STORE))
+    print("scene_serve on 0.0.0.0:%d  store=%s" % (port, STORE.root))
     print("  seats: humans=%s  agents=%s  nhitl=%s" % (sorted(HUMANS), sorted(AGENTS), NHITL))
     print("  play:  http://<this-host>:%d/play?who=<seat>" % port)
     ThreadingHTTPServer(("0.0.0.0", port), H).serve_forever()

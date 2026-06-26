@@ -100,20 +100,40 @@ def parse_stats(shell):
     return out
 
 
+def _seat(shell):
+    """A shell's seat in a scene: the I-standpoint digit it occupies (`spot`) and the
+    stats it contests with (`contest`; empty = ambient, a free move that always lands).
+    Read from shell.3 -- a shell with no seat block is not in the cast, so a store may
+    hold non-playing shells beside the players."""
+    s = (shell or {}).get("3")
+    if not isinstance(s, dict):
+        return None
+    spot, contest = "0", []
+    for d in DIGITS:
+        v = s.get(d)
+        if isinstance(v, str) and ":" in v:
+            k, val = (x.strip() for x in v.split(":", 1))
+            if k == "spot":
+                spot = val or "0"
+            elif k == "contest":
+                contest = [x.strip() for x in val.split(",") if x.strip()]
+    return {"spot": spot, "contest": contest}
+
+
 # --- reads: the S/T/I triad + the live scene ----------------------------------
 
-def read_S(store, where):
-    return " | ".join(leaves(_descend(_b(store, "upperton-spatial"), where)))
+def read_S(store, where, world="upperton"):
+    return " | ".join(leaves(_descend(_b(store, world + "-spatial"), where)))
 
 
-def read_T(store, where):
-    back = " ".join(l for l in leaves(_descend(_b(store, "upperton-temporal"), where)) if "gone" not in l)
+def read_T(store, where, world="upperton"):
+    back = " ".join(l for l in leaves(_descend(_b(store, world + "-temporal"), where)) if "gone" not in l)
     latest = _latest(_b(store, "scene"))
     return back + (("  || just now: " + latest) if isinstance(latest, str) else "")
 
 
-def read_I(store, where, sp):
-    idb = _b(store, "upperton-identity")
+def read_I(store, where, sp, world="upperton"):
+    idb = _b(store, world + "-identity")
     return _descend(idb, where + [sp]), _descend(idb, where + ["0"])
 
 
@@ -227,16 +247,20 @@ def seed(world=WORLD_DEFAULT, store=STORE_DEFAULT):
     shells = {
         "merchant": {"0": "The visiting merchant -- a southern trader far from home; tonight the dice run your way.",
                      "1": "purpose: palm the bent coin off the table and carry your luck south",
-                     "2": {"0": "nomad stats", "1": "sleight:5", "2": "caution:3", "3": "greed:7"}},
+                     "2": {"0": "nomad stats", "1": "sleight:5", "2": "caution:3", "3": "greed:7"},
+                     "3": {"0": "seat at the taproom", "1": "spot:3", "2": "contest:sleight,caution"}},
         "watcher": {"0": "The hooded watcher -- a local who works the inn's crowds.",
                     "1": "purpose: stop the merchant's hand and keep the table's coin in play for your own lift",
-                    "2": {"0": "nomad stats", "1": "stealth:8", "2": "nerve:6", "3": "patience:7"}},
+                    "2": {"0": "nomad stats", "1": "stealth:8", "2": "nerve:6", "3": "patience:7"},
+                    "3": {"0": "seat at the taproom", "1": "spot:4", "2": "contest:stealth,nerve"}},
         "keeper": {"0": "The keeper -- a fat night's takings if the dice don't turn to knives.",
                    "1": "purpose: keep the night profitable and the peace; watch the merchant's purse, the hooded one, and your own bent-coin lure",
-                   "2": {"0": "nomad stats", "1": "sharp:6", "2": "authority:5"}},
+                   "2": {"0": "nomad stats", "1": "sharp:6", "2": "authority:5"},
+                   "3": {"0": "seat at the taproom", "1": "spot:2", "2": "contest:"}},
         "regular": {"0": "The old regular -- your bench, your name once carved in the oak and scratched out.",
                     "1": "purpose: hold your bench and your peace, and watch the road-folk's game play out as you know it will",
-                    "2": {"0": "nomad stats", "1": "wit:5", "2": "patience:6"}},
+                    "2": {"0": "nomad stats", "1": "wit:5", "2": "patience:6"},
+                    "3": {"0": "seat at the taproom", "1": "spot:1", "2": "contest:"}},
     }
     for h, b in shells.items():
         _save(store, "shell-" + h, b)
@@ -250,24 +274,27 @@ def seed(world=WORLD_DEFAULT, store=STORE_DEFAULT):
 
 # --- the NHITL runner ---------------------------------------------------------
 
-# contest stats per character; [] = AMBIENT (a free move that always lands -- social texture)
-CONTEST = {"merchant": ["sleight", "caution"], "watcher": ["stealth", "nerve"],
-           "keeper": [], "regular": []}
-SPOT = {"merchant": "3", "watcher": "4", "keeper": "2", "regular": "1"}
-
-
 def load_chars(store):
+    """The cast at the scene, derived from the store: every shell that declares a seat
+    (shell.3). Each character's standpoint + contest stats come from its OWN shell, so
+    the engine is pinned to no fixed roster -- a world's cast is whoever has taken a seat."""
     chars = {}
-    for h in CONTEST:
-        sh = _b(store, "shell-" + h)
-        chars[h] = {"sp": SPOT[h], "purpose": sh["1"], "stats": parse_stats(sh), "contest": CONTEST[h]}
+    for name in store.list_blocks("shell-"):
+        sh = _b(store, name)
+        seat = _seat(sh)
+        if seat is None:                       # a shell with no seat block is not playing
+            continue
+        h = name[len("shell-"):]
+        chars[h] = {"sp": seat["spot"], "purpose": sh.get("1", ""),
+                    "stats": parse_stats(sh), "contest": seat["contest"]}
     return chars
 
 
-def run(store, beats=2, order=("regular", "keeper", "merchant", "watcher")):
+def run(store, beats=2, order=None):
     store = _as_store(store)
     where = _where(TAPROOM)
     chars = load_chars(store)
+    order = order or sorted(chars)
     print("=" * 84)
     print("TRACK B -- NHITL RPG, the Millstone taproom (Upperton)  | store: %s" % store)
     print("characters: %s  | beats: %d  | nothing computed centrally but the verdict" % (", ".join(order), beats))
