@@ -142,7 +142,7 @@ def play(store, handle, world="upperton", where=None, move=None, account=None, p
     if move:                                           # SUBMIT this move -> the window
         scene.submit_write(store, handle, move)
         if all(h in {x for x, _ in scene.submissions(store)} for h in scene.SPOT):   # n-threshold trigger
-            scene.resolve(store, w, scene.load_chars(store))                          # mechanical verdict
+            scene.resolve(store, w, scene.load_chars(store), rules)                   # mechanical verdict (dice from ruleset)
     return compose_frame(store, handle, world, w, rules, face)
 
 
@@ -152,9 +152,10 @@ def seed(store=scene.STORE_DEFAULT):
     scene._save(store, "nomad", {
         "0": "NOMAD -- a light stat-contest game-set; covert actions at a table, a quick reckoning.",
         "1": {"0": "stats", "1": "sleight", "2": "caution", "3": "stealth", "4": "nerve", "5": "wit", "6": "authority"},
-        "2": {"0": "resolution",
-              "1": {"0": "kind: stat-contest", "1": "attacker: stealth+nerve", "2": "defender: sleight+caution",
-                    "3": "higher prevails; tie -> defender; uncontested moves land"}},
+        "2": {"0": "resolution -- a contested action",
+              "1": "score: sum your relevant stats, then add one roll of the dice",
+              "2": "outcome: higher total prevails; a tie favours the defender; uncontested moves land",
+              "3": "dice: 1d10"},
         "3": {"0": "trigger", "1": "n-threshold: all present seats", "2": "or time-window: 90s after first submit",
               "3": "or commit: a designated commit resolves now"}})
     return store

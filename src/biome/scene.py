@@ -20,6 +20,8 @@ Reuses the Upperton S/T/I triad as spark blocks and fold._call as the one LLM se
   python3 scene.py            # seed a bench store from the Upperton files and play 2 NHITL beats
 """
 import os
+import random
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -145,34 +147,59 @@ def submit(store, where, handle, char, experience):
     return move, submissions(store)
 
 
-def resolve(store, where, chars):
-    """AUTHOR commit by the DESIGNER RULE -- mechanical, woven from the actual submissions.
-    Contesters (non-empty contest stats) vie by score; ambient moves ([] stats) always land."""
+def _roll(spec):
+    """Roll a dice spec like '1d10' -> (total, 'r1+r2'); no/blank spec -> (0, '')."""
+    m = re.match(r"\s*(\d+)\s*[dD]\s*(\d+)", spec or "")
+    if not m:
+        return 0, ""
+    rolls = [random.randint(1, int(m.group(2))) for _ in range(int(m.group(1)))]
+    return sum(rolls), "+".join(str(r) for r in rolls)
+
+
+def _dice_spec(store, rules):
+    """The ruleset's dice, read from its resolution node (e.g. nomad.2 carries 'dice: 1d10').
+    This is the engine EXECUTING the block -- edit the block (Designer face), change the roll."""
+    rb = _b(store, rules) if rules else None
+    node = spark.descend(rb, ["2"]) if isinstance(rb, dict) else None
+    text = " ".join(leaves(node)) if node is not None else ""
+    m = re.search(r"\d+\s*[dD]\s*\d+", text)
+    return m.group(0) if m else None
+
+
+def resolve(store, where, chars, rules="nomad"):
+    """AUTHOR commit by the DESIGNER RULE -- mechanical (no LLM), the dice READ from the ruleset.
+    Contesters vie by (stat-sum + a dice roll); ambient moves ([] stats) land. The roll is cast
+    ONCE here and committed into the scene, so the verdict is settled for all, never re-rolled."""
     subs = submissions(store)
     if not subs:
         return None, {}
     contesters = [(h, m) for h, m in subs if chars[h]["contest"]]
     ambient = [(h, m) for h, m in subs if not chars[h]["contest"]]
+    dice = _dice_spec(store, rules)
 
-    def score(h):
-        return sum(chars[h]["stats"].get(k, 0) for k in chars[h]["contest"])
+    totals, note = {}, {}
+    for h, _ in contesters:
+        base = sum(chars[h]["stats"].get(k, 0) for k in chars[h]["contest"])
+        r, rs = _roll(dice)
+        totals[h] = base + r
+        note[h] = ("%d+%s=%d" % (base, rs, base + r)) if dice else str(base)
 
-    parts, scores = [], {}
+    parts = []
     if len(contesters) >= 2:
-        ranked = sorted(contesters, key=lambda s: score(s[0]), reverse=True)
-        scores = {h: score(h) for h, _ in contesters}
+        ranked = sorted(contesters, key=lambda s: totals[s[0]], reverse=True)
         parts.append("%s prevails -- %s" % (ranked[0][0], ranked[0][1]))
         parts += ["%s's move is interrupted (%s)" % (h, m) for h, m in ranked[1:]]
     elif len(contesters) == 1:
-        scores = {contesters[0][0]: score(contesters[0][0])}
         parts.append("%s acts unopposed -- %s" % contesters[0])
     parts += ["%s: %s" % (h, m) for h, m in ambient]
+    if note:
+        parts.append("[" + ", ".join("%s %s" % (h, note[h]) for h in note) + "]")
     verdict = "  |  ".join(parts)
     sc = _b(store, "scene") or {"0": "resolved beats at the taproom"}
     sc[_next(sc)] = verdict
     _save(store, "scene", sc)
     clear_window(store)
-    return verdict, scores
+    return verdict, totals
 
 
 def echo(store, where, handle, char, verdict):
