@@ -82,7 +82,7 @@ try:
 
     print("seeding")
     ok("constitution laid on a fresh store", sorted(refreshed),
-       ["arrive", "battery", "biome-shell", "flint", "genome", "slate"])
+       ["arrive", "battery", "biome-shell", "flint", "genome", "reflective-compass", "slate"])
     ok("world + marks sown once", sorted(sown), ["marks", "thornkeep"])
     ok("a settled store reseeds nothing", serve.seed(store), ([], []))
     store.save_block("arrive", {"0": "a guest scribbled over the constitution"})
@@ -118,13 +118,15 @@ try:
     code, body = http("/mcp", {"jsonrpc": "2.0", "method": "notifications/initialized"})
     ok("a notification is accepted", code, 202)
     code, body = rpc("tools/list")
-    ok("two tools, spark and play", [t["name"] for t in body["result"]["tools"]], ["spark", "play"])
+    ok("three tools: spark, play, meet", [t["name"] for t in body["result"]["tools"]], ["spark", "play", "meet"])
     tools = {t["name"]: t for t in body["result"]["tools"]}
     desc = tools["spark"]["description"]
     ok("the tool leads with plain terms", desc.startswith("Read and write this commons"), True)
     ok("the tool states its side-effect rule", "side-effect-free" in desc, True)
     ok("play declares it runs no model", "NO model" in tools["play"]["description"], True)
     ok("play requires a handle", tools["play"]["inputSchema"]["required"], ["handle"])
+    ok("meet requires two handles", tools["meet"]["inputSchema"]["required"], ["handle", "with"])
+    ok("meet declares no shared world", "NO shared world" in tools["meet"]["description"], True)
     code, body = rpc("tools/call", {"name": "spark",
                                     "arguments": {"block": "thornkeep", "number": "42.1", "attention": -1}})
     ok("a visitor reaches the taproom", "taproom" in body["result"]["content"][0]["text"], True)
@@ -144,6 +146,17 @@ try:
     ok("play returns the frame as data (side-effect-free read)", "window" in fr and fr["where"] == "1,1,2,1", True)
     code, body = rpc("tools/call", {"name": "play", "arguments": {}})
     ok("play without a handle is refused", body["result"]["isError"], True)
+    blocks_before = http("/.well-known/biome-beach")[1]["blocks"]
+    code, body = rpc("tools/call", {"name": "meet", "arguments": {"handle": "alice", "with": "bob", "reach": "north for south?"}})
+    g = json.loads(body["result"]["content"][0]["text"])
+    ok("a lone reach waits for the other", g["status"], "waiting")
+    code, body = rpc("tools/call", {"name": "meet", "arguments": {"handle": "bob", "with": "alice", "reach": "aye"}})
+    g = json.loads(body["result"]["content"][0]["text"])
+    ok("the grain forms when both reach", g["grain"]["formed"], True)
+    ok("each side sees the other's reach", g["them"]["reach"], "north for south?")
+    ok("the handshake touches no beach (object-less)", http("/.well-known/biome-beach")[1]["blocks"], blocks_before)
+    code, body = rpc("tools/call", {"name": "meet", "arguments": {"handle": "alice"}})
+    ok("meet without `with` is refused", body["result"]["isError"], True)
     code, body = rpc("nonsense/method")
     ok("unknown method refused", body["error"]["code"], -32601)
     code, body = rpc("tools/call", {"name": "hammer", "arguments": {}})

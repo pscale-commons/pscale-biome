@@ -39,6 +39,7 @@ import discover
 import federate
 import fold
 import located
+import meet
 import membrane
 import play
 import rules
@@ -134,6 +135,31 @@ PLAY_TOOL = {
     },
 }
 
+MEET_TOOL = {
+    "name": "meet",
+    "description": (
+        "Reach toward another agency and form a GRAIN — a direct handshake between two "
+        "handles, with NO shared world behind it. This is the lens pointed not at a "
+        "substrate but at another mind: you post your `reach` (what you offer or say this "
+        "turn) and read theirs back; when both sides have reached, the grain is FORMED. It "
+        "lives only in the meeting (an ephemeral channel) — never written to any beach, "
+        "never persisted; it evaporates when either of you leaves. The other party must "
+        "also call meet (naming you) for the handshake to form. Runs NO model and touches "
+        "no storage — you bring the meaning. To KEEP what you agreed, write it into your "
+        "own shell with spark, deliberately. Be transparent — narrate your calls."
+    ),
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "handle": {"type": "string", "description": "Who you are — your handle."},
+            "with": {"type": "string", "description": "Who you are reaching toward — their handle. They must meet you back for the grain to form."},
+            "reach": {"type": ["string", "null"], "description": "Your offering this turn — what you say, propose, or hold out to the other. Omit to ping presence without words."},
+            "face": {"type": ["string", "null"], "description": "Your aperture in the meeting (character / author / designer / observer). Default character."},
+        },
+        "required": ["handle", "with"],
+    },
+}
+
 
 DOOR = "/.well-known/biome-beach"
 LEGACY_DOOR = "/.well-known/pscale-beach"
@@ -220,6 +246,15 @@ def run_play(store, args):
                      place=args.get("place"),
                      rules=args.get("rules") or "nomad",
                      face=args.get("face") or "character")
+
+
+def run_meet(relay, args):
+    """The handshake lens `meet` -- the interface form run OBJECT-LESS: two agencies
+    reach across the vapour relay (endpoints 3.4) and a grain forms in the overlap,
+    held in the meeting, never on a beach, never persisted. No model, no store.
+    Cognition 2.1 (external) x concurrency 5.3 (co-present minds) x relay 3.4 x grain."""
+    return meet.meet(relay, args.get("handle"), args.get("with"),
+                     reach=args.get("reach"), face=args.get("face") or "character")
 
 
 class Commons(BaseHTTPRequestHandler):
@@ -410,16 +445,20 @@ class Commons(BaseHTTPRequestHandler):
         if method == "ping":
             return self._rpc(rid, {})
         if method == "tools/list":
-            return self._rpc(rid, {"tools": [TOOL, PLAY_TOOL]})
+            return self._rpc(rid, {"tools": [TOOL, PLAY_TOOL, MEET_TOOL]})
         if method == "tools/call":
             params = msg.get("params", {})
             name, args = params.get("name"), params.get("arguments", {})
-            tool = {"spark": run_spark, "play": run_play}.get(name)
-            if tool is None:
-                return self._rpc_err(rid, -32602,
-                                     "unknown tool: %s (this commons carries spark and play)" % name)
             try:
-                res = tool(self.store, args)
+                if name == "spark":
+                    res = run_spark(self.store, args)
+                elif name == "play":
+                    res = run_play(self.store, args)
+                elif name == "meet":
+                    res = run_meet(self.relay, args)         # the lens onto another agency -- no store
+                else:
+                    return self._rpc_err(rid, -32602,
+                                         "unknown tool: %s (this commons carries spark, play, and meet)" % name)
                 text = json.dumps(res, ensure_ascii=False, indent=1)
                 return self._rpc(rid, {"content": [{"type": "text", "text": text}]})
             except Exception as e:
