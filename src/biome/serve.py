@@ -55,6 +55,7 @@ CONSTITUTION_SEEDS = [                      # genome-owned: refreshed every boot
     ("genome", os.path.join(CONSTITUTION, "genome.json")),
     ("biome-shell", os.path.join(CONSTITUTION, "biome.json")),
     ("battery", os.path.join(CONSTITUTION, "battery.json")),
+    ("reflective-compass", os.path.join(CONSTITUTION, "reflective-compass.json")),
     ("slate", os.path.join(HERE, "..", "spark", "slate.json")),
     ("flint", os.path.join(HERE, "..", "spark", "flint.json")),
 ]
