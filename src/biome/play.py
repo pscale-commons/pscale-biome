@@ -11,7 +11,7 @@ One call, no LLM in the engine -- every act of cognition is the visiting app's:
   VOICE         `place` -> the spatial fold:
                   face=character -> `spatial-<handle>` at the place's spindle (this character's
                                     OWN version of the place -- the S-twin of `account`).
-                  face=author    -> the canonical `<world>-spatial` voicing (the WEAVE committed).
+                  face=author    -> the canonical `<world>-space` voicing (the WEAVE committed).
                 The fan of `spatial-<handle>` versions is woven into canon by an author-visitor
                 (or, later, a crab on a sweep) -- the lived-in realness, the weaving done by the
                 visitor's LLM, never the server's.
@@ -68,19 +68,19 @@ def append_history(store, handle, account):
 
 # --- VOICE: the spatial fold -- per-character place-versions woven into canon -------
 def voice_place(store, handle, where, rendition):
-    """A character's OWN version of a place -> spatial-<handle> at the place's spindle (.0 voicing).
+    """A character's OWN version of a place -> space-<handle> at the place's spindle (.0 voicing).
     Own stratum (the character writes its own rendition). The S-twin of `account`."""
-    b = scene._b(store, "spatial-" + handle) or {"0": handle + " -- my own versions of places"}
+    b = scene._b(store, "space-" + handle) or {"0": handle + " -- my own versions of places"}
     _set_at(b, where + ["0"], rendition)
-    scene._save(store, "spatial-" + handle, b)
+    scene._save(store, "space-" + handle, b)
     return b
 
 
 def place_fan(store, where):
     """Every character's rendition at this place -- the fan an author weaves into canon."""
     out = {}
-    for name in store.list_blocks("spatial-"):
-        h = name[len("spatial-"):]
+    for name in store.list_blocks("space-"):
+        h = name[len("space-"):]
         node = spark.descend(scene._b(store, name), where + ["0"])
         if isinstance(node, str):
             out[h] = node
@@ -88,11 +88,11 @@ def place_fan(store, where):
 
 
 def weave_canon(store, world, where, woven):
-    """An AUTHOR commits a woven place-voicing into canonical <world>-spatial at the spindle's .0,
+    """An AUTHOR commits a woven place-voicing into canonical <world>-space at the spindle's .0,
     preserving the structure beneath. The WEAVE (fan -> woven) is the visitor's LLM, never the server's."""
-    sp = scene._b(store, world + "-spatial")
+    sp = scene._b(store, world + "-space")
     _set_at(sp, where + ["0"], woven)
-    scene._save(store, world + "-spatial", sp)
+    scene._save(store, world + "-space", sp)
     return scene.read_S(store, where)
 
 
@@ -195,8 +195,8 @@ def demo():
              "seam finds the neck of whoever takes the bench-end, and the table-edge is notched where a "
              "hundred thumbs have waited a throw.")
     play(store, "keeper", face="author", place=woven)        # an author-face commit (the weave)
-    print("\n   canonical upperton-spatial taproom voicing AFTER the weave (S, enriched):")
-    print("   ", spark.descend(scene._b(store, "upperton-spatial"), w + ["0"]))
+    print("\n   canonical upperton-space taproom voicing AFTER the weave (S, enriched):")
+    print("   ", spark.descend(scene._b(store, "upperton-space"), w + ["0"]))
     print("=" * 78)
     print("No model called. Memory, renditions, and the weave are all the VISITOR's cognition;")
     print("the engine only holds blocks and runs the free mechanical verdict.")

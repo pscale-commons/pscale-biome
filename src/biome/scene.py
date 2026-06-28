@@ -123,11 +123,11 @@ def _seat(shell):
 # --- reads: the S/T/I triad + the live scene ----------------------------------
 
 def read_S(store, where, world="upperton"):
-    return " | ".join(leaves(_descend(_b(store, world + "-spatial"), where)))
+    return " | ".join(leaves(_descend(_b(store, world + "-space"), where)))
 
 
 def read_T(store, where, world="upperton"):
-    back = " ".join(l for l in leaves(_descend(_b(store, world + "-temporal"), where)) if "gone" not in l)
+    back = " ".join(l for l in leaves(_descend(_b(store, world + "-time"), where)) if "gone" not in l)
     latest = _latest(_b(store, "scene"))
     return back + (("  || just now: " + latest) if isinstance(latest, str) else "")
 
@@ -242,8 +242,12 @@ def echo(store, where, handle, char, verdict):
 
 def seed(world=WORLD_DEFAULT, store=STORE_DEFAULT):
     store = _as_store(store)
-    for nm in ("upperton-spatial", "upperton-temporal", "upperton-identity"):
-        _save(store, nm, spark.load(os.path.join(world, nm + ".json")))
+    # the world triad, named for the S/T/I axes (space/time/identity) -- the names the
+    # live commons uses; the source files still carry the older -spatial/-temporal.
+    for block_nm, file_nm in (("upperton-space", "upperton-spatial"),
+                              ("upperton-time", "upperton-temporal"),
+                              ("upperton-identity", "upperton-identity")):
+        _save(store, block_nm, spark.load(os.path.join(world, file_nm + ".json")))
     shells = {
         "merchant": {"0": "The visiting merchant -- a southern trader far from home; tonight the dice run your way.",
                      "1": "purpose: palm the bent coin off the table and carry your luck south",
