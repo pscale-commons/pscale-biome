@@ -17,6 +17,8 @@ deliberately, with a migration grace, on a fresh beach.
 
 import os
 
+import located
+
 FACE_RANK = {"character": 1, "author": 2, "designer": 3}
 STRATUM_MIN = {"marks": 1, "world": 2, "constitution": 3}   # least face-rank that may write it
 OWN_PREFIXES = ("shell-", "surface-")
@@ -103,7 +105,9 @@ def check(store, args, constitution):
     if owner and owner != handle:
         return False, "block '%s' belongs to %s — not yours to write" % (block, owner)
 
-    face = shell_face(shell)
+    granted = shell_face(shell)                              # the shell's granted face — the ceiling
+    held = located.face_of(store, handle)                    # the aperture held now (located.3), if any
+    face = held if (held and FACE_RANK.get(held, 0) <= FACE_RANK.get(granted, 0)) else granted
     if not face_covers(face, st):
         return False, "your face '%s' may not write %s blocks (need %s+)" % (
             face, st, next(k for k, v in FACE_RANK.items() if v == STRATUM_MIN.get(st, 99)))

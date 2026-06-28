@@ -1,0 +1,6 @@
+{
+  "0": "spine -- the island's policy, held as data a Designer can edit (the D of CADO) rather than baked into Python. The code reads this block, so editing it via spark changes how the island works with no code change. Convention: where the code needs a value, the voicing LEADS with it and the prose follows ' -- '. Not a place; not linked into the geography, never walked.",
+  "1": "room/1-person 0, building/10 +1, street-or-village/100 +2, town/1k +3, large-town-or-valley/10k +4, smaller-city/100k +5, city/1m +6, region-or-megacity/10m +7, country/100m +8, continent/1b +9, Earth +10, the solar system +11",
+  "2": "+5 -- shard scale: a place becomes its own delegated block at this pscale (country scale) by default; grow reads the leading value to decide where the patchwork hops.",
+  "3": "real-world-original +11 -- the cosmology root block; it voices the solar system at the leading pscale, and Earth is digit 3; discover, grow and locate read this to know where the walk starts."
+}

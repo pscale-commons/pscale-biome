@@ -1,17 +1,17 @@
 {
   "0": {
     "0": {
-      "0": "Montenegro / Crna Gora -- a small Adriatic state south of the Dinaric Alps. pscale +8.",
+      "0": "Montenegro / Crna Gora -- a small Adriatic state south of the Dinaric Alps.",
       "1": {
         "0": {
           "0": {
-            "0": "Ulcinj / Ulqin -- the southernmost coastal town, near the Albanian border. pscale +5.",
+            "0": "Ulcinj / Ulqin -- the southernmost coastal town, near the Albanian border.",
             "1": {
-              "0": "the Pristan / marina quarter -- the streets inland of the small harbour (pin 41.923, 19.210). pscale +2.",
+              "0": "the Pristan / marina quarter -- the streets inland of the small harbour (pin 41.923, 19.210).",
               "1": {
-                "0": "Apartments Milic -- the building David linked on the map. pscale +1.",
+                "0": "Apartments Milic -- the building David linked on the map.",
                 "1": {
-                  "0": "the apartment room -- THE FLOOR, pscale 0."
+                  "0": "the apartment room."
                 }
               }
             }

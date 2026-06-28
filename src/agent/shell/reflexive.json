@@ -60,7 +60,10 @@
     "2": "reflexive:1:-1",
     "3": "vision:9:-2",
     "4": "purpose",
-    "5": "conditions",
+    "5": {
+      "0": "conditions",
+      "1": "located"
+    },
     "6": "history",
     "7": "capabilities",
     "8": "relationships",

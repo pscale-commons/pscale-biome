@@ -1,6 +1,6 @@
 # Xstream Frame Protocol
 
-> ⚠️ **Old-world (beach) reference — NOT biome guidance.** This describes the old xstream frame over the legacy `_`/1-9 substrate (underscore-keyed positions like `_synthesis`, `_envelope`). The biome's human surface — "the face" — is the biome's *own* xstream-form served from `src/biome/serve.py` in pure 0-9; see `docs/face-handover.md` and [CLAUDE.md](../../CLAUDE.md) rules 4–7. Read only to understand the old world; never import its mechanics into biome-world.
+> ⚠️ **Old-world (beach) reference — NOT biome guidance.** This describes the old xstream frame over the legacy `_`/1-9 substrate (underscore-keyed positions like `_synthesis`, `_envelope`). The biome's human surface — the interface — is the biome's *own* xstream-form served from `src/biome/serve.py` in pure 0-9; see `docs/interface-handover.md` and [CLAUDE.md](../../CLAUDE.md) rules 4–7. Read only to understand the old world; never import its mechanics into biome-world.
 
 **Status**: Draft, 29 April 2026
 **Companion to**: `protocol-pscale-beach-v2.md`, `xstream/docs/unified-loop-architecture.md`, `xstream/docs/frame-lamina-aperture.md`

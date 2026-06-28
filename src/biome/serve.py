@@ -11,7 +11,7 @@ implementation.
   POST /mcp                                   MCP, streamable HTTP, one tool: spark  (3.1)
   GET  /relay?frame=F&handle=H                live presence + vapour at a frame       (3.4)
   POST /relay                                 {frame, handle, vapour, face} heartbeat (3.4)
-  GET  /xstream                               the human face — a shared VLS frame      (3.3)
+  GET  /xstream                               the human interface — a shared VLS frame (3.3)
   GET  /spark.js                              the read-walk the face imports
   */   /.well-known/pscale-beach              the old world's door — a signpost, never served
 
@@ -37,13 +37,18 @@ import activate
 import beach
 import discover
 import federate
+import fold
+import located
+import meet
 import membrane
+import play
+import rules
 import spark
 from relay import Relay
 from store_fs import FsStore
 
 CONSTITUTION = os.path.join(HERE, "constitution")
-FACE = os.path.join(HERE, "face.html")          # the human interface (3.3), served at /xstream
+INTERFACE = os.path.join(HERE, "interface.html")  # the human interface (3.3), served at /xstream
 SPARK_JS = os.path.join(HERE, "spark.js")       # the read-walk the face imports (the browser spark)
 WORLD = os.path.join(HERE, "world.html")         # the spatial walker — descend a place-block from a root
 CONSTITUTION_SEEDS = [                      # genome-owned: refreshed every boot
@@ -51,6 +56,7 @@ CONSTITUTION_SEEDS = [                      # genome-owned: refreshed every boot
     ("genome", os.path.join(CONSTITUTION, "genome.json")),
     ("biome-shell", os.path.join(CONSTITUTION, "biome.json")),
     ("battery", os.path.join(CONSTITUTION, "battery.json")),
+    ("reflective-compass", os.path.join(CONSTITUTION, "reflective-compass.json")),
     ("slate", os.path.join(HERE, "..", "spark", "slate.json")),
     ("flint", os.path.join(HERE, "..", "spark", "flint.json")),
 ]
@@ -95,6 +101,62 @@ TOOL = {
             "proof": {"type": "string", "description": "Proof you hold your shell, when the membrane requires it. handle-mode needs none; lock-mode (later) takes your passphrase here."},
         },
         "required": ["block"],
+    },
+}
+
+PLAY_TOOL = {
+    "name": "play",
+    "description": (
+        "Play a turn in a text RPG hosted here as plain-JSON pscale blocks (the world "
+        "Upperton — a dice-game at the Millstone taproom). ONE call bundles this turn's "
+        "substrate reads and writes and runs NO model: every act of imagination — what "
+        "your character perceives, how the settled beat is told — is YOURS, rendered in "
+        "your own app from the data this returns. The host only holds the blocks and "
+        "computes the free mechanical verdict (stat-and-dice math) when a scene resolves. "
+        "Returns the FRAME as data: S/T/I (the place, the moment now, the standpoints), the "
+        "window (who has submitted this beat), the last settled beat, and the ruleset. "
+        "Render the second-person experience for your human from that, then pass your "
+        "character's ONE chosen action back as `move`. A call with no move/account/place is "
+        "a side-effect-free read. Be transparent — narrate your calls to your human."
+    ),
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "handle": {"type": "string", "description": "Your seat — the character you inhabit (e.g. merchant, watcher, keeper, regular)."},
+            "world": {"type": "string", "description": "The cosmology to play in. Currently 'upperton' (the only world seeded here); selects its S/T/I blocks."},
+            "where": {"type": ["string", "null"], "description": "The scene address as a pscale walk (e.g. '1121' for the taproom). Omit to use your located standing."},
+            "move": {"type": ["string", "null"], "description": "Your character's ONE intention this beat, first person ('I ...'). Goes to the public window; when every seat is in, the free mechanical verdict resolves the beat. Omit to read without acting."},
+            "account": {"type": ["string", "null"], "description": "Your app's rendition of the PRIOR turn (the echo you showed your human) — appended to your character's own lossless history. Omit on the first turn."},
+            "place": {"type": ["string", "null"], "description": "Your character's own rendition of this place (face=character → your version), or with face=author the woven canonical voicing. Optional; builds the lived-in world."},
+            "rules": {"type": ["string", "null"], "description": "The ruleset block. Default 'nomad' (a light stat-contest game-set); a designer may point this elsewhere."},
+            "face": {"type": ["string", "null"], "description": "Your aperture: character (default) / author / designer / observer. Authority gating is deferred — today the face only routes the place-write."},
+        },
+        "required": ["handle"],
+    },
+}
+
+MEET_TOOL = {
+    "name": "meet",
+    "description": (
+        "Reach toward another agency and form a GRAIN — a direct handshake between two "
+        "handles, with NO shared world behind it. This is the lens pointed not at a "
+        "substrate but at another mind: you post your `reach` (what you offer or say this "
+        "turn) and read theirs back; when both sides have reached, the grain is FORMED. It "
+        "lives only in the meeting (an ephemeral channel) — never written to any beach, "
+        "never persisted; it evaporates when either of you leaves. The other party must "
+        "also call meet (naming you) for the handshake to form. Runs NO model and touches "
+        "no storage — you bring the meaning. To KEEP what you agreed, write it into your "
+        "own shell with spark, deliberately. Be transparent — narrate your calls."
+    ),
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "handle": {"type": "string", "description": "Who you are — your handle."},
+            "with": {"type": "string", "description": "Who you are reaching toward — their handle. They must meet you back for the grain to form."},
+            "reach": {"type": ["string", "null"], "description": "Your offering this turn — what you say, propose, or hold out to the other. Omit to ping presence without words."},
+            "face": {"type": ["string", "null"], "description": "Your aperture in the meeting (character / author / designer / observer). Default character."},
+        },
+        "required": ["handle", "with"],
     },
 }
 
@@ -166,6 +228,35 @@ def run_spark(store, args):
     return beach.read(store, block, args.get("number"), args.get("attention"), star=True)
 
 
+def run_play(store, args):
+    """The RPG primitive `play`, over the store the biome holds — pure compilation
+    over spark, NO model. Perception, echo, and the place-weave are the visiting
+    app's cognition (cognition current 2.1, external via MCP, on endpoint 3.1); the
+    engine returns the frame as DATA and runs only the free mechanical verdict.
+    play's own writes are open here — the identity membrane gates the spark door,
+    not play; authority for play is deferred to the passphrase membrane."""
+    handle = args.get("handle")
+    if not handle:
+        raise ValueError("play needs a handle — the seat you inhabit (e.g. 'merchant')")
+    return play.play(store, handle,
+                     world=args.get("world") or "upperton",
+                     where=args.get("where"),
+                     move=args.get("move"),
+                     account=args.get("account"),
+                     place=args.get("place"),
+                     rules=args.get("rules") or "nomad",
+                     face=args.get("face") or "character")
+
+
+def run_meet(relay, args):
+    """The handshake lens `meet` -- the interface form run OBJECT-LESS: two agencies
+    reach across the vapour relay (endpoints 3.4) and a grain forms in the overlap,
+    held in the meeting, never on a beach, never persisted. No model, no store.
+    Cognition 2.1 (external) x concurrency 5.3 (co-present minds) x relay 3.4 x grain."""
+    return meet.meet(relay, args.get("handle"), args.get("with"),
+                     reach=args.get("reach"), face=args.get("face") or "character")
+
+
 class Commons(BaseHTTPRequestHandler):
     store = None
     relay = Relay()                          # the server's own vapour relay (3.4) — ephemeral, out-of-band
@@ -200,13 +291,27 @@ class Commons(BaseHTTPRequestHandler):
         proto = self.headers.get("X-Forwarded-Proto", "http")
         return ("%s://%s" % (proto, host)) if host else ""
 
+    def _roots(self):                                    # the cosmology root(s) this biome indexes
+        """Sense which world(s) this biome's resolver indexes, from its OWN store: a
+        `roots` block (plain-name leaves) if the biome declares one, else the spine's
+        root when this biome actually carries that block, else none. So discovery is a
+        generic unfolding -- a biome resolves whatever world it holds, not the real
+        world by default. The (3,6) relation axis of the constitution, made conditional."""
+        rb = self.store.load_block("roots")
+        if isinstance(rb, dict):
+            named = [rb[d] for d in spark.DIGITS if isinstance(rb.get(d), str)]
+            present = [n for n in named if self.store.load_block(n) is not None]
+            if present:
+                return present
+        return [rules.ROOT] if self.store.load_block(rules.ROOT) is not None else []
+
     def do_GET(self):
         url = urlparse(self.path)
         if url.path == "/":
             return self._send(200, self.store.load_block("arrive"))
         if url.path == "/xstream":
             try:
-                with open(FACE, encoding="utf-8") as f:
+                with open(INTERFACE, encoding="utf-8") as f:
                     return self._send(200, f.read(), "text/html; charset=utf-8")
             except OSError:
                 return self._send(404, {"absent": "/xstream"})
@@ -237,13 +342,53 @@ class Commons(BaseHTTPRequestHandler):
             return self._send(200, block) if block is not None \
                 else self._send(404, {"absent": name})
         if url.path == "/gazetteer":                     # discovery: the whole name -> URL index (derived)
-            return self._send(200, discover.index(federate.loader(self.store), base=self._base()))
+            return self._send(200, discover.index(federate.loader(self.store), self._roots(), base=self._base()))
         if url.path == "/resolve":                       # discovery: name -> the URL(s) to fetch it
-            nm = (parse_qs(url.query).get("name") or [None])[0]
+            q = parse_qs(url.query)
+            nm = (q.get("name") or [None])[0]
             if not nm:
                 return self._send(400, {"error": "name required, e.g. /resolve?name=Sheffield"})
-            return self._send(200, {"name": nm,
-                "matches": discover.resolve(federate.loader(self.store), nm, base=self._base())})
+            matches = discover.resolve(federate.loader(self.store), nm, self._roots(), base=self._base())
+            # DNS-style delegation: on the user's query (delegate != 0) also ask peers'
+            # own resolvers, non-recursively (they answer &delegate=0 -- no loop), and
+            # merge. Each island stays authoritative for its own names.
+            if (q.get("delegate") or ["1"])[0] != "0":
+                seen = {(m.get("url"), m.get("walk")) for m in matches}
+                for m in federate.resolve_peers(nm):
+                    key = (m.get("url"), m.get("walk"))
+                    if key not in seen:
+                        seen.add(key)
+                        matches.append(m)
+            return self._send(200, {"name": nm, "matches": matches})
+        if url.path == "/frame":                         # engagement: stand at where/when/who -> the S*T*I moment
+            q = parse_qs(url.query)
+            where = (q.get("where") or [None])[0]
+            roots = self._roots()
+            if not where:
+                return self._send(400, {"error": "where required, e.g. /frame?where=Ceidio&who=david"})
+            if not roots:
+                return self._send(404, {"absent": "this biome carries no world to stand in"})
+            try:                                          # synth=False: return the bind PROMPT, no server-side LLM
+                fr = fold.frame(where, (q.get("when") or ["now"])[0], (q.get("who") or [""])[0],
+                                earth_loader=federate.loader(self.store), root=roots[0], synth=False)
+            except ValueError as e:
+                return self._send(404, {"error": str(e)})
+            return self._send(200, fr)
+        if url.path == "/social":                         # engagement: the I-fan folded -> the collective (1^9)
+            q = parse_qs(url.query)
+            where = (q.get("where") or [None])[0]
+            roots = self._roots()
+            if not where:
+                return self._send(400, {"error": "where required, e.g. /social?where=Ceidio"})
+            if not roots:
+                return self._send(404, {"absent": "this biome carries no world"})
+            mirror_only = (q.get("mirror") or ["0"])[0] not in ("0", "false", "")
+            try:
+                sf = fold.social_fold(where, mirror_only=mirror_only,
+                                      earth_loader=federate.loader(self.store), root=roots[0], synth=False)
+            except ValueError as e:
+                return self._send(404, {"error": str(e)})
+            return self._send(200, sf)
         return self._send(404, {"absent": url.path})
 
     def do_POST(self):
@@ -262,8 +407,17 @@ class Commons(BaseHTTPRequestHandler):
             if body.get("depart"):
                 self.relay.depart(frame, handle)
                 return self._send(200, {"ok": True, "departed": handle})
-            return self._send(200, self.relay.beat(
-                frame, handle, body.get("vapour", ""), body.get("face", "observer")))
+            face = body.get("face", "observer")
+            view = self.relay.beat(frame, handle, body.get("vapour", ""), face)
+            try:                                              # persist the STANDING the beat carries
+                roots = self._roots()                         # (handle/world/where/face); the vapour
+                located.situate(self.store, handle,           # stays ephemeral. best-effort, idempotent
+                                world=(body.get("world") or (roots[0] if roots else "")),  # (writes only
+                                face=face, where=frame, present=frame,    # on change), never breaks the
+                                island=self._base(), infra=self.headers.get("Host", ""))  # heartbeat. A
+            except Exception:                                 # multi-world client names its world; else
+                pass                                          # the island's root world is assumed.
+            return self._send(200, view)
         if url.path == DOOR:
             if "block" not in body:
                 return self._send(400, {"error": "a write names its block"})
@@ -291,13 +445,20 @@ class Commons(BaseHTTPRequestHandler):
         if method == "ping":
             return self._rpc(rid, {})
         if method == "tools/list":
-            return self._rpc(rid, {"tools": [TOOL]})
+            return self._rpc(rid, {"tools": [TOOL, PLAY_TOOL, MEET_TOOL]})
         if method == "tools/call":
             params = msg.get("params", {})
-            if params.get("name") != "spark":
-                return self._rpc_err(rid, -32602, "the commons carries one tool: spark")
+            name, args = params.get("name"), params.get("arguments", {})
             try:
-                res = run_spark(self.store, params.get("arguments", {}))
+                if name == "spark":
+                    res = run_spark(self.store, args)
+                elif name == "play":
+                    res = run_play(self.store, args)
+                elif name == "meet":
+                    res = run_meet(self.relay, args)         # the lens onto another agency -- no store
+                else:
+                    return self._rpc_err(rid, -32602,
+                                         "unknown tool: %s (this commons carries spark, play, and meet)" % name)
                 text = json.dumps(res, ensure_ascii=False, indent=1)
                 return self._rpc(rid, {"content": [{"type": "text", "text": text}]})
             except Exception as e:

@@ -173,7 +173,7 @@ Hold it as a biome-world block, **re-authored in 0-9** from nomad-bsp's `_`-keye
   Becomes the windowed kernel above. The `--watch` loop becomes either the
   single-resolver (the v1 fallback) or just the timing heartbeat.
 - `src/biome/world/mechanic.json` — grows verbs 3 (roll/skeleton) and reaims 4 (synthesise).
-- `src/biome/face.html` — submit/commit already write `liquid-<handle>` / a `resolve`
+- `src/biome/interface.html` — submit/commit already write `liquid-<handle>` / a `resolve`
   signal; in the windowed model **commit = a normal submit that may also trigger the
   due-window resolution**. `/xstream` is the **watch** surface (read scenes + spy + chronicle).
 - The door / relay / membrane — unchanged substrate.

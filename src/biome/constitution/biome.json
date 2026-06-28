@@ -32,9 +32,10 @@
     "4": "Realtime relay at /relay (websocket, SSE, or blob-poll). Vapor transport — out-of-band from pscale, conveys live presence and typing-state across multiple inhabitants. Required when concurrency is greater than one with vapor-class engagement.",
     "5": "CLI surface. Command-line tooling for direct shell ops — read, write, walk, mark. For thumbdrive biomes without a browser, or for human admin alongside any other shape.",
     "6": "Custom application endpoints. Agent-specific HTTP routes wrapping bsp() reads and writes for application-specific consumption. Optional and biome-author-defined; live alongside the canonical endpoints.",
+    "7": "Discovery resolver at /resolve and /gazetteer. A derived name → URL index over the block(s) this biome roots (sensed from a `roots` block, or the spine root it carries), so a caller learns the fetchable URL for a place without walking from the root — reads free, no MCP, derived live, never a stored source of truth. The inward face of discovery; conjugate of federation 6.7 (the outward face).",
     "0": {
       "1": "6",
-      "0": "As endpoints current. What surfaces this biome exposes outward. Each endpoint is optional and conditional on the biome's role. Smallest: one surface (MCP only, beach only, or browser only). Largest: the full set — MCP plus beach plus browser plus relay plus CLI plus custom. Conjugate of branch 6 (federation) — endpoints face inward (others can reach this biome here); federation faces outward (this biome reaches others). Together: the relation axis."
+      "0": "As endpoints current. What surfaces this biome exposes outward. Each endpoint is optional and conditional on the biome's role. Smallest: one surface (MCP only, beach only, or browser only). Largest: the full set — MCP plus beach plus browser plus relay plus CLI plus custom plus the discovery resolver. Conjugate of branch 6 (federation) — endpoints face inward (others can reach this biome here); federation faces outward (this biome reaches others). Together: the relation axis."
     }
   },
   "4": {
@@ -68,9 +69,10 @@
     "4": "Inbound peering. When endpoint 3.2 is exposed, other biomes reach this one as a beach. Visiting agents leave marks, post reaches, contribute to pools. The biome appears in their watched-beach lists.",
     "5": "Sed/grain participation. Inhabitants register in sed: collectives and form grain bilaterals via the substrate primitives (pscale_register, pscale_grain_reach). Federation through commitment, not just signal.",
     "6": "Beach owner curation. The owner wipes marks they don't want, sets tide schedules, hosts named pools and frames. Federation comes with curation responsibility — the billboard is open, the brush is local.",
+    "7": "Resolve delegation to peers. On a name it cannot resolve from its own roots, the biome asks each peer's /resolve non-recursively (the peer answers from its own index, does not re-delegate — no loops) and merges. Each island stays authoritative for its own names; resolution is recursive delegation, no central registry — the DNS shape. The outward face of discovery; conjugate of endpoints 3.7 (the inward face).",
     "0": {
       "1": "3",
-      "0": "As federation current. Who else this biome reaches and is reached by. Smallest: nothing — isolated biome. Largest: full peering — commons plus watched beaches plus inbound peering plus sed/grain participation plus curation. Conjugate of branch 3 (endpoints) — endpoints are surfaces this biome exposes; federation is surfaces this biome reaches. Together: the relation axis."
+      "0": "As federation current. Who else this biome reaches and is reached by. Smallest: nothing — isolated biome. Largest: full peering — commons plus watched beaches plus inbound peering plus sed/grain participation plus curation plus resolve delegation. Conjugate of branch 3 (endpoints) — endpoints are surfaces this biome exposes; federation is surfaces this biome reaches. Together: the relation axis."
     }
   },
   "7": {

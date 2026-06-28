@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>the Millstone — Track B</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; background: #f3ead9; color: #2a2118; font: 17px/1.6 Georgia, serif;
+         display: flex; justify-content: center; }
+  main { width: 100%; max-width: 640px; padding: 22px 20px 60px; }
+  h1 { font-size: 20px; letter-spacing: .03em; color: #7a4a17; margin: 0 0 2px; font-weight: normal; }
+  .sub { color: #6a5c44; font-size: 13px; margin-bottom: 18px; }
+  .sub b { color: #7a4a17; }
+  .card { background: #fffdf8; border: 1px solid #e0d4bb; border-radius: 8px; padding: 16px 18px; margin: 14px 0;
+          box-shadow: 0 1px 3px rgba(90,65,30,.07); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: #9a7f4f; margin-bottom: 7px; }
+  .sees { font-style: italic; color: #2a2118; }
+  .echo { color: #33271a; }
+  .verdict { color: #6a5c44; font-size: 14px; }
+  textarea { width: 100%; box-sizing: border-box; background: #fffdf8; color: #2a2118; border: 1px solid #c2ad84;
+             border-radius: 6px; padding: 10px; font: 16px/1.5 Georgia, serif; resize: vertical; min-height: 72px; }
+  textarea:focus { outline: none; border-color: #7a4a17; }
+  button { background: #7a4a17; color: #fdf4e3; border: 0; border-radius: 6px; padding: 10px 20px; font: 600 15px Georgia;
+           cursor: pointer; margin-top: 10px; }
+  button:disabled { opacity: .4; cursor: default; }
+  .wait { color: #6a5c44; font-style: italic; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 10px; margin: 0 4px 4px 0;
+          border: 1px solid #d2bf95; color: #6a5c44; background: #fbf6ec; }
+  .pill.in { border-color: #7a9a52; color: #496a22; background: #eef4e3; }
+  .pill.you { border-color: #7a4a17; color: #7a4a17; background: #f7eede; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">the Millstone — taproom</h1>
+  <div class="sub">you are <b id="who">…</b> · beat <b id="beat">–</b> · <span id="phase">…</span></div>
+  <div id="seatrow"></div>
+  <div id="stage"></div>
+</main>
+<script>
+const who = new URLSearchParams(location.search).get('who') || '';
+document.getElementById('who').textContent = who || '(no seat — add ?who=merchant)';
+let cur = null, busy = false;
+
+async function poll() {
+  if (busy) return;
+  try {
+    const s = await (await fetch('/state?who=' + encodeURIComponent(who))).json();
+    render(s);
+  } catch (e) { /* keep polling */ }
+}
+
+function seatRow(s) {
+  const row = document.getElementById('seatrow'); row.innerHTML = '';
+  s.seats.forEach(h => {
+    const d = document.createElement('span');
+    const inn = s.submitted.includes(h);
+    d.className = 'pill' + (inn ? ' in' : '') + (h === who ? ' you' : '');
+    const kind = s.humans.includes(h) ? 'human' : s.agents.includes(h) ? 'agent' : 'nhitl';
+    d.textContent = h + ' · ' + kind + (inn ? ' ✓' : '');
+    row.appendChild(d);
+  });
+}
+
+function render(s) {
+  document.getElementById('beat').textContent = s.beat;
+  document.getElementById('phase').textContent = s.phase;
+  seatRow(s);
+  const stage = document.getElementById('stage');
+  const key = s.phase + s.beat + s.your_submitted + (s.your_echo ? 'e' : '');
+  if (key === cur) return;            // avoid clobbering the textarea mid-typing
+  cur = key;
+  stage.innerHTML = '';
+
+  if (s.phase === 'open' && !s.your_submitted) {
+    if (!s.sees) { stage.innerHTML = '<div class="card wait">composing what you perceive…</div>'; cur = null; return; }
+    stage.innerHTML =
+      '<div class="card"><div class="label">what you perceive</div><div class="sees">' + esc(s.sees) + '</div></div>' +
+      '<div class="card"><div class="label">your move — first person</div>' +
+      '<textarea id="mv" placeholder="I …"></textarea><br><button id="go">submit</button></div>';
+    document.getElementById('go').onclick = submit;
+    document.getElementById('mv').focus();
+  } else if (s.phase === 'open' && s.your_submitted) {
+    stage.innerHTML = '<div class="card wait">your move is in. waiting for: ' + s.waiting.join(', ') + '…</div>';
+  } else if (s.phase === 'resolving') {
+    stage.innerHTML = '<div class="card wait">the beat resolves…</div>';
+  } else if (s.phase === 'resolved') {
+    // Players see only THEIR echo (aperture-safe). The raw shared verdict carries every
+    // seat's actual move/intent -> it would leak hidden play, so it is NOT shown here.
+    stage.innerHTML =
+      (s.your_echo ? '<div class="card"><div class="label">your beat</div><div class="echo">' + esc(s.your_echo) + '</div></div>'
+                   : '<div class="card wait">the beat settled.</div>') +
+      '<div class="card"><button id="nx">continue →</button></div>';
+    document.getElementById('nx').onclick = () => next(s.beat);
+  }
+}
+
+async function submit() {
+  const mv = document.getElementById('mv').value.trim();
+  if (!mv) return;
+  busy = true; document.getElementById('go').disabled = true;
+  await fetch('/submit', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({who, move: mv})});
+  busy = false; cur = null; poll();
+}
+async function next(beat) {
+  busy = true;
+  await fetch('/next', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({beat})});
+  busy = false; cur = null; poll();
+}
+function esc(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+poll();
+setInterval(poll, 2500);
+</script>
+</body>
+</html>

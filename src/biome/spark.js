@@ -36,6 +36,24 @@ export function voice(node) {                        // descend "0" to the first
   return typeof node === "string" ? node : null;
 }
 
+// the conformal read subset's named helpers — the interface (interface.html) imports
+// these directly to render the fold; the unified spark() is the primitive beneath.
+export function spindle(block, walk) {            // broad → specific down the walk (the telescope)
+  const out = [];
+  for (let i = 1; i <= walk.length; i++) {
+    const v = voice(descend(block, walk.slice(0, i)));
+    if (v) out.push(v);
+  }
+  return out;
+}
+
+export function ring(block, walk) {               // the digit children at the terminus
+  const node = descend(block, walk), out = [];
+  if (node && typeof node === "object")
+    for (const d of "123456789") if (d in node) { const v = voice(node[d]); if (v) out.push(v); }
+  return out;
+}
+
 export function floor(block) {                       // floor depth: "0"-steps from the root to the first string
   let n = 0, node = block;
   while (isObj(node)) {

@@ -34,11 +34,13 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "spark"))
+sys.path.insert(0, HERE)
 import spark
+import rules
 
 EARTH = os.path.join(HERE, "world", "earth")
-ROOT = "real-world-original"            # the cosmology root block
-ROOT_PSCALE = 11        # Sol sits at pscale +11 on the standard spine
+ROOT = rules.ROOT                # the cosmology root block (policy -- read from `spine`)
+ROOT_PSCALE = rules.ROOT_PSCALE  # the root's pscale (the solar system, +11 by default)
 FLOOR_PSCALE = 0        # the room -- the magnitude point
 
 
@@ -149,6 +151,35 @@ def find_prefix(target, loader=None, root=ROOT):
     return search(root, loader(root), [], {root})
 
 
+def _skip_zeros(node):
+    """Descend a node's structural 0-rungs (skipped scales) to the node that holds
+    its numbered children. Returns (host, zero_digits)."""
+    z = []
+    while (isinstance(node, dict) and not any(d in node for d in spark.DIGITS)
+           and isinstance(node.get("0"), dict)):
+        node, z = node["0"], z + ["0"]
+    return node, z
+
+
+def floor_path(block, loader=None):
+    """The in-block digit path from a block's root DOWN to its floor (the room),
+    descending structural 0-rungs and following the primary child chain. Appended
+    after find_prefix(block), it makes walk land on pscale 0 -- which is why the
+    descent must be DERIVED, not assumed flat: a block's 0-rung depth varies with
+    how many scales each step skips (spark.floor differs block to block)."""
+    loader = loader or fs_loader()
+    node, path = loader(block), []
+    while isinstance(node, dict):
+        host, z = _skip_zeros(node)
+        path += z
+        kids = [d for d in spark.DIGITS if d in host]
+        if not kids:
+            break                       # a voicing with no numbered child -- the floor
+        path.append(kids[0])
+        node = host[kids[0]]
+    return path
+
+
 # --- lock / absolute / localise: convention prefix <-> local suffix ---------
 
 def lock(place, loader=None, root=ROOT):
@@ -223,10 +254,10 @@ def to_walk(digits):
 # --- demonstration ----------------------------------------------------------
 
 HOMES = [
-    ("wales",           [1, 1, 1, 1],    "Ceidio, North Wales"),
-    ("west-midlands",   [1, 1, 1, 1],    "33 Birbarn Close, Sutton Coldfield"),
-    ("south-yorkshire", [1, 1, 1, 1],    "Coach House, 9 Machon Bank, Sheffield"),
-    ("montenegro",      [1, 1, 1, 1, 1], "Apartments Milic, Ulcinj"),
+    ("wales",           "Ceidio, North Wales"),
+    ("west-midlands",   "33 Birbarn Close, Sutton Coldfield"),
+    ("south-yorkshire", "Coach House, 9 Machon Bank, Sheffield"),
+    ("montenegro",      "Apartments Milic, Ulcinj"),
 ]
 
 
@@ -257,9 +288,9 @@ def demo():
 
     print("=" * 72)
     print("WALK FROM SOL TO EACH HOME (one address space, blocks stitched by leaves)")
-    for block, room, label in HOMES:
+    for block, label in HOMES:
         print("\n%s" % label)
-        addr = find_prefix(block, loader) + room
+        addr = find_prefix(block, loader) + floor_path(block, loader)
         res = _narrate(addr, loader)
         assert res["ok"] and res["pscale"] == 0, "room did not land on the floor!"
 
@@ -278,7 +309,7 @@ def demo():
               % (tail, gloss, to_address(full), res["pscale"], where))
 
     print("\n  TRUNCATE (the inverse): an absolute address, seen from the lock --")
-    room_addr = find_prefix("wales", loader) + [1, 1, 1, 1]
+    room_addr = find_prefix("wales", loader) + floor_path("wales", loader)
     print("    absolute %s  ->  local suffix '%s'  under Ceidio"
           % (to_address(room_addr), to_walk(localise(room_addr, L))))
     print("=" * 72)
