@@ -195,6 +195,34 @@ def _dice_spec(store, rules):
     return m.group(0) if m else None
 
 
+def _damage_spec(store, rules):
+    """The ruleset's damage dice, read from a `damage` node (e.g. nomad.4 = 'amount: 1d6').
+    Absent -> None -> no damage. A Designer adds the node to switch the HP mechanism on --
+    so health/damage is a ruleset feature, not hardwired in the engine."""
+    rb = _b(store, rules) if rules else None
+    node = spark.descend(rb, ["4"]) if isinstance(rb, dict) else None
+    text = " ".join(leaves(node)) if node is not None else ""
+    m = re.search(r"\d+\s*[dD]\s*\d+", text)
+    return m.group(0) if m else None
+
+
+def set_hp(store, handle, hp):
+    """Persist a character's hp into its shell (shell.2, the `hp:` stat) -- the one
+    mutable stat, written by the engine on a hit. Author-data on the character's own shell."""
+    sh = _b(store, "shell-" + handle)
+    stats = sh.get("2") if isinstance(sh, dict) else None
+    if not isinstance(stats, dict):
+        return
+    for d in DIGITS:
+        v = stats.get(d)
+        if isinstance(v, str) and v.split(":", 1)[0].strip() == "hp":
+            stats[d] = "hp:%d" % hp
+            break
+    else:
+        stats[_next(stats)] = "hp:%d" % hp
+    _save(store, "shell-" + handle, sh)
+
+
 def resolve(store, where, chars, rules="nomad"):
     """AUTHOR commit by the DESIGNER RULE -- mechanical (no LLM), the dice READ from the ruleset.
     Contesters vie by (stat-sum + a dice roll); ambient moves ([] stats) land. The roll is cast
@@ -218,6 +246,18 @@ def resolve(store, where, chars, rules="nomad"):
         ranked = sorted(contesters, key=lambda s: totals[s[0]], reverse=True)
         parts.append("%s prevails -- %s" % (ranked[0][0], ranked[0][1]))
         parts += ["%s's move is interrupted (%s)" % (h, m) for h, m in ranked[1:]]
+        dmg = _damage_spec(store, rules)               # designer rule: the loser takes a hit
+        if dmg:
+            hits = []
+            for h, _m in ranked[1:]:
+                before = chars[h]["stats"].get("hp", 10)
+                d, _rs = _roll(dmg)
+                after = before - d
+                chars[h]["stats"]["hp"] = after
+                set_hp(store, h, after)
+                hits.append("%s takes %d (hp %d->%d)%s" % (h, d, before, after, " -- DOWN" if after <= 0 else ""))
+            if hits:
+                parts.append("damage: " + "; ".join(hits))
     elif len(contesters) == 1:
         parts.append("%s acts unopposed -- %s" % contesters[0])
     parts += ["%s: %s" % (h, m) for h, m in ambient]
@@ -251,26 +291,34 @@ def seed(world=WORLD_DEFAULT, store=STORE_DEFAULT):
     shells = {
         "merchant": {"0": "The visiting merchant -- a southern trader far from home; tonight the dice run your way.",
                      "1": "purpose: palm the bent coin off the table and carry your luck south",
-                     "2": {"0": "nomad stats", "1": "sleight:5", "2": "caution:3", "3": "greed:7"},
+                     "2": {"0": "nomad stats", "1": "sleight:5", "2": "caution:3", "3": "greed:7", "4": "hp:9"},
                      "3": {"0": "seat at the taproom", "1": "spot:3", "2": "contest:sleight,caution"}},
         "watcher": {"0": "The hooded watcher -- a local who works the inn's crowds.",
                     "1": "purpose: stop the merchant's hand and keep the table's coin in play for your own lift",
-                    "2": {"0": "nomad stats", "1": "stealth:8", "2": "nerve:6", "3": "patience:7"},
+                    "2": {"0": "nomad stats", "1": "stealth:8", "2": "nerve:6", "3": "patience:7", "4": "hp:11"},
                     "3": {"0": "seat at the taproom", "1": "spot:4", "2": "contest:stealth,nerve"}},
         "keeper": {"0": "The keeper -- a fat night's takings if the dice don't turn to knives.",
                    "1": "purpose: keep the night profitable and the peace; watch the merchant's purse, the hooded one, and your own bent-coin lure",
-                   "2": {"0": "nomad stats", "1": "sharp:6", "2": "authority:5"},
+                   "2": {"0": "nomad stats", "1": "sharp:6", "2": "authority:5", "3": "hp:10"},
                    "3": {"0": "seat at the taproom", "1": "spot:2", "2": "contest:"}},
         "regular": {"0": "The old regular -- your bench, your name once carved in the oak and scratched out.",
                     "1": "purpose: hold your bench and your peace, and watch the road-folk's game play out as you know it will",
-                    "2": {"0": "nomad stats", "1": "wit:5", "2": "patience:6"},
+                    "2": {"0": "nomad stats", "1": "wit:5", "2": "patience:6", "3": "hp:8"},
                     "3": {"0": "seat at the taproom", "1": "spot:1", "2": "contest:"}},
     }
     for h, b in shells.items():
         _save(store, "shell-" + h, b)
-    _save(store, "rules", {"0": "Contested covert action at the table -- a NOMAD reckoning.",
-                           "1": "each actor scores their relevant stats; higher prevails; the loser's move is "
-                                "interrupted; a tie favours the defender."})
+    # the ruleset (GRIT reads it; a Designer edits it). dice make the verdict vary; a
+    # `damage` node is deliberately absent here -- the Designer adds it to switch HP on.
+    _save(store, "nomad", {
+        "0": "NOMAD -- a light stat-contest game-set; covert actions at a table, a quick reckoning.",
+        "1": {"0": "stats", "1": "sleight", "2": "caution", "3": "stealth", "4": "nerve", "5": "wit", "6": "authority", "7": "hp"},
+        "2": {"0": "resolution -- a contested action",
+              "1": "score: sum your relevant stats, then add one roll of the dice",
+              "2": "outcome: higher total prevails; a tie favours the defender; uncontested moves land",
+              "3": "dice: 1d10"},
+        "3": {"0": "trigger", "1": "n-threshold: all present seats", "2": "or time-window: 90s after first submit",
+              "3": "or commit: a designated commit resolves now"}})
     clear_window(store)
     _save(store, "scene", {"0": "resolved beats at the taproom"})
     return store

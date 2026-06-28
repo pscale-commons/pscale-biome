@@ -151,16 +151,7 @@ def play(store, handle, world="upperton", where=None, move=None, account=None, p
 # --- seed: scene's world + shells, plus the NOMAD ruleset block ----------------
 def seed(store=scene.STORE_DEFAULT):
     store = scene._as_store(store)
-    scene.seed(store=store)
-    scene._save(store, "nomad", {
-        "0": "NOMAD -- a light stat-contest game-set; covert actions at a table, a quick reckoning.",
-        "1": {"0": "stats", "1": "sleight", "2": "caution", "3": "stealth", "4": "nerve", "5": "wit", "6": "authority"},
-        "2": {"0": "resolution -- a contested action",
-              "1": "score: sum your relevant stats, then add one roll of the dice",
-              "2": "outcome: higher total prevails; a tie favours the defender; uncontested moves land",
-              "3": "dice: 1d10"},
-        "3": {"0": "trigger", "1": "n-threshold: all present seats", "2": "or time-window: 90s after first submit",
-              "3": "or commit: a designated commit resolves now"}})
+    scene.seed(store=store)   # seeds the world triad, the seated shells (with hp), and the nomad ruleset
     return store
 
 
